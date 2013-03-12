@@ -243,7 +243,7 @@ atspre_g0string2uint_size
   (atstype_string inp) { return strtoul((char*)inp, NULL, 10) ; }
 //
 #atscode_separator_for_C()
-
+//
 %{
 local
 //
@@ -839,8 +839,7 @@ val fopr = (
   | _ => opr
 ) : string // end of [val]
 //
-val ent = sprintf
-("\
+val ent = sprintf ("\
 ATSinline()
 atstype_%s
 atspre_g0uint_%s_%s
@@ -1188,6 +1187,7 @@ atspre_fprint_size
 \#define atspre_g1uint_add_uint atspre_g0uint_add_uint
 \#define atspre_g1uint_sub_uint atspre_g0uint_sub_uint
 \#define atspre_g1uint_mul_uint atspre_g0uint_mul_uint
+\#define atspre_g1uint_mod_uint atspre_g0uint_mod_uint
 \#define atspre_g1uint_div_uint atspre_g0uint_div_uint
 \#define atspre_g1uint_mod_uint atspre_g0uint_mod_uint
 \#define atspre_g1uint_isgtz_uint atspre_g0uint_isgtz_uint

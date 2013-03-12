@@ -86,6 +86,10 @@ fun intinf_get_int (n: intinf):<> int
 
 (* ****** ****** *)
 
+fun intinf_get_string (n: intinf):<> string = "intinf_get_string"
+
+(* ****** ****** *)
+
 fun lt_intinf_int (x1: intinf, x2: int):<> bool
 overload < with lt_intinf_int
 fun lte_intinf_int (x1: intinf, x2: int):<> bool

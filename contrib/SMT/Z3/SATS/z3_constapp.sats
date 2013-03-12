@@ -30,7 +30,7 @@
 (*
 ** Start Time: April, 2013
 **
-** Author: William Blair 
+** Author: William Blair
 ** Authoremail: wdblair AT bu DOT edu
 **
 ** Author: Hongwei Xi

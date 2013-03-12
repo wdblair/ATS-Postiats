@@ -1,0 +1,10 @@
+# This is a temporary makefile for building the part of Postiats written
+# in Postiats. Over time, it should just become its own CMake project.
+
+all: libpostiats.a
+
+libpostiats.a: patsopt-boot
+	echo "Nothing to bootstrap yet!"
+
+patsopt-boot:
+	cd bootstrap0/BUILD && cmake ../ && make -j4

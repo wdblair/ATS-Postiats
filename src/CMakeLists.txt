@@ -22,9 +22,9 @@ FIND_PACKAGE (ATS REQUIRED)
 IF (NOT ATS_FOUND)
 MESSAGE (FATAL_ERROR "ATS is not found!")
 ENDIF ()
-
-ATS_COMPILE (
-POSTIATS_C_TARGET
+      
+SET (
+    SOURCES
 pats_params.hats
 pats_error.sats
 pats_error.dats
@@ -263,7 +263,39 @@ pats_ccomp_main.dats
 pats_comarg.sats
 pats_comarg.dats
 pats_main.dats
+pats_constraint3_smt.dats
+pats_smt.sats
+)
+
+### Setup for SMT Solvers
+
+# The location of yices and Z3 should be discovered automatically, but
+# assume it's in a standard place now.
+
+SET(SMT_INCLUDE "none" CACHE STRING "The SMT Solver you'd like to use, if any.")
+SET(SMT_LIB "")
+
+IF( SMT_INCLUDE STREQUAL "none")
+      CONFIGURE_FILE(pats_constraint3_solve_smt_none.hats ${CMAKE_SOURCE_DIR}/pats_constraint3_solve_smt.hats)
+      # Nothing
+ELSEIF( SMT_INCLUDE STREQUAL "z3")
+      SET(SMT_LIB z3)
+      LIST(APPEND SOURCES pats_smt_z3.dats)
+      CONFIGURE_FILE(pats_constraint3_solve_smt_z3.hats ${CMAKE_SOURCE_DIR}/pats_constraint3_solve_smt.hats)
+ELSEIF( SMT_INCLUDE STREQUAL "yices")
+      SET(SMT_LIB yices)
+      LIST(APPEND SOURCES pats_smt_yices.dats)
+      CONFIGURE_FILE(pats_constraint3_solve_smt_yices.hats ${CMAKE_SOURCE_DIR}/pats_constraint3_solve_smt.hats)
+ENDIF(SMT_INCLUDE STREQUAL "none")
+
+ATS_COMPILE (
+            POSTIATS_C_TARGET
+            ${SOURCES}
 ) # end of [ATS_COMPILE]
+
+######
+
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 
 ######
 
@@ -271,6 +303,6 @@ ADD_EXECUTABLE (
 patsopt ${POSTIATS_C_TARGET}
 ) # end of [ADD_EXECUTABLE]
 
-TARGET_LINK_LIBRARIES (patsopt gmp)
+TARGET_LINK_LIBRARIES (patsopt gmp ${SMT_LIB} rt)
 
 ###### end of [CMakeLists.txt] ######

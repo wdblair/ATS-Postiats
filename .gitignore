@@ -22,7 +22,7 @@ patscc_env.sh
 patsopt_env.sh
 
 #
-# The compiler for POSTIATS 
+# The compiler for POSTIATS
 #
 src/patsopt
 src/.depend
@@ -32,6 +32,8 @@ src/Makefile_atxt.txt
 src/TAGS
 src/tags
 src/TAGATS
+src/pats_contraint3_solve_smt.h
+src/pats_constraint3_solve_smt.hats
 
 bin/patscc
 bin/patsopt
@@ -48,6 +50,13 @@ src/BUILD/*
 
 utils/atsyntax/HTML
 utils/atsyntax/pats2xhtml
+
+#
+# building patsopt through Postiats
+src/bootstrap0/BUILD/*
+src/bootstrap0/patsopt-boot
+
+#
 
 #
 # ATSHOME/ccomp

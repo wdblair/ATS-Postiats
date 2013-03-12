@@ -49,7 +49,8 @@ staload UT = "./pats_utils.sats"
 (* ****** ****** *)
 
 staload INT = "./pats_intinf.sats"
-stadef intinf = $INT.intinf // integers of infinite precision
+staload INT1 = "./pats_intinf.sats"
+stadef intinf = $INT1.intinf // integers of infinite precision
 
 (* ****** ****** *)
 

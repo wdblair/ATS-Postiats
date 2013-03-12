@@ -69,7 +69,15 @@ solve each Z3_solver_check from scratch.
 *)
 fun Z3_mk_solver_from_tactic (ctx: !Z3_context, tactic: !Z3_tactic): Z3_solver
 
-(* ****** ****** *)
+fun Z3_mk_solver
+(
+  ctx: !Z3_context
+): Z3_solver = "mac#%" // end of [Z3_mk_solver]
+
+fun Z3_mk_solver_from_tactic
+(
+  ctx: !Z3_context, t: !Z3_tactic
+): Z3_solver = "mac#%" // end of [Z3_mk_solver_from_tactic]
 
 fun Z3_mk_solver_get_help (ctx: !Z3_context, solver: !Z3_solver): vStrptr1
 
@@ -91,6 +99,23 @@ Z3_solver_get_model{l:addr}
 (
   minus (Z3_solver l, Z3_model l2) | Z3_model l2
 ) // end of [Z3_solver_get_model]
+
+fun Z3_mk_solver_from_tactic
+(
+  ctx: !Z3_context, t: !Z3_tactic
+): Z3_solver = "mac#%" // end of [Z3_mk_solver_from_tactic]
+
+(* ****** ****** *)
+
+extern fun Z3_solver_get_num_scopes (
+  _: context, _: z3_solver
+): uint = "mac#%"
+
+(* ****** ****** *)
+
+extern fun Z3_solver_get_num_scopes (
+  _: context, _: z3_solver
+): uint = "mac#%"
 
 (* ****** ****** *)
 
