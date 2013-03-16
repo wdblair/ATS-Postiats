@@ -1,20 +1,24 @@
 staload "SATS/main.sats"
 staload "SATS/io.sats"
+staload "SATS/delay.sats"
 
 staload "DATS/iom328p.dats"
 
-//This should be automatically included from io.sats
+#define ATS_DYNLOADFLAG 0
+
+//These should be automatically included from the sats files.
 %{^
 #include "CATS/io.cats"
+#include <util/delay.h>
 %}
 
 stadef m = atmega328p
-
-#define ATS_DYNLOADFLAG 0
 
 implement setup() = {
   val _ = setbits(DDRB<m>(), DDB3)
 }
 
-implement event () = ()
-
+implement event () = {
+  val _ = flipbits(PORTB<m>(), PORTB3)
+  val _ = _delay_ms(250.0)
+}
