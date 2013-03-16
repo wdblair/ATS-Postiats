@@ -1,3 +1,3 @@
-fun setup() : void = "setup"
+fun setup(): void = "setup"
 
-fun event() : void = "event"
+fun event(): void = "event"

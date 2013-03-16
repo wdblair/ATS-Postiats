@@ -28,7 +28,7 @@ Eventually, we'd like to make a case for this library
 to replace avr-libc but for now it uses some of its
 features.
 
-An AVR application consists of two functions, application
+An AVR application in ATS consists of two functions, application
 setup and an event handler. Setup allows you to initialize
 parts of the device you plan to use, while the event handler
 is called within a loop that never terminates.
