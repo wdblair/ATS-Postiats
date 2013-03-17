@@ -243,12 +243,9 @@ fun {m:mcu} TWDR (): register(m, 8)
 
 fun {m:mcu} TWCR (): register(m, 8)
 
-
 fun {m:mcu} TWAMR (): register(m, 8)
 
-
 fun {m:mcu} UCSR0A (): register(m, 8)
-
 
 fun {m:mcu} UCSR0B (): register(m, 8)
 
@@ -259,6 +256,12 @@ fun {m:mcu} UBRR0L (): register(m, 8)
 fun {m:mcu} UBRR0H (): register(m, 8)
 
 fun {m:mcu} UDR0 (): register(m, 8)
+
+(* ****** ****** *)
+
+//Interrupt Service Routines
+
+fun {m:mcu} TIMER0_OVF (): void
 
 (* ****** ****** *)
 
