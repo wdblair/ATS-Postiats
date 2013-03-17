@@ -718,3 +718,5 @@ macdef FUSE_MEMORY_SIZE = $extval(int 3, "3")
 macdef SIGNATURE_0 = $extval(int 0, "0")
 macdef SIGNATURE_1 = $extval(int 0, "0")
 macdef SIGNATURE_2 = $extval(int 0, "0")
+
+implement TIMER0_OVF<atmega328p>() = ()
