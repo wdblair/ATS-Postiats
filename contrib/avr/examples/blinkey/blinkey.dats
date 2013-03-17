@@ -6,12 +6,6 @@ staload "DATS/iom328p.dats"
 
 #define ATS_DYNLOADFLAG 0
 
-//These should be automatically included from the sats files.
-%{^
-#include "CATS/io.cats"
-#include <util/delay.h>
-%}
-
 stadef m = atmega328p
 
 implement setup() = {
