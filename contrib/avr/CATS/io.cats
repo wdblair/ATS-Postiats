@@ -7,8 +7,9 @@
 #define _SFR_ADDR_IO8(io_addr)  _MMIO_ADDR_BYTE((io_addr) + __SFR_OFFSET)
 #define _SFR_ADDR_IO16(io_addr) _MMIO_ADDR_WORD((io_addr) + __SFR_OFFSET)
 
-#define avr_libats_setbits0_8bit(reg, b0) (*(volatile uint8_t*)reg |= (_BV(b0)))
+#define avr_libats_setval_8bit(reg, val) (*(volatile uint8_t*)reg = val)
 
+#define avr_libats_setbits0_8bit(reg, b0) (*(volatile uint8_t*)reg |= (_BV(b0)))
 
 #define avr_libats_setbits1_8bit(reg, b0, b1) (*(volatile uint8_t*)reg |= (_BV(b0) | _BV(b1)))
 
