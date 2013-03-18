@@ -261,11 +261,19 @@ fun {m:mcu} UDR0 (): register(m, 8)
 
 //Interrupt Service Routines
 
-fun {m:mcu} TIMER0_OVF (): void
+fun {m:mcu} TIMER0_OVF (): void = "TIMER0_OVF"
 
 (* ****** ****** *)
 
 //Bit manipulation routines
+
+symintr setval
+
+fun setval_8bit {m:mcu} (
+  r: register(m, 8), value: natLt(256)
+): void = "mac#avr_libats_setval_8bit"
+
+overload setval with setval_8bit
 
 symintr setbits
 
