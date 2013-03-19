@@ -98,7 +98,7 @@ def make_pin_sats file
 end
 
 def make_pin_dats file
-  reg_tmpl  = "implement __name__<atmega328p>() = $extval(register(atmega328p, 8), \"_SFR_ADDR_IO8(__address__)\")"
+  reg_tmpl  = "implement __name__<atmega328p>() = $extval(register(atmega328p, 8), \"_SFR_ADDR___type__8(__address__)\")"
   pin_tmpl = 'macdef __name__ = $extval(int __value__, "__value__")'
   
   isreg = false
@@ -108,7 +108,7 @@ def make_pin_dats file
       file.puts(pin_tmpl.gsub(/__name__/, m[1]).gsub(/__value__/, m[2]))
     #registers
     elsif n = /^#define ([A-Z0-9_]+) _SFR_(MEM|IO)8\((0[xX][0-9a-fA-f]+)\)/.match(line)
-      res = reg_tmpl.gsub(/__name__/, n[1]).gsub(/__address__/, n[3])
+      res = reg_tmpl.gsub(/__name__/, n[1]).gsub(/__type__/, n[2]).gsub(/__address__/, n[3])
       file.puts(res)
       isreg = true
     #add an extra newline after we hit all of a register's pins.
