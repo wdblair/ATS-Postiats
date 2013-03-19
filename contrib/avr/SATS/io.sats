@@ -1,6 +1,6 @@
 (*
-  All template definitions for IO ports are located in this
-  file.
+  All template definitions for IO ports, interrupt service routines, and
+  such.
 *)
 
 %{#
@@ -12,6 +12,10 @@ sortdef mcu = tkind
 stacst atmega328p : mcu
 
 abst@ype register(mcu, width:int) = $extype "volatile void *"
+
+fun value {m: mcu} (
+  r: register(m, 8)
+): uint8 = "mac#"
 
 fun {m:mcu} PINB (): register(m, 8)
 

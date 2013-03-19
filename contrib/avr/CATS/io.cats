@@ -1,8 +1,13 @@
 #include <avr/sfr_defs.h>
+#include <avr/common.h>
 
 #define _MMIO_ADDR_BYTE(mem_addr) ((volatile uint8_t*)mem_addr)
 #define _MMIO_ADDR_WORD(mem_addr) ((volatile uint16_t*)mem_addr)
 #define _MMIO_ADDR_DWORD(mem_addr) ((volatile uint32_t*)mem_addr)
+
+#define _SFR_ADDR_MEM8(mem_addr) _MMIO_ADDR_BYTE(mem_addr)
+#define _SFR_ADDR_MEM16(mem_addr) _MMIO_ADDR_WORD(mem_addr)
+#define _SFR_ADDR_MEM32(mem_addr) _MMIO_ADDR_DWORD(mem_addr)
 
 #define _SFR_ADDR_IO8(io_addr)  _MMIO_ADDR_BYTE((io_addr) + __SFR_OFFSET)
 #define _SFR_ADDR_IO16(io_addr) _MMIO_ADDR_WORD((io_addr) + __SFR_OFFSET)

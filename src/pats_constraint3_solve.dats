@@ -645,10 +645,11 @@ end // end of [c3nstr_solve_itmlst_disj]
 
 implement
 c3nstr_solve (c3t) = let
+(*
   val () = begin
     print "c3nstr_solve: c3t = "; print_c3nstr(c3t); print_newline ()
   end // end of [val]
-  
+*)  
   var env: s2vbcfenv = s2vbcfenv_nil ()
 //
 // HX-2010-09-09: this is needed for solving top-level constraints!!!

@@ -22,15 +22,17 @@ fun global_new {v:view} {l:addr} (
 
 absprop viewlock(v:view)
 
-praxi viewlock_new {v:view} (
-  pf: v
-) : viewlock(v)
+praxi viewlock_new {v:view} (): viewlock(v)
 
 praxi viewlock{v:view} (
   v: viewlock(v)
 ): v
 
-typedef viewkey(v:view, l:addr) = @{
+praxi viewunlock {v:view} (
+  v: viewlock(v), pf: v
+): void
+
+abst@ype viewkey(v:view, l:addr) = @{
   lock= viewlock(v),
   p = ptr l
 }
