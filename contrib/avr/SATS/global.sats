@@ -18,7 +18,7 @@ viewtypedef global(v:view, l:addr) = @{
 
 fun global_new {v:view} {l:addr} (
   pf: v | p: ptr l
-) :<> global(v, l) = "mac#global_new"
+):<> global(v, l) = "mac#global_new"
 
 absprop viewlock(v:view)
 
@@ -42,7 +42,7 @@ abst@ype viewkey(v:view, l:addr) = @{
   around static global variables
   defined in C.
 *)
-fun viewkey_make {a:t@ype}{l:addr} (
+fun viewkey_make {a:t@ype} {l:addr} (
   p: ptr l
 ): viewkey(a @ l, l) = "mac#"
 
@@ -52,34 +52,28 @@ praxi global_return {v:view} {l:addr} (
 
 fun global_get {v:view} {l:addr} (
   g: viewkey(v, l)
-) : (v | ptr l) = "mac#global_get"
+): (v | ptr l) = "mac#global_get"
 
 (* Locking Proof Functions (For Variables Shared with ISRs) *)
 
 absprop interrupt_lock (view)
 
-typedef sharedkey(v:view, l:addr) = @{
+absprop no_interrupts (int)
+
+viewtypedef sharedkey(v:view, l:addr) = @{
   lock= interrupt_lock(v),
   p = ptr l
 }
-
-praxi lock_interrupt {v:view} (
-  pf: !INT_CLEAR, g: interrupt_lock(v)
-) : (v)
-
-praxi unlock_interrupt {v:view} (
-  pf: !INT_CLEAR, g: interrupt_lock(v), pf: v
-) : void
 
 praxi interrupt_lock_new {v:view} (
   pf: v
 ): interrupt_lock(v)
 
-fun lock {v:view} {l:addr} (
-  pf: !INT_CLEAR | g: sharedkey(v, l)
-): (v | ptr l)  = "mac#global_shared_get"
+fun lock {v:view} {l:addr} {id:interrupt} (
+  pf: !INT_CLEAR(id) | g: sharedkey(v, l)
+): (no_interrupts(id), v | ptr l)  = "mac#global_shared_get"
 
-praxi unlock {v:view} {l:addr} (
-  pf: !INT_CLEAR, sh: sharedkey(v,l), pf: v , p: ptr l
+praxi unlock {v:view} {l:addr} {n:int} (
+  pf: no_interrupts(n), locked: !INT_CLEAR(n), 
+  sh: sharedkey(v, l), pf: v , p: ptr l
 ): void = "mac#global_shared_get"
-
