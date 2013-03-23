@@ -1,8 +1,7 @@
 (* 
-  An interface for global variables. Also contains functionality
-  for sharing data between AVR code and ISRs without resorting to
-  classifying variables as volatile.
+  An interface for global variables.
 *)
+
 %{#
 #include "CATS/global.cats"
 %}
@@ -58,8 +57,6 @@ fun global_get {v:view} {l:addr} (
 
 absprop interrupt_lock (view)
 
-absprop atomic (int)
-
 viewtypedef sharedkey(v:view, l:addr) = @{
   lock= interrupt_lock(v),
   p = ptr l
@@ -69,11 +66,18 @@ praxi interrupt_lock_new {v:view} (
   pf: v
 ): interrupt_lock(v)
 
-fun lock {v:view} {l:addr} {id:interrupt} (
-  pf: !INT_CLEAR(id) | g: sharedkey(v, l)
-): (atomic(id), v | ptr l)  = "mac#global_shared_get"
+symintr lock
 
-praxi unlock {v:view} {l:addr} {n:int} (
-  pf: atomic(n), locked: !INT_CLEAR(n), 
-  sh: sharedkey(v, l), pf: v , p: ptr l
-): void = "mac#global_shared_get"
+fun lock_interrupts_cleared {v:view} {l:addr} (
+  pf: INT_CLEAR | g: sharedkey(v, l)
+): (atomic, v | ptr l) = "mac#global_shared_get"
+
+overload lock with lock_interrupts_cleared
+
+fun unlocked {v:view} {l:addr} (
+  pf: !atomic | g: sharedkey(v, l)
+): (vbox v | ptr l)
+
+praxi unlock {v:view} {l:addr} (
+  pf: atomic, sh: sharedkey(v, l), pf: v
+): (INT_CLEAR | void) = "mac#global_shared_get"
