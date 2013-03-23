@@ -11,7 +11,7 @@ staload "DATS/iom328p.dats"
 
 stadef p = atmega328p
 
-implement setup () = {
+fun setup () : void = {
   val () = setbits(TCCR2A<p>(), WGM20, WGM21, COM2A1)
   val () = setbits(TCCR2B<p>(), CS20)
   val () = setbits(DDRB<p>(), DDB3)
