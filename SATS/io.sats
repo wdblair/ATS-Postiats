@@ -17,7 +17,7 @@ abst@ype register(mcu, width:int) = $extype "volatile void *"
 
 fun value {m: mcu} (
   r: register(m, 8)
-): uint8 = "mac#"
+): uint8 = "mac#avr_libats_value_8bit"
 
 macdef F_CPU = $extval([f:pos] ulint f, "F_CPU")
 
@@ -273,6 +273,12 @@ fun TIMER0_OVF_vect (pf: !atomic | (**)): void = "TIMER0_OVF_vect"
 
 (* ****** ****** *)
 
+fun loop_until_bit_is_set {m:mcu} (
+  _: register(m, 8), n: natLt(8)
+): void = "mac#loop_until_bit_is_set_8bit"
+
+(* ****** ****** *)
+
 //Bit manipulation routines
 
 symintr setval
@@ -282,6 +288,12 @@ fun setval_8bit {m:mcu} (
 ): void = "mac#avr_libats_setval_8bit"
 
 overload setval with setval_8bit
+
+fun setval_16bit {m:mcu} (
+  high: register(m, 8), low: register(m, 8), value: uint
+): void = "mac#avr_libats_setval_16bit"
+
+overload setval with setval_16bit
 
 symintr setbits
 

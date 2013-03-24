@@ -5,7 +5,7 @@ all: timer
 AVRPATH= $(PATSHOME)/contrib/avr
 
 timer: timer_dats.c
-	avr-gcc -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Os -I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
+	avr-gcc -std=c99 -DF_CPU=$(F_CPU) -Os -mmcu=$(MCU)  -I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
 	-I $(AVRPATH) -L $(AVRPATH)/lib -L $(AVRPATH)/lib/$(MCU) -o $@ $< -l$(MCU)
 	avr-size $@
 	avr-objcopy -O ihex $@ ~/Dropbox/$@.hex
