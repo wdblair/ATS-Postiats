@@ -1,21 +1,22 @@
 MCU=atmega328p
 F_CPU=16000000UL
-all: blinkey
+all: timer
 
 AVRPATH= $(PATSHOME)/contrib/avr
 
-blinkey: blinkey_dats.c
-	avr-gcc -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Os -I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime -I $(AVRPATH) -o $@ $<
+timer: timer_dats.c
+	avr-gcc -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Os -I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
+	-I $(AVRPATH) -L $(AVRPATH)/lib -L $(AVRPATH)/lib/$(MCU) -o $@ $< -l$(MCU)
 	avr-size $@
 	avr-objcopy -O ihex $@ ~/Dropbox/$@.hex
 
-typecheck: blinkey.dats
+typecheck: timer.dats
 	patsopt -IATS $(PATSHOME)/contrib/avr --typecheck --dynamic $<
 
-blinkey_dats.c: blinkey.dats
+timer_dats.c: timer.dats
 	patsopt -IATS $(PATSHOME)/contrib/avr --output $@ --dynamic $<
 
 .phony: clean
 
 clean:
-	rm *.c blinkey
+	rm *.c timer
