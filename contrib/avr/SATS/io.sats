@@ -19,7 +19,7 @@ fun value {m: mcu} (
   r: register(m, 8)
 ): uint8 = "mac#"
 
-macdef F_CPU = $extval(ulint, "F_CPU")
+macdef F_CPU = $extval([f:pos] ulint f, "F_CPU")
 
 fun {m:mcu} PINB (): register(m, 8)
 

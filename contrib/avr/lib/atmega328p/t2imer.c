@@ -1,3 +1,3 @@
 #include "CATS/timer.cats"
 
-hardware_timer_t t2imer = {0, 0};
+hardware_timer_t t2imer = {1, 0};
