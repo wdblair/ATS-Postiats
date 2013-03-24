@@ -15,6 +15,4 @@ hardware_timer_t t1imer;
 extern
 hardware_timer_t t2imer;
 
-
-
 #endif
