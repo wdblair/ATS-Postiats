@@ -908,7 +908,7 @@ fun{tk:tk}
 g1uint_div2 {i,j:int | j > 0}
 (
   x: g1uint (tk, i), y: g1uint (tk, j)
-):<> [q,r:int | 0 <= r; r < j] (DIVMOD (i, j, q, r) | g1uint (tk, q))
+) :<> [q,r:int | 0 <= r; r < j] (DIVMOD (i, j, q, r) | g1uint (tk, q))
 
 typedef
 g1uint_mod_type (tk:tk) =
