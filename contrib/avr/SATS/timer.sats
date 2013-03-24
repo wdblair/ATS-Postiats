@@ -21,10 +21,10 @@ stacst timer2 : timer
 
 //Templates for interacting with timers
 
-fun {t:timer} {m:mcu} get_timer(pf: !atomic | (* *)):
-   [l:addr] ([ticks:nat] hardware_timer(ticks) @ l | ptr l)
+fun {t:timer} {m:mcu} get_timer (pf: !atomic | (* *)):
+   [l:addr] ([n:pos] hardware_timer(n) @ l | ptr l)
 
-praxi return_timer {t:timer} {m:mcu} {l:addr} {n:nat}(
+praxi return_timer {t:timer} {m:mcu} {l:addr} {n:pos} (
   atom: !atomic, pf: hardware_timer(n) @ l
 ): void
 
@@ -37,12 +37,12 @@ praxi return_timer {t:timer} {m:mcu} {l:addr} {n:nat}(
 *)
 fun {t:timer} {m:mcu} delayed_task_work(pf: !atomic | (* none *)): bool
 
-fun {t:timer} {m:mcu} delayed_task_configure_timer {n:nat} (
-  t: &hardware_timer(n) >> hardware_timer(n'), period: ulint
-): #[n':nat] void
+fun {t:timer} {m:mcu} delayed_task_configure_timer {n:nat} {p:pos} (
+  t: &hardware_timer(n) >> hardware_timer(n'), period: uint p
+): #[n':pos] void
 
-fun {t:timer} {m:mcu} delayed_task (
-  period: ulint
+fun {t:timer} {m:mcu} delayed_task {p:pos} (
+  period: uint p
 ): void
 
 (*

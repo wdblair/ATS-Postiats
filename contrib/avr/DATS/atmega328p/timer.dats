@@ -22,13 +22,13 @@ declare_isr(TIMER0_OVF_vect);
   ulint to uint1 using the g1int functions.
 *)
 extern
-castfn uint1_of_ulint (_: ulint): [n:nat] uint n
+castfn uint1_of_ulint {p:int} (_: ulint p): uint p
 
 local
   stacst timer0_addr : addr
 
   extern
-  prval pf_locked : interrupt_lock([n:nat] hardware_timer(n) @ timer0_addr)
+  prval pf_locked : interrupt_lock([n:pos] hardware_timer(n) @ timer0_addr)
   
   macdef t0imer = $extval(ptr timer0_addr, "&t0imer")
 in
@@ -37,10 +37,11 @@ in
     (locked_pf(pf, pf_locked) | t0imer)
     
   implement delayed_task_configure_timer<timer0><m> (timer, period) = {
+    val threshold = 
+      uint1_of_ulint(F_CPU / (1024ul * 256ul)) * period
+    val () = assert(threshold > 0)
     val () = begin
-      timer.threshold := uint1_of_ulint(
-        (F_CPU / (1024ul * 256ul)) * period
-      );
+      timer.threshold := threshold;
       timer.ticks := 0u;
       //Configure the registers
       clearbits(TCCR0A<m>(), WGM01, WGM00);
@@ -49,5 +50,4 @@ in
       setbits(TIMSK0<m>(), TOIE0);
     end
   }
-  
 end
