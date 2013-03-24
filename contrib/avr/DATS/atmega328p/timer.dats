@@ -38,7 +38,9 @@ in
     
   implement delayed_task_configure_timer<timer0><m> (timer, period) = {
     val () = begin
-      timer.threshold := uint1_of_ulint((F_CPU / (1024ul * 256ul)) * period);
+      timer.threshold := uint1_of_ulint(
+        (F_CPU / (1024ul * 256ul)) * period
+      );
       timer.ticks := 0u;
       //Configure the registers
       clearbits(TCCR0A<m>(), WGM01, WGM00);
