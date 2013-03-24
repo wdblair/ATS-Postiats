@@ -26,3 +26,7 @@ fun sei (
 fun save_sreg (): saved_sreg = "mac#"
 
 (* ****** ****** *)
+
+fun main_interrupts (
+  pf: !INT_CLEAR | (**)
+): int = "main"
