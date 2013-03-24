@@ -7,6 +7,7 @@
 %}
 
 staload "SATS/interrupt.sats"
+staload "SATS/atomic.sats"
 
 viewtypedef global(v:view, l:addr) = @{
   at= v,
@@ -45,13 +46,9 @@ fun viewkey_make {a:t@ype} {l:addr} (
   p: ptr l
 ): viewkey(a @ l, l) = "mac#"
 
-praxi global_return {v:view} {l:addr} (
-  l: viewkey(v, l), pf: v
-): void
-
 fun global_get {v:view} {l:addr} (
   g: viewkey(v, l)
-): (v | ptr l) = "mac#global_get"
+): (vbox v | ptr l) = "mac#global_get"
 
 (* Locking Proof Functions (For Variables Shared with ISRs) *)
 
@@ -62,9 +59,7 @@ viewtypedef sharedkey(v:view, l:addr) = @{
   p = ptr l
 }
 
-praxi interrupt_lock_new {v:view} (
-  pf: v
-): interrupt_lock(v)
+praxi interrupt_lock_new {v:view} (): interrupt_lock(v)
 
 symintr lock
 
@@ -74,10 +69,18 @@ fun lock_interrupts_cleared {v:view} {l:addr} (
 
 overload lock with lock_interrupts_cleared
 
-fun unlocked {v:view} {l:addr} (
+praxi locked_pf {v:view} {l:addr} (
+  pf: !atomic, lock: interrupt_lock(v)
+): v 
+
+praxi atomic_interrupt_unlock {v:view} (
+  pf: !atomic, lock: interrupt_lock(v), pf: v
+): void
+
+fun locked {v:view} {l:addr} (
   pf: !atomic | g: sharedkey(v, l)
-): (vbox v | ptr l)
+): (v | ptr l) = "mac#global_shared_get"
 
 praxi unlock {v:view} {l:addr} (
-  pf: atomic, sh: sharedkey(v, l), pf: v
-): (INT_CLEAR | void) = "mac#global_shared_get"
+  pf: !atomic, sh: sharedkey(v, l), pf: v
+): void = "mac#global_shared_get"

@@ -7,6 +7,8 @@
 #include "CATS/io.cats"
 %}
 
+staload "SATS/atomic.sats"
+
 sortdef mcu = tkind
 
 stacst atmega328p : mcu
@@ -16,6 +18,8 @@ abst@ype register(mcu, width:int) = $extype "volatile void *"
 fun value {m: mcu} (
   r: register(m, 8)
 ): uint8 = "mac#"
+
+macdef F_CPU = $extval(ulint, "F_CPU")
 
 fun {m:mcu} PINB (): register(m, 8)
 
@@ -265,7 +269,7 @@ fun {m:mcu} UDR0 (): register(m, 8)
 
 //Interrupt Service Routines
 
-fun {m:mcu} TIMER0_OVF (): void = "TIMER0_OVF"
+fun TIMER0_OVF_vect (pf: !atomic | (**)): void = "TIMER0_OVF_vect"
 
 (* ****** ****** *)
 

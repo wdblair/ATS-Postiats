@@ -1,3 +1,6 @@
+#ifndef _AVR_LIBATS_IO_HEADER
+#define _AVR_LIBATS_IO_HEADER
+
 #include <avr/sfr_defs.h>
 #include <avr/common.h>
 
@@ -132,3 +135,4 @@
 
 #define avr_libats_flipbits7_8bit(reg, b0, b1, b2, b3, b4, b5, b6, b7) (*(volatile uint8_t*)reg ^= (_BV(b0) | _BV(b1) | _BV(b2) | _BV(b3) | _BV(b4) | _BV(b5) | _BV(b6) | _BV(b7)))
 
+#endif

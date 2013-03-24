@@ -1,8 +1,12 @@
 staload "SATS/io.sats"
 staload "SATS/global.sats"
-staload "SATS/interrupt.sats"
+staload "SATS/atomic.sats"
 
-typedef timer_t (n:int) = $extype_struct "timer_t" of {
+%{#
+#include "CATS/timer.cats"
+%}
+
+typedef hardware_timer (n:int) = $extype_struct "hardware_timer_t" of {
   threshold= uint n,
   ticks= [t:nat | t <= n] uint t
 }
@@ -15,33 +19,35 @@ stacst timer2 : timer
 
 (* ****** ****** *)
 
-//The templates for interacting with timers
+//Templates for interacting with timers
 
-fun {t:timer} {m:mcu} get_timer(pf: !INT_CLEAR | (* *)):
-  [n:int] [l:addr] (timer_t(n) @ l | ptr l)
+fun {t:timer} {m:mcu} get_timer(pf: !atomic | (* *)):
+   [l:addr] ([ticks:nat] hardware_timer(ticks) @ l | ptr l)
 
-prfun {t:timer} {m:mcu} return_timer {l:addr} {n:int} (
-  pf: timer_t(n) @ l | ptr l
+praxi return_timer {t:timer} {m:mcu} {l:addr} {n:nat} (
+  atom: !atomic, pf: hardware_timer(n) @ l
 ): void
 
 (* ******* ****** *)
 
 (*
-  Should not be a long running computation, unless I want to
-  enable interrupts after the timer overflow.
+    Should not be a long running computation, unless I want to
+    enable interrupts after the timer overflow. That's not the
+    best idea.
 *)
-fun {t:timer} {m:mcu} delayed_task_work(): bool
+fun {t:timer} {m:mcu} delayed_task_work(pf: !atomic | (* none *)): bool
 
-fun {t:timer} {m:mcu} delayed_task_configure_timer {n:int} (
-  t: &timer_t(n)
-): void
+fun {t:timer} {m:mcu} delayed_task_configure_timer {n:nat} (
+  t: &hardware_timer(n) >> hardware_timer(n'), period: ulint
+): #[n':nat] void
 
 fun {t:timer} {m:mcu} delayed_task (
   period: ulint
 ): void
 
-//timer_overflow should only be called inside a timer's ISR.
-
-fun timer_overflow {t:timer} {m:mcu} (
-  pf: !INT_CLEAR | (* *)
+(*
+  Timer_overflow should only be called inside an ISR
+*)
+fun {t:timer} {m:mcu} timer_overflow  (
+  pf: !atomic | (* *)
 ): void
