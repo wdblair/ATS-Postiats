@@ -3,10 +3,11 @@
 
 #include <avr/sfr_defs.h>
 #include <avr/common.h>
+#include <avr/version.h>
 
-#define _MMIO_ADDR_BYTE(mem_addr) ((volatile uint8_t*)mem_addr)
-#define _MMIO_ADDR_WORD(mem_addr) ((volatile uint16_t*)mem_addr)
-#define _MMIO_ADDR_DWORD(mem_addr) ((volatile uint32_t*)mem_addr)
+#define _MMIO_ADDR_BYTE(mem_addr) (volatile uint8_t*)(mem_addr)
+#define _MMIO_ADDR_WORD(mem_addr) (volatile uint16_t*)(mem_addr)
+#define _MMIO_ADDR_DWORD(mem_addr) (volatile uint32_t*)(mem_addr)
 
 #define _SFR_ADDR_MEM8(mem_addr) _MMIO_ADDR_BYTE(mem_addr)
 #define _SFR_ADDR_MEM16(mem_addr) _MMIO_ADDR_WORD(mem_addr)
@@ -15,7 +16,18 @@
 #define _SFR_ADDR_IO8(io_addr)  _MMIO_ADDR_BYTE((io_addr) + __SFR_OFFSET)
 #define _SFR_ADDR_IO16(io_addr) _MMIO_ADDR_WORD((io_addr) + __SFR_OFFSET)
 
-#define avr_libats_setval_8bit(reg, val) (*(volatile uint8_t*)reg = val)
+#define loop_until_bit_is_set_8bit(reg, bit)                  \
+  do {} while(_MMIO_BYTE(reg) & _BV(bit))
+
+#define avr_libats_setval_8bit(reg, val) (_MMIO_BYTE(reg) = val)
+
+#define avr_libats_setval_16bit(high, low, value)               \
+  do {                                                          \
+      _MMIO_BYTE(high) = (uint8_t)((value >> 8) & 0xff);       \
+      _MMIO_BYTE(low) = (uint8_t)(value & 0xff);               \
+  } while(0)
+
+#define avr_libats_value_8bit(reg) (_MMIO_BYTE(reg))
 
 #define avr_libats_setbits0_8bit(reg, b0) (*(volatile uint8_t*)reg |= (_BV(b0)))
 
@@ -134,5 +146,7 @@
 
 
 #define avr_libats_flipbits7_8bit(reg, b0, b1, b2, b3, b4, b5, b6, b7) (*(volatile uint8_t*)reg ^= (_BV(b0) | _BV(b1) | _BV(b2) | _BV(b3) | _BV(b4) | _BV(b5) | _BV(b6) | _BV(b7)))
+
+
 
 #endif
