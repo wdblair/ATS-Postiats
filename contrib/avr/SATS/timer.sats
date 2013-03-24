@@ -24,7 +24,7 @@ stacst timer2 : timer
 fun {t:timer} {m:mcu} get_timer(pf: !atomic | (* *)):
    [l:addr] ([ticks:nat] hardware_timer(ticks) @ l | ptr l)
 
-praxi return_timer {t:timer} {m:mcu} {l:addr} {n:nat} (
+praxi return_timer {t:timer} {m:mcu} {l:addr} {n:nat}(
   atom: !atomic, pf: hardware_timer(n) @ l
 ): void
 

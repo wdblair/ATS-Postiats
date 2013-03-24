@@ -71,7 +71,7 @@ overload lock with lock_interrupts_cleared
 
 praxi locked_pf {v:view} {l:addr} (
   pf: !atomic, lock: interrupt_lock(v)
-): v 
+): v
 
 praxi atomic_interrupt_unlock {v:view} (
   pf: !atomic, lock: interrupt_lock(v), pf: v
