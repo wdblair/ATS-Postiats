@@ -1,14 +1,21 @@
 staload "SATS/timer.sats"
-staload "SATS/interrupt.sats"
+staload "SATS/atomic.sats"
 
-implement {t} {m} delayed_task(period) = {
-  //Clear interrupts
-  val prev = save_interrupts()
-  val (clear | ()) = cli(prev)
-  //Configure the timer
-  val (pf | p) = get_timer(clear | (* *))
-  val () = delayed_task_configure_timer(!p)
-  prval () = return_timer(pf | p)
-  //Restore interrupts
-  val () = restore_interrupts(clear | prev)
+implement {timer} {mcu} delayed_task(period) = {
+  //
+  implement atomic_section<ulint>(atomic | period)= {
+    val (pf | p) = get_timer<timer><mcu>(atomic | (**))
+    val () = delayed_task_configure_timer<timer><mcu>(!p, period)
+    prval () = return_timer(atomic, pf)
+  }
+  //
+  val () = atomic<ulint>(period)
+}
+
+implement {timer} {mcu} timer_overflow(atomic | (* *)) = {
+  val (pf | time) = get_timer<timer><mcu>(atomic | (**))
+  //Restart
+  val () = time->ticks := 0u
+  val _ = delayed_task_work<timer><mcu>(atomic | (**))
+  prval () = return_timer(atomic, pf)
 }

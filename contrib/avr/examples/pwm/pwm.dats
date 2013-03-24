@@ -7,7 +7,7 @@ staload "prelude/DATS/integer.dats"
 
 #define ATS_DYNLOADFLAG 0
 
-staload "DATS/iom328p.dats"
+staload "DATS/atmega328p/io.dats"
 
 stadef p = atmega328p
 

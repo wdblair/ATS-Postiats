@@ -38,6 +38,8 @@
 #ifndef PATS_CCOMP_TYPEDEFS_H
 #define PATS_CCOMP_TYPEDEFS_H
 
+#include <stdint.h>
+
 /* ****** ****** */
 
 struct atstype_struct ; /* of indefinite size */
@@ -51,6 +53,8 @@ typedef void atsvoid_t0ype ;
 
 typedef int atstype_int ;
 typedef unsigned int atstype_uint ;
+
+typedef uint8_t atstype_uint8 ;
 
 typedef long int atstype_lint ;
 typedef unsigned long int atstype_ulint ;

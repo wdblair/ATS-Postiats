@@ -1,5 +1,5 @@
 (*
-   Functions manipulating the global interrupt flag.
+   Functions and types for manipulating the global interrupts flag.
 *)
 
 %{#
@@ -9,14 +9,20 @@
 absview INT_CLEAR
 absview INT_SET
 
-absview atomic
+absviewt@ype saved_sreg = uint8
 
 (* ****** ****** *)
 
 fun cli (
   pf: INT_SET | (* none *)
-): (INT_CLEAR | void ) = "mac#cli"
+): (INT_CLEAR | void) = "mac#cli"
 
 fun sei (
   pf: INT_CLEAR | (* none *)
 ):  (INT_SET | void) = "mac#sei"
+
+(* ****** ****** *)
+
+fun save_sreg (): saved_sreg = "mac#"
+
+(* ****** ****** *)
