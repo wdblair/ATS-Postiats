@@ -1,12 +1,8 @@
 staload "SATS/io.sats"
 staload "SATS/interrupt.sats"
 
-%{#
-#include "CATS/usart.cats"
-%}
-
-fun {m:mcu} init (
-  baud: uint
+fun {m:mcu} init {n:pos} (
+  baud: uint n
 ): void
 
 fun {m:mcu} rx (): char
