@@ -5,6 +5,8 @@
 staload "SATS/io.sats"
 staload Serial = "SATS/usart.sats"
 
+staload _ = "prelude/DATS/integer.dats"
+
 staload _ = "DATS/atmega328p/io.dats"
 staload _ = "DATS/atmega328p/usart.dats"
 
