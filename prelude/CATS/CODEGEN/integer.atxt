@@ -768,8 +768,7 @@ val fopr = (
   | _ => opr
 ) : string // end of [val]
 //
-val ent = sprintf
-("\
+val ent = sprintf ("
 ATSinline()
 atstype_%s
 atspre_g0uint_%s_%s
