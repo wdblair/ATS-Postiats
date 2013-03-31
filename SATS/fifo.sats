@@ -5,7 +5,7 @@ staload "SATS/atomic.sats"
   an ISR and application code.
 *)
 
-absviewt@ype fifo (t@ype, int, int)
+absviewt@ype fifo (a:t@ype, capacity: int, size:int)
 
 fun {a:t@ype} insert {s:pos} {n:nat | n < s} (
    lpf: !atomic |

@@ -3,6 +3,8 @@ staload "SATS/usart.sats"
 
 staload "DATS/atmega328p/io.dats"
 
+staload "prelude/DATS/integer.dats"
+
 stadef mcu = atmega328p
 
 extern
