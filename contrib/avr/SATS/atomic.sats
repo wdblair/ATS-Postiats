@@ -18,10 +18,12 @@ fun atomic_cli(_: !saved_sreg): (atomic | void) = "mac#"
 
 fun atomic_restore_sreg (_: atomic | _: saved_sreg): void = "mac#"
 
-fun atomic_sei(_: atomic | ): (INT_SET | void) = "mac#sei"
+fun atomic_sei (_: atomic | ): (INT_SET | void) = "mac#sei"
 
-fun {a:t@ype} atomic_wait_body (
+fun sleep_cpu (_: atomic | ): (INT_SET | void) = "mac#sleep_cpu"
+
+fun {a:t@ype} wait_until_body (
   pf: atomic | res: &a? >> opt(a, b)
 ): #[b:bool] (INT_SET | bool (b))
 
-fun {a:t@ype} atomic_wait (_: !INT_SET | _: &a? >> a): void
+fun {a:t@ype} wait_until (_: !INT_SET | _: &a? >> a): void
