@@ -154,6 +154,10 @@ overload >= with gte_myint_myint
 fun{a:t@ype}
 compare_myint_myint (x: !myint(a), y: !myint(a)):<> int
 
+// Probably the easiest way to put GMP numbers into Z3,
+fun{a:t@ype}
+myint_string (x: !myint(a)):<> string
+
 (* ****** ****** *)
 
 (*

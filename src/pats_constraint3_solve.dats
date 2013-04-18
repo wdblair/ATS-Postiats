@@ -77,6 +77,12 @@ staload "./pats_lintprgm.sats"
 staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
+  
+staload SMT = "./pats_smt.sats"
+viewtypedef solver = $SMT.solver
+typedef formula = $SMT.formula
+
+(* ****** ****** *)
 
 local
 //
@@ -121,7 +127,125 @@ in
   loop (s2vs, vim, indexset_nil ())
 end // end of [indexset_make_s3exp]
 
+
 (* ****** ****** *)
+
+fun {a:t@ype}
+icnstrlst_solve_smt  {n:pos} (
+  all: &icnstrlst(a, n), n: int n
+): int = let
+  val solve = $SMT.make_solver ()
+  val srt = $SMT.make_int_sort (solve)
+  //
+  fun decl_vars {i:nat | i <= n-1} (
+    solve: !solver, i: int i, res: list(formula, n-1-i)
+  ):<cloref1> list(formula, n-1) =
+    if i = 0 then
+      res
+    else let
+      val sym = $SMT.make_int_symbol (solve, i)
+      val cst = $SMT.make_constant (solve, sym, srt)
+    in
+      decl_vars (solve, i-1, list_cons(cst, res))
+    end
+  //
+  val vars = decl_vars (solve, n-1, list_nil())
+  val zero = $SMT.make_numeral (solve, "0", srt)
+  //
+  fun assert_cnstr {i:nat} (
+    solve: !solver, cnstr: &list_vt(icnstr(a, n), i)
+  ):<cloref1> void = (
+    case+ cnstr of 
+      | list_vt_cons(!c, !cs) => {
+        val wff = formula_of_constr(solve, !c)
+        val _ = $SMT.assert(solve, wff)
+        //
+        val _ = assert_cnstr(solve, !cs)
+        prval () = fold@(cnstr)
+       }
+      | list_vt_nil () => {
+        prval () = fold@ cnstr
+      }
+  ) where {
+    //
+    fun formula_of_vector {i:nat | i <= n} (
+      solve: !solver, iv: !myintvec(a, n),
+        i: int i, res: list_vt(formula, n - i)
+    ):<cloref1> list_vt(formula, n) =
+      if i = 0 then
+        res
+      else let
+        val cff_ats = iv[i-1]
+        val cff_z3 = $SMT.make_numeral (solve, myint_string(cff_ats), srt)
+        val _ = myint_free (cff_ats)
+        val formula =
+          if i = 1 then
+            cff_z3
+          else
+            $SMT.make_mul (solve, cff_z3, vars[i-2])
+      in 
+        formula_of_vector (solve, iv, i-1, list_vt_cons(formula, res))
+      end
+    //
+    fun formula_of_constr (
+      solve: !solver, c: !icnstr(a, n)
+    ):<cloref1> formula =
+      case+ c of 
+        | ICvec (knd, !iv) => let
+            //
+            val cffs = formula_of_vector (solve, !iv, n, list_vt_nil())
+            val sum = $SMT.make_add (solve, cffs)
+            val equation = 
+              case+ knd of
+                | ~2 (* lt *) =>
+                  $SMT.make_lt (solve, sum, zero)
+                | 2 (* gte *) =>
+                  $SMT.make_ge (solve, sum, zero)
+                | 1 (* eq *) =>
+                  $SMT.make_eq (solve, sum, zero)
+                | _ (* neq *) =>
+                  $SMT.make_not (solve, $SMT.make_eq(solve, sum, zero))
+            prval () = fold@ c
+         in
+          equation
+         end
+        | ICveclst (knd, !ivs) => let
+          fun loop(
+            solve: !solver, cnstr: &List_vt(icnstr(a, n)), res: List_vt(formula)
+          ):<cloref1> List_vt(formula) =
+            case+ cnstr of
+              | list_vt_cons(!c, !cs) => let
+                val formula = formula_of_constr (solve, !c)
+                val res' = loop (solve, !cs, res)
+                prval () = fold@ cnstr
+              in res' end
+              
+              | list_vt_nil() => res where {
+                prval () = fold@ cnstr
+              }
+          val wffs = loop (solve, !ivs, list_vt_nil())
+          val wff =
+            case+ knd of
+              | 0 (* conj *) =>
+                $SMT.make_and (solve, wffs)
+              | _ (* disj *) => 
+                $SMT.make_or (solve, wffs)
+          prval () = fold@ c
+        in
+          wff
+        end
+        | _ => zero
+      //
+  } // end of [assert_cnstr]
+  val () = assert_cnstr (solve, all)
+  val ans = $SMT.check (solve)
+  val _ = $SMT.delete_solver (solve)
+in
+  // ~1 if unsat, otherwise 0
+  case ans of
+    | 0 => ~1
+    | _ => 0
+end //end of [icnstrlst_solve_smt]
 
 fun{a:t@ype}
 auxsolve{n:nat}
@@ -179,10 +303,15 @@ val iset = indexset_make_s3exp (vim, s3p_conc)
 //
 // HX: this is the entire constraint matrix
 var ics_all
-  : icnstrlst (a, n+1) = list_vt_cons (ic_conc_neg, ics_asmp)
-//
-val ans =
-  icnstrlst_solve<a> (iset, ics_all, n+1)
+  : icnstrlst (a, n+1) = list_vt_cons (ic_conc, ics_asmp)
+val _ = println! "Constraint"
+val _ = print_icnstrlst (ics_all, n+1); val _ = print_newline()
+val _ = print_newline()
+(*
+  Old solver
+  val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
+*)
+val ans = icnstrlst_solve_smt<a>(ics_all, n+1)
 val () = icnstrlst_free<a> (ics_all, n+1)
 val _ = println! ans
 //
