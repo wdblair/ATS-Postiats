@@ -72,7 +72,6 @@ in
     val () = buf.[1] := ptr_of_formula(r)
     val wff = Z3_mk_and(ctx, 2, buf)
   }
-  
 end
 
 (* ****** ****** *)

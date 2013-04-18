@@ -184,6 +184,7 @@ var ics_all
 val ans =
   icnstrlst_solve<a> (iset, ics_all, n+1)
 val () = icnstrlst_free<a> (ics_all, n+1)
+val _ = println! ans
 //
 (*
 val () = println! ("auxsolve: ans = ", ans)
@@ -199,10 +200,6 @@ in (* in of [local] *)
 implement
 s3explst_solve_s2exp
   (loc0, env, s2p, err) = let
-//
-val () = println! "S2 Constraint"
-val () = println! s2p
-val () = println! "End of S2 Constraint"
 //
 val s3p = s3exp_make (env, s2p)
 val s3p =
@@ -236,13 +233,6 @@ val s2vs_ =
   $UN.castvwtp1 {s2varlst} (s2vs) // HX: cannot be SHARED!
 val s3ps_asmp =
   $UN.castvwtp1 {s3explst} (s3ps) // HX: cannot be SHARED!
-val _ = println! "S2Var List:"
-val _ = println! s2vs_
-val _ = list_foreach_fun<s2var>(s2vs_, lam(s2) =<fun> $effmask_all(print_s2rt(s2var_get_srt(s2)); print_newline()))
-val _ = println! "end [S2Var List]"
-val _ = println! "S3Exp List:"
-val _ = print_s3explst s3ps_asmp ; val () = print_newline()
-val _ = println! "end [S3Exp List]"
 //
 (*
 val () = begin
@@ -651,11 +641,11 @@ end // end of [c3nstr_solve_itmlst_disj]
 
 implement
 c3nstr_solve (c3t) = let
-
+(*
   val () = begin
     print "c3nstr_solve: c3t = "; print_c3nstr(c3t); print_newline ()
   end // end of [val]
-
+*)
   var env: s2vbcfenv = s2vbcfenv_nil ()
 //
 // HX-2010-09-09: this is needed for solving top-level constraints!!!
