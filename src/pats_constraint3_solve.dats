@@ -307,10 +307,8 @@ var ics_all
 val _ = println! "Constraint"
 val _ = print_icnstrlst (ics_all, n+1); val _ = print_newline()
 val _ = print_newline()
-(*
-  Old solver
-  val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
-*)
+//  Old solver
+//val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
 val ans = icnstrlst_solve_smt<a>(ics_all, n+1)
 val () = icnstrlst_free<a> (ics_all, n+1)
 val _ = println! ans

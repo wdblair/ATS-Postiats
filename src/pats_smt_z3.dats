@@ -171,5 +171,22 @@ in
     val wff = __make_mul(solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
-end
+  
+  (* ****** ****** *)
 
+  implement assert (solve, formula) = {
+    val _ = $extfcall (
+      void, "Z3_solver_assert", solve.ctx, solve.slv, formula
+    )
+  }
+  
+  
+  implement check (solver) = let
+    val res = $extfcall (
+      [s:status] int s, "Z3_solver_check", solver.ctx, solver.slv
+    )
+  in
+    res
+  end
+  
+end

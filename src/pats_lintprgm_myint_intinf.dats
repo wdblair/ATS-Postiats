@@ -360,4 +360,14 @@ compare_myint_myint<intinfknd>
 
 (* ****** ****** *)
 
+implement myint_string<intinfknd> (x) = str where {
+  prval () = midec (x)
+  prval pfat_x = x.1
+  val str =  tostring_mpz(!(x.2))
+  prval () = x.1 := pfat_x
+  prval () = mienc (x)
+}
+
+(* ****** ****** *)
+
 (* end of [pats_lintprgm_myint_intinf.dats] *)
