@@ -36,15 +36,6 @@ void * __make_mul (void *context, void *left, void *right) {
 %}
 
 local
-  extern
-  fun Z3_mk_eq (
-    _: context, _: formula, _:formula
-  ): formula = "mac#"
-  
-  extern
-  fun Z3_mk_not (
-    _: context, _: formula
-  ): formula = "mac#"
 
   extern
   fun Z3_mk_and {n:nat} (
@@ -77,7 +68,7 @@ local
   
   stacst disj  : binop
   stacst conj  : binop
-  stacst plus  : binop
+  stacst add   : binop
 
   typedef binop_func = {n:nat} (
     context, int n, &(@[formula][n])
@@ -91,7 +82,7 @@ local
 
   implement z3_operator<disj>() = Z3_mk_or
   implement z3_operator<conj>() = Z3_mk_and
-  implement z3_operator<plus>() = Z3_mk_add
+  implement z3_operator<add>() = Z3_mk_add
  
   fun {func: binop} make_binop (
     solve: solver, wffs: List_vt(formula)
@@ -110,18 +101,6 @@ local
     prval pf = array_v_of_array(pf)
     val () = array_ptr_free(pf, free_gc | p)
   }
-  
-  sortdef comp: tkind
-  
-  stacst lt : comp
-  stacst le : comp
-  stacst gt : comp
-  stacst ge : comp
-  stacst eq : comp
-  
-  //comparison operators
-  extern
-  fun {func: 
   
 in
   implement make_solver () = solve where {
@@ -161,21 +140,36 @@ in
     val _ = Z3_inc_ref(solve.ctx, num)
   }
   
-  implement make_add (solve, wffs) = make_binop<plus>(solve, wffs)
+  implement make_add (solve, wffs) = make_binop<add>(solve, wffs)
+  
+  implement make_lt (solve, l, r) = wff where {
+    val wff = $extfcall(formula, "Z3_mk_lt", solve.ctx, l, r)
+    val _ = Z3_inc_ref(solve.ctx, wff)
+  }
+  
+  implement make_le (solve, l, r) = wff where {
+    val wff = $extfcall(formula, "Z3_mk_le", solve.ctx, l, r)
+    val _ = Z3_inc_ref(solve.ctx, wff)
+  }
+  
+  implement make_gt (solve, l, r) = wff where {
+    val wff = $extfcall(formula, "Z3_mk_gt", solve.ctx, l, r)
+    val _ = Z3_inc_ref(solve.ctx, wff)
+  }
+  
+  implement make_ge (solve, l, r) = wff where {
+    val wff = $extfcall(formula, "Z3_mk_ge", solve.ctx, l, r)
+    val _ = Z3_inc_ref(solve.ctx, wff)
+  }
 
   implement make_eq (solve, l, r) = wff where {
     val wff = $extfcall(formula, "Z3_mk_eq", solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
-
+  
   implement make_mul (solve, l, r) = wff where {
     val wff = __make_mul(solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
-  
-  implement make_lt (solve, l, r) = wff where {
-    val wff = $extfcall(formula, "Z3_mk_lt"
-  }
 end
 
-(* ****** ****** *)
