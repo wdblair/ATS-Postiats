@@ -250,6 +250,19 @@ array_ptr_free
 ) :<!wrt> void // end of [array_ptr_free]
 
 #atscode_separator()
+ 
+praxi 
+array_of_array_v {a:vt0p} {n:int} {l:agz}
+(
+  _: array_v (a, l, n)
+) : array(a, n) @ l // end of [array_of_array_v]
+ 
+praxi 
+array_v_of_array {a:vt0p} {n:int} {l:agz} ( 
+  _: array(a, n) @ l
+) : array_v(a, l , n) // end of [array_v_of_array]
+
+#atscode_separator()
 
 fun{a:vt0p}
 array_tabulate$fopr (i: size_t): (a)
