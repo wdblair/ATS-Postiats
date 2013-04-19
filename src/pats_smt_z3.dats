@@ -111,6 +111,18 @@ local
     val () = array_ptr_free(pf, free_gc | p)
   }
   
+  sortdef comp: tkind
+  
+  stacst lt : comp
+  stacst le : comp
+  stacst gt : comp
+  stacst ge : comp
+  stacst eq : comp
+  
+  //comparison operators
+  extern
+  fun {func: 
+  
 in
   implement make_solver () = solve where {
     val conf = $extfcall(config, "Z3_mk_config")
@@ -161,6 +173,9 @@ in
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
   
+  implement make_lt (solve, l, r) = wff where {
+    val wff = $extfcall(formula, "Z3_mk_lt"
+  }
 end
 
 (* ****** ****** *)
