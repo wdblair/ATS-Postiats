@@ -63,6 +63,12 @@ local
   ): void = "mac#"
   
   (* ****** ****** *)
+  
+  sortdef binop = tkind
+  
+  stacst disj  : binop
+  stacst conj  : binop
+  stacst add   : binop
 
   typedef binop_func = {n:nat} (
     context, int n, &(@[formula][n])
@@ -70,10 +76,16 @@ local
   
   (*
     Z3 uses the same pattern for a few binary operators
-  *) 
-  
-  fun make_binop (
-    solve: solver, wffs: List_vt(formula), func: binop_func
+  *)
+  extern
+  fun {func: binop} z3_operator (): binop_func
+
+  implement z3_operator<disj>() = Z3_mk_or
+  implement z3_operator<conj>() = Z3_mk_and
+  implement z3_operator<add>() = Z3_mk_add
+ 
+  fun {func: binop} make_binop (
+    solve: solver, wffs: List_vt(formula)
   ): formula = res where {
     val len = list_vt_length(wffs)
     val ()  = assertloc(len >= 0)        //a length < 0 doesn't make any sense.
@@ -82,6 +94,7 @@ local
     prval pf = array_of_array_v(pf)
     val () = array_copy_from_list_vt<formula>(!p, wffs)
     //
+    val func = z3_operator<func>()
     val res = func(solve.ctx, len, !p)
     val _ = Z3_inc_ref(solve.ctx, res)
     //
@@ -90,13 +103,9 @@ local
   }
 in
   implement make_solver () = solve where {
-    extern fun Z3_mk_config(): config = "mac#"
-    extern fun Z3_mk_context_rc(_: config): context = "mac#"
-    extern fun Z3_mk_solver(_: context): z3_solver = "mac#"
-    //
-    val conf = Z3_mk_config ()
-    val ctx = Z3_mk_context_rc(conf)
-    val z3solve = Z3_mk_solver(ctx)
+    val conf = $extfcall(config, "Z3_mk_config")
+    val ctx = $extfcall (context, "Z3_mk_context_rc", conf)
+    val z3solve = $extfcall (z3_solver, "Z3_mk_solver", ctx)
     val solve = '{ctx= ctx, slv= z3solve}
   }
   
@@ -193,6 +202,6 @@ in
   implement string_of_formula (solver, wff) = expr where {
     val expr = $extfcall (
       string, "Z3_ast_to_string", solver.ctx, wff
-    }
+    )
   }
 end
