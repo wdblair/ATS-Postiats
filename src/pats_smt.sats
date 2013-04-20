@@ -10,8 +10,6 @@ absviewtype solver = ptr
 
 abstype symbol = ptr
 
-abstype constant = ptr
-
 abstype formula = ptr
 
 abstype sort = ptr

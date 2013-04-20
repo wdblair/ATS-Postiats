@@ -159,6 +159,7 @@ icnstrlst_solve_smt  {n:pos} (
       | list_vt_cons(!c, !cs) => {
         val wff = formula_of_constr(solve, !c)
         val _ = $SMT.assert(solve, wff)
+        val _ = println! string_of_formula(solve, wff)
         //
         val _ = assert_cnstr(solve, !cs)
         prval () = fold@(cnstr)
