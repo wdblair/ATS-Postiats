@@ -3,8 +3,8 @@ staload "pats_smt.sats"
 (* ****** ****** *)
 
 staload _ = "prelude/DATS/list_vt.dats"
-staload _ = "prelude/DATS/array.dats"
-staload _ = "prelude/DATS/integer.dats"
+staload  "prelude/DATS/array.dats"
+staload  "prelude/DATS/integer.dats"
 
 (* ****** ****** *)
 
@@ -105,13 +105,13 @@ local
 in
   implement make_solver () = solve where {
     val conf = $extfcall(config, "Z3_mk_config")
-    val ctx = $extfcall(context, "Z3_mk_context_rc", conf)
-    val z3solve = $extfcall(z3_solver, "Z3_mk_solver", ctx)
+    val ctx = $extfcall (context, "Z3_mk_context_rc", conf)
+    val z3solve = $extfcall (z3_solver, "Z3_mk_solver", ctx)
     val solve = '{ctx= ctx, slv= z3solve}
   }
   
   implement delete_solver (solve) = {
-    val () = $extfcall(void, "Z3_del_context", solve.ctx)
+    val () = $extfcall (void, "Z3_del_context", solve.ctx)
     val _ = __free(solve) where {
       extern
       fun __free (_: solver): void = "mac#free"
@@ -119,7 +119,17 @@ in
   }
   
   implement make_int_sort (solve) = srt where {
-    val srt = $extfcall(sort, "Z3_mk_int_sort", solve.ctx)
+    val srt = $extfcall (sort, "Z3_mk_int_sort", solve.ctx)
+  }
+  
+  implement make_int_symbol (solve, id) = sym where {
+    val sym = $extfcall (symbol, "Z3_mk_int_symbol", solve.ctx, id)
+  }
+  
+  implement make_int_constant (solve, sym, srt) = cst where {
+    val cst = $extfcall (
+      constant, "Z3_mk_int_constant", solve.ctx, sym, srt
+    )
   }
   
   (* ****** ****** *)
@@ -180,7 +190,6 @@ in
     )
   }
   
-  
   implement check (solver) = let
     val res = $extfcall (
       [s:status] int s, "Z3_solver_check", solver.ctx, solver.slv
@@ -188,5 +197,4 @@ in
   in
     res
   end
-  
 end
