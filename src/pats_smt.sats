@@ -75,10 +75,6 @@ fun assert (_: !solver, _: formula): void = "assert"
 
 sortdef status = {a: int | a >= ~1 ; a <= 1}
 
-#define UNSAT 0
-#define SAT 1
-#define UNKNOWN 2
-
 fun check (_: !solver): [s: status] int s = "check"
 
 (* ****** ****** *)

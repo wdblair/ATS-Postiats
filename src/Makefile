@@ -222,6 +222,7 @@ SOURCES := \
   pats_constraint3_simplify.dats \
   pats_constraint3_icnstr.dats \
   pats_constraint3_solve.dats \
+  pats_smt_z3.dats \
   pats_histaexp.sats \
   pats_histaexp.dats \
   pats_histaexp_print.dats \
@@ -455,6 +456,7 @@ OBJECTS := \
   pats_constraint3_simplify_dats.o \
   pats_constraint3_icnstr_dats.o \
   pats_constraint3_solve_dats.o \
+  pats_smt_z3_dats.o \
   pats_histaexp_sats.o \
   pats_histaexp_dats.o \
   pats_histaexp_print_dats.o \
@@ -1085,6 +1087,9 @@ pats_constraint3_icnstr_dats.o: pats_constraint3_icnstr_dats.c; $(ATSCC) $(ATSCC
 
 pats_constraint3_solve_dats.c: pats_constraint3_solve.dats; $(ATSCC) -cc $<
 pats_constraint3_solve_dats.o: pats_constraint3_solve_dats.c; $(ATSCC) $(ATSCCFLAGS) -c $<
+
+pats_smt_z3_dats.c: pats_smt_z3.dats; $(ATSCC) -cc $<
+pats_smt_z3_dats.o: pats_smt_z3_dats.c; $(ATSCC) $(ATSCCFLAGS) -c $<
 
 pats_histaexp_sats.c: pats_histaexp.sats; $(ATSCC) -cc $<
 pats_histaexp_sats.o: pats_histaexp_sats.c; $(ATSCC) $(ATSCCFLAGS) -c $<

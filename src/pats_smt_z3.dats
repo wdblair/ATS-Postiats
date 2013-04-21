@@ -26,7 +26,7 @@ assume solver = '{
   slv= z3_solver
 }
 
-%{
+%{^
 void * __make_mul (void *context, void *left, void *right) {
   Z3_ast buf[2];
   buf[0] = (Z3_ast) left;
@@ -70,23 +70,21 @@ local
   
   (*
     Z3 uses the same pattern for a few binary operators
-  *) 
+  *)
   
   fun make_binop (
-    solve: solver, wffs: List_vt(formula), func: binop_func
+    solve: !solver, wffs: List_vt(formula), func: binop_func
   ): formula = res where {
     val len = list_vt_length(wffs)
-    val ()  = assertloc(len >= 0)        //a length < 0 doesn't make any sense.
-    val len' = g1int2uint_int_size(len)  //need some shorthand, like (size)
-    val (pf, free_gc | p) = array_ptr_alloc<formula>(len')
-    prval pf = array_of_array_v(pf)
-    val () = array_copy_from_list_vt<formula>(!p, wffs)
+    val ()  = assertloc(len >= 0)
+    val len' = size1_of_int1(len)  //need some shorthand, like (size)
+    val (pf | p, free) = array_ptr_allocfree<formula>(len')
+    val () = array_ptr_initialize_lst_vt<formula>(!p, wffs)
     //
     val res = func(solve.ctx, len, !p)
+    val () = free(pf | p)
     val _ = Z3_inc_ref(solve.ctx, res)
     //
-    prval pf = array_v_of_array(pf)
-    val () = array_ptr_free(pf, free_gc | p)
   }
 in
   implement make_solver () = solve where {
@@ -101,69 +99,106 @@ in
   }
   
   implement delete_solver (solve) = {
-    val () = $extfcall (void, "Z3_del_context", solve.ctx)
-    val _ = __free(solve) where {
+    extern fun Z3_del_context(_: context): void = "mac#"
+    //
+    val () = Z3_del_context(solve.ctx)
+    prval _ = __free(solve) where {
       extern
-      fun __free (_: solver): void = "mac#free"
+      praxi __free (_: solver): void
     }
   }
   
   implement make_int_sort (solve) = srt where {
-    val srt = $extfcall (sort, "Z3_mk_int_sort", solve.ctx)
+    extern fun Z3_mk_int_sort (_: context): sort = "mac#"
+    //
+    val srt = Z3_mk_int_sort (solve.ctx)
   }
   
   implement make_int_symbol (solve, id) = sym where {
-    val sym = $extfcall (symbol, "Z3_mk_int_symbol", solve.ctx, id)
+    extern fun Z3_mk_int_symbol (_: context, _: int): symbol = "mac#"
+    //
+    val sym = Z3_mk_int_symbol (solve.ctx, id)
   }
   
   implement make_constant (solve, sym, srt) = cst where {
-    val cst = $extfcall (
-      formula, "Z3_mk_const", solve.ctx, sym, srt
-    )
+    extern fun Z3_mk_const (
+      _: context, _: symbol, _: sort
+    ): formula = "mac#"
+    //
+    val cst = Z3_mk_const (solve.ctx, sym, srt)
+    val _ = Z3_inc_ref(solve.ctx, cst)
   }
   
   (* ****** ****** *)
   
   implement make_not (solve, phi) = psi where {
-    val psi = $extfcall(formula, "Z3_mk_not", solve.ctx, phi)
-    val _ = Z3_inc_ref(solve.ctx, psi)
+    extern fun Z3_mk_not (_: context, _: formula): formula = "mac#"
+    //
+    val psi = Z3_mk_not (solve.ctx, phi)
+    val _ = Z3_inc_ref (solve.ctx, psi)
   }
   
-  implement make_or (solve, wffs) = make_binop<disj>(solve, wffs)
+  implement make_or (solve, wffs) = 
+    make_binop (solve, wffs, Z3_mk_or)
   
-  implement make_and (solve, wffs) = make_binop<conj>(solve, wffs)
-
+  implement make_and (solve, wffs) =
+    make_binop (solve, wffs, Z3_mk_and)
+    
   (* ****** ****** *)
   
   implement make_numeral (solve, str, srt) = num where {
-    val num = $extfcall(formula, "Z3_mk_numeral", solve.ctx, str, srt)
+    extern fun Z3_mk_numeral (
+      _: context, _: string, _: sort
+    ): formula = "mac#"
+    //
+    val num = Z3_mk_numeral(solve.ctx, str, srt)
     val _ = Z3_inc_ref(solve.ctx, num)
   }
   
-  implement make_add (solve, wffs) = make_binop<add>(solve, wffs)
+  implement make_add (solve, wffs) = make_binop(solve, wffs, Z3_mk_add)
   
   implement make_lt (solve, l, r) = wff where {
-    val wff = $extfcall(formula, "Z3_mk_lt", solve.ctx, l, r)
+    extern fun Z3_mk_lt (
+      _: context, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_lt (solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
-  
+
   implement make_le (solve, l, r) = wff where {
-    val wff = $extfcall(formula, "Z3_mk_le", solve.ctx, l, r)
+    extern fun Z3_mk_le (
+      _: context, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_le (solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
-  
+
   implement make_gt (solve, l, r) = wff where {
-    val wff = $extfcall(formula, "Z3_mk_gt", solve.ctx, l, r)
+    extern fun Z3_mk_gt (
+      _: context, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_gt (solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
-  
+
   implement make_ge (solve, l, r) = wff where {
-    val wff = $extfcall(formula, "Z3_mk_ge", solve.ctx, l, r)
+    extern fun Z3_mk_ge (
+      _: context, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_ge (solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
 
   implement make_eq (solve, l, r) = wff where {
-    val wff = $extfcall(formula, "Z3_mk_eq", solve.ctx, l, r)
+    extern fun Z3_mk_eq (
+      _: context, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_eq (solve.ctx, l, r)
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
   
@@ -173,26 +208,38 @@ in
   }
   
   (* ****** ****** *)
-
+  
   implement assert (solve, formula) = {
-    val _ = $extfcall (
-      void, "Z3_solver_assert", solve.ctx, solve.slv, formula
-    )
+    extern fun Z3_solver_assert (
+      _: context, _: z3_solver, _: formula
+    ): void = "mac#"
+    //
+    val _ = Z3_solver_assert(solve.ctx, solve.slv, formula)
   }
   
+  macdef Z3_FALSE = $extval(int, "Z3_L_FALSE")
+  macdef Z3_TRUE = $extval(int, "Z3_L_TRUE")
+  
   implement check (solver) = let
-    val res = $extfcall (
-      [s:status] int s, "Z3_solver_check", solver.ctx, solver.slv
-    )
+    extern fun Z3_solver_check (
+      _: context, _: z3_solver
+    ): [s:status] int s = "mac#"
+    //
+    val res = Z3_solver_check (solver.ctx, solver.slv)
   in
-    res
-  end
+    case+ res of 
+      | _ when res = Z3_FALSE => ~1
+      | _ when res = Z3_TRUE => 0
+      | _ =>> 0 //unknown might as well mean invalid
+  end 
   
   (* ****** ****** *)
   
   implement string_of_formula (solver, wff) = expr where {
-    val expr = $extfcall (
-      string, "Z3_ast_to_string", solver.ctx, wff
-    }
+    extern fun Z3_ast_to_string (
+      _: context, _: formula
+    ): string = "mac#"
+    //
+    val expr = Z3_ast_to_string (solver.ctx, wff)
   }
 end
