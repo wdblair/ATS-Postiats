@@ -77,6 +77,12 @@ staload "./pats_lintprgm.sats"
 staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
+
+import Time = "contrib/time"
+
+staload Time("time.sats")
+
+(* ****** ****** *)
   
 staload SMT = "./pats_smt.sats"
 viewtypedef solver = $SMT.solver
@@ -159,10 +165,9 @@ icnstrlst_solve_smt  {n:pos} (
       | list_vt_cons(!c, !cs) => {
         val wff = formula_of_constr(solve, !c)
         val _ = $SMT.assert(solve, wff)
-        val _ = println! string_of_formula(solve, wff)
         //
         val _ = assert_cnstr(solve, !cs)
-        prval () = fold@(cnstr)
+        prval () = fold@ cnstr
        }
       | list_vt_nil () => {
         prval () = fold@ cnstr
@@ -217,10 +222,9 @@ icnstrlst_solve_smt  {n:pos} (
             case+ cnstr of
               | list_vt_cons(!c, !cs) => let
                 val formula = formula_of_constr (solve, !c)
-                val res' = loop (solve, !cs, res)
+                val res' = loop (solve, !cs, list_vt_cons(formula, res))
                 prval () = fold@ cnstr
               in res' end
-              
               | list_vt_nil() => res where {
                 prval () = fold@ cnstr
               }
@@ -238,15 +242,28 @@ icnstrlst_solve_smt  {n:pos} (
         | _ => zero
       //
   } // end of [assert_cnstr]
+  val _ = println! "---- Profile Constraint Solving ----"
+  val tm = timer()
+  val _ = start(tm)
   val () = assert_cnstr (solve, all)
+  val assertion = stop(tm)
+  val tm = timer()
+  val () = println! "---- Parsing ----"
+  val () = println! assertion
+  val _ = start(tm)
   val ans = $SMT.check (solve)
+  val checking = stop(tm)
+  val _ = println! "---- Solving ----"
+  val _ = println! checking
+  val _ = println! "----  End Profile ----"
+  //
   val _ = $SMT.delete_solver (solve)
 in
   // ~1 if unsat, otherwise 0
-  case ans of
-    | 0 => ~1
-    | _ => 0
+  ans
 end //end of [icnstrlst_solve_smt]
+
+(* ****** ****** *)
 
 fun{a:t@ype}
 auxsolve{n:nat}
@@ -304,15 +321,12 @@ val iset = indexset_make_s3exp (vim, s3p_conc)
 //
 // HX: this is the entire constraint matrix
 var ics_all
-  : icnstrlst (a, n+1) = list_vt_cons (ic_conc, ics_asmp)
-val _ = println! "Constraint"
-val _ = print_icnstrlst (ics_all, n+1); val _ = print_newline()
-val _ = print_newline()
+  : icnstrlst (a, n+1) = list_vt_cons (ic_conc_neg, ics_asmp)
 //  Old solver
 //val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
-val ans = icnstrlst_solve_smt<a>(ics_all, n+1)
+val ans =
+  icnstrlst_solve_smt<a>(ics_all, n+1)
 val () = icnstrlst_free<a> (ics_all, n+1)
-val _ = println! ans
 //
 (*
 val () = println! ("auxsolve: ans = ", ans)
@@ -766,7 +780,7 @@ case+ s3iss of
   in
     c3nstr_solve_itmlst_disj (loc0, env, s3is0, s3iss, unsolved, err)
   end // end of [list_cons]
-| list_nil () => ~1(*solved*)
+| list_nil () => ~1 (*solved*)
 //
 end // end of [c3nstr_solve_itmlst_disj]
 

@@ -12,8 +12,13 @@ staload  "prelude/DATS/integer.dats"
 
 (* ****** ****** *)
 
-// A simple wrapper around Z3 for the constraint solver.
-// This is implemented in Postiats
+(*
+  A simple wrapper around Z3 for the constraint solver.
+  This is implemented in Postiats, but I'm giving up on it
+  for now since the list_vt_length function when compiled
+  to C has an empty function body. This is probably because tail 
+  recursive optimization is currently being developed.
+*)
 
 (* ****** ****** *)
 
