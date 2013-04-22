@@ -50,6 +50,8 @@ local
     _: config, _: string
   ): int = "mac#"
   
+  extern fun yices_print_error(_: FILEref): int = "mac#"
+  
   (* ****** ****** *)
   
   extern fun yices_new_context (_: config): context = "mac#"
@@ -106,13 +108,14 @@ in
   implement make_int_sort (ctx) = srt where {
     extern fun yices_int_type (): sort = "mac#"
     val srt = yices_int_type ()
+    val _ = assertloc(srt > ~1)
   }
   
   implement make_constant (ctx, id, srt) = const where {
-    extern fun yices_constant(_: sort, _: int): formula = "mac#"
+    extern fun yices_new_uninterpreted_term (_: sort): formula = "mac#"
     //
-    val const = yices_constant(srt, id)
-    val _ = assertloc(const > ~1)
+    val const = yices_new_uninterpreted_term (srt)
+    val _ = assertloc (const > ~1)
   }
   
   (* ****** ****** *)
