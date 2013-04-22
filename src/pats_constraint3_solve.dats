@@ -81,6 +81,7 @@ staload "./pats_constraint3.sats"
 import Time = "contrib/time"
 
 staload Time("time.sats")
+staload _ = Time("time.dats")
 
 (* ****** ****** *)
   
@@ -88,8 +89,8 @@ staload SMT = "./pats_smt.sats"
 viewtypedef solver = $SMT.solver
 typedef formula = $SMT.formula
 
-//staload _ = "./pats_smt_z3.dats"
-staload _ = "./pats_smt_yices.dats"
+staload _ = "./pats_smt_z3.dats"
+//staload _ = "./pats_smt_yices.dats"
 
 (* ****** ****** *)
 
@@ -99,6 +100,7 @@ local
   staload "libc/SATS/gmp.sats"
   staload "pats_lintprgm_myint_intinf.dats"
   
+  (*
   //Sort shouldn't be a parameter, since I only use integers for now
   implement $SMT.make_numeral<intinfknd> (ctx, num, srt) = wff where {
     extern fun yices_mpz (_: &mpz_vt): formula = "mac#"
@@ -112,6 +114,8 @@ local
     prval () = mienc (num)
     //
   }
+  *)
+  
 in end
 
 local
@@ -351,13 +355,13 @@ val iset = indexset_make_s3exp (vim, s3p_conc)
 var ics_all
   : icnstrlst (a, n+1) = list_vt_cons (ic_conc_neg, ics_asmp)
 //  Old solver
-//val tm = timer()
-//val _ = start(tm)
-//val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
-//val elapsed = stop(tm)
-//val _ = println!("Solving: ",elapsed, " us")
-val ans =
-  icnstrlst_solve_smt<a>(ics_all, n+1)
+// val tm = timer()
+// val _ = start(tm)
+val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
+// val elapsed = stop(tm)
+// val _ = println!("Solving: ",elapsed, " us")
+// New solver
+//val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
 val () = icnstrlst_free<a> (ics_all, n+1)
 //
 (*
