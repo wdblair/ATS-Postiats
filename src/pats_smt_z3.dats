@@ -1,4 +1,5 @@
 staload "pats_smt.sats"
+staload "pats_lintprgm.sats"
 
 (* ****** ****** *)
 
@@ -13,12 +14,12 @@ staload  "prelude/DATS/integer.dats"
 (* ****** ****** *)
 
 // A simple wrapper around Z3 for the constraint solver.
-// This is implemented in Postiats
 
 (* ****** ****** *)
 
 abstype config = ptr
 abstype context = ptr
+abstype symbol = ptr
 abstype z3_solver = ptr
 
 assume solver = '{
@@ -61,6 +62,16 @@ local
   fun Z3_inc_ref (
     _: context, _: formula
   ): void = "mac#"
+
+  fun make_int_symbol (
+    solve: !solver, id: int
+  ): symbol = sym where {
+    extern fun Z3_mk_int_symbol (
+      _: context, _: int
+    ): symbol = "mac#"
+    //
+    val sym = Z3_mk_int_symbol (solve.ctx, id)
+  }
   
   (* ****** ****** *)
 
@@ -75,26 +86,46 @@ local
   fun make_binop (
     solve: !solver, wffs: List_vt(formula), func: binop_func
   ): formula = res where {
-    val len = list_vt_length(wffs)
+    val len = list_vt_length (wffs)
     val ()  = assertloc(len >= 0)
-    val len' = size1_of_int1(len)  //need some shorthand, like (size)
-    val (pf | p, free) = array_ptr_allocfree<formula>(len')
-    val () = array_ptr_initialize_lst_vt<formula>(!p, wffs)
+    val len' = size1_of_int1 (len)  //need some shorthand, like (size)
+    val (pf | p, free) = array_ptr_allocfree<formula> (len')
+    val () = array_ptr_initialize_lst_vt<formula> (!p, wffs)
     //
-    val res = func(solve.ctx, len, !p)
-    val () = free(pf | p)
-    val _ = Z3_inc_ref(solve.ctx, res)
+    val res = func (solve.ctx, len, !p)
+    val () = free (pf | p)
+    val _ = Z3_inc_ref (solve.ctx, res)
     //
   }
 in
   implement make_solver () = solve where {
-    extern fun Z3_mk_config(): config = "mac#"
-    extern fun Z3_mk_context_rc(_: config): context = "mac#"
-    extern fun Z3_mk_solver(_: context): z3_solver = "mac#"
+    abstype tactic = ptr
+    //  
+    extern fun Z3_mk_config (): config = "mac#"
+    extern fun Z3_mk_context_rc (_: config): context = "mac#"
+    extern fun Z3_mk_solver_from_tactic (
+      _: context, _: tactic
+    ): (z3_solver) = "mac#"
+    extern fun Z3_mk_solver (
+      _: context
+    ): z3_solver = "mac#"
+    //
+    extern fun Z3_mk_tactic (_: context, _: string): tactic = "mac#"
+    extern fun Z3_tactic_inc_ref (_: context, _: tactic): void = "mac#"
+    extern fun Z3_tactic_and_then (
+      _: context, _: tactic, _:tactic
+    ): tactic = "mac#"
+    extern fun Z3_tactic_or_else (
+      _: context, _: tactic, _: tactic
+    ): tactic = "mac#"
     //
     val conf = Z3_mk_config ()
-    val ctx = Z3_mk_context_rc(conf)
-    val z3solve = Z3_mk_solver(ctx)
+    val ctx = Z3_mk_context_rc (conf)
+    //
+    val qflia = Z3_mk_tactic (ctx, "qflia")
+    val _ = Z3_tactic_inc_ref (ctx, qflia)
+    //
+    val (z3solve) = Z3_mk_solver_from_tactic (ctx, qflia)
     val solve = '{ctx= ctx, slv= z3solve}
   }
   
@@ -114,17 +145,12 @@ in
     val srt = Z3_mk_int_sort (solve.ctx)
   }
   
-  implement make_int_symbol (solve, id) = sym where {
-    extern fun Z3_mk_int_symbol (_: context, _: int): symbol = "mac#"
-    //
-    val sym = Z3_mk_int_symbol (solve.ctx, id)
-  }
-  
-  implement make_constant (solve, sym, srt) = cst where {
+  implement make_constant (solve, id, srt) = cst where {
     extern fun Z3_mk_const (
       _: context, _: symbol, _: sort
     ): formula = "mac#"
     //
+    val sym = make_int_symbol(solve, id)
     val cst = Z3_mk_const (solve.ctx, sym, srt)
     val _ = Z3_inc_ref(solve.ctx, cst)
   }
@@ -146,13 +172,21 @@ in
     
   (* ****** ****** *)
   
-  implement make_numeral (solve, str, srt) = num where {
+  implement{a} make_numeral (solve, num, srt) = num where {
     extern fun Z3_mk_numeral (
       _: context, _: string, _: sort
     ): formula = "mac#"
     //
+    val str = myint_string<a> (num)
+    //
     val num = Z3_mk_numeral(solve.ctx, str, srt)
     val _ = Z3_inc_ref(solve.ctx, num)
+  }
+  
+  implement make_numeral_int (solver, num, srt) = wff where {
+    extern fun Z3_mk_int (_: context, _: int, _: sort): formula = "mac#"
+    val wff = Z3_mk_int(solver.ctx, num, srt)
+    val _ = Z3_inc_ref(solver.ctx, wff)
   }
   
   implement make_add (solve, wffs) = make_binop(solve, wffs, Z3_mk_add)

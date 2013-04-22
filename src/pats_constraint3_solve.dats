@@ -88,7 +88,31 @@ staload SMT = "./pats_smt.sats"
 viewtypedef solver = $SMT.solver
 typedef formula = $SMT.formula
 
+//staload _ = "./pats_smt_z3.dats"
+staload _ = "./pats_smt_yices.dats"
+
 (* ****** ****** *)
+
+
+
+local
+  staload "libc/SATS/gmp.sats"
+  staload "pats_lintprgm_myint_intinf.dats"
+  
+  //Sort shouldn't be a parameter, since I only use integers for now
+  implement $SMT.make_numeral<intinfknd> (ctx, num, srt) = wff where {
+    extern fun yices_mpz (_: &mpz_vt): formula = "mac#"
+    //
+    prval () = midec (num)
+    prval pfat_num = num.1
+    //
+    val wff = yices_mpz(!(num.2))
+    //
+    prval () = num.1 := pfat_num
+    prval () = mienc (num)
+    //
+  }
+in end
 
 local
 //
@@ -121,7 +145,7 @@ indexset_make_s3exp
         val ind = s2varindmap_find (vim, s2v)
         val res = (
           if ind > 0 then indexset_add (res, ind) else res
-        ) : res // end of [val]
+        ): res // end of [val]
       in
         loop (s2vs, vim, res)
       end // end of [list_vt_cons]
@@ -132,7 +156,6 @@ indexset_make_s3exp
 in
   loop (s2vs, vim, indexset_nil ())
 end // end of [indexset_make_s3exp]
-
 
 (* ****** ****** *)
 
@@ -149,14 +172,13 @@ icnstrlst_solve_smt  {n:pos} (
     if i = 0 then
       res
     else let
-      val sym = $SMT.make_int_symbol (solve, i)
-      val cst = $SMT.make_constant (solve, sym, srt)
+      val cst = $SMT.make_constant (solve, i, srt)
     in
       decl_vars (solve, i-1, list_cons(cst, res))
     end
   //
   val vars = decl_vars (solve, n-1, list_nil())
-  val zero = $SMT.make_numeral (solve, "0", srt)
+  val zero = $SMT.make_numeral_int (solve, 0, srt)
   //
   fun assert_cnstr {i:nat} (
     solve: !solver, cnstr: &list_vt(icnstr(a, n), i)
@@ -182,7 +204,7 @@ icnstrlst_solve_smt  {n:pos} (
         res
       else let
         val cff_ats = iv[i-1]
-        val cff_z3 = $SMT.make_numeral (solve, myint_string(cff_ats), srt)
+        val cff_z3 = $SMT.make_numeral<a> (solve, cff_ats, srt)
         val _ = myint_free (cff_ats)
         val formula =
           if i = 1 then
@@ -217,7 +239,8 @@ icnstrlst_solve_smt  {n:pos} (
          end
         | ICveclst (knd, !ivs) => let
           fun loop(
-            solve: !solver, cnstr: &List_vt(icnstr(a, n)), res: List_vt(formula)
+            solve: !solver, cnstr: &List_vt(icnstr(a, n)), 
+              res: List_vt(formula)
           ):<cloref1> List_vt(formula) =
             case+ cnstr of
               | list_vt_cons(!c, !cs) => let
@@ -242,20 +265,25 @@ icnstrlst_solve_smt  {n:pos} (
         | _ => zero
       //
   } // end of [assert_cnstr]
-  val _ = println! "---- Profile Constraint Solving ----"
-  val tm = timer()
-  val _ = start(tm)
+//  val _ = println! "---- Profile Constraint Solving ----"
+//  val tm = timer()
+//  val _ = start(tm)
   val () = assert_cnstr (solve, all)
+(*
+  Profiling the solver
   val assertion = stop(tm)
   val tm = timer()
   val () = println! "---- Parsing ----"
   val () = println! assertion
   val _ = start(tm)
+*)  
   val ans = $SMT.check (solve)
+(*  
   val checking = stop(tm)
   val _ = println! "---- Solving ----"
   val _ = println! checking
   val _ = println! "----  End Profile ----"
+*)
   //
   val _ = $SMT.delete_solver (solve)
 in
@@ -265,8 +293,8 @@ end //end of [icnstrlst_solve_smt]
 
 (* ****** ****** *)
 
-fun{a:t@ype}
-auxsolve{n:nat}
+fun {a:t@ype}
+auxsolve {n:nat}
 (
   loc0: location
 , vim: !s2varindmap (n), n: int n
@@ -323,7 +351,11 @@ val iset = indexset_make_s3exp (vim, s3p_conc)
 var ics_all
   : icnstrlst (a, n+1) = list_vt_cons (ic_conc_neg, ics_asmp)
 //  Old solver
+//val tm = timer()
+//val _ = start(tm)
 //val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
+//val elapsed = stop(tm)
+//val _ = println!("Solving: ",elapsed, " us")
 val ans =
   icnstrlst_solve_smt<a>(ics_all, n+1)
 val () = icnstrlst_free<a> (ics_all, n+1)

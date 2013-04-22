@@ -1,18 +1,26 @@
 %{#
 #include <z3.h>
+#include <yices.h>
 %}
 
 #define ATS_STALOADFLAG 0
 
 (* ****** ****** *)
 
+staload "pats_lintprgm.sats"
+
+(* ****** ****** *)
+
 absviewtype solver = ptr
 
-abstype symbol = ptr
+// #include "pats_smt_z3.hats"
+#include "pats_smt_yices.hats"
 
-abstype formula = ptr
+// Yices - 32bit integers
+// Z3 - pointers
+abst@ype formula = __formula_size
 
-abstype sort = ptr
+abst@ype sort = __sort_size
 
 (* ****** ****** *)
 
@@ -24,18 +32,14 @@ fun delete_solver(_: solver): void = "delete_solver"
 
 fun make_int_sort (_: !solver): sort = "make_int_sort"
 
-fun make_int_symbol (
-  _: !solver, _: int
-): symbol = "make_int_symbol"
-
 fun make_constant (
-  _: !solver, _: symbol, _: sort
+  _: !solver, id: int, _: sort
 ): formula = "make_constant"
 
 (* ****** ****** *)
 
 // Prop Logic
-  
+
 fun make_and (
   _: !solver, _: List_vt(formula)
 ): formula = "make_and"
@@ -52,9 +56,13 @@ fun make_not (
 
 // Arithmetic
 
-fun make_numeral (
-  _: !solver, _: string, _: sort
+fun {a:t@ype} make_numeral (
+  _: !solver, _: !myint(a), _: sort
 ): formula = "make_numeral"
+
+fun make_numeral_int (
+  _: !solver, _: int, _: sort
+): formula = "make_numeral_int"
 
 fun make_add (_: !solver, _: List_vt(formula)): formula = "make_add"
 
