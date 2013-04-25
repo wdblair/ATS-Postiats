@@ -95,12 +95,12 @@ staload _ = "./pats_smt_z3.dats"
 (* ****** ****** *)
 
 
-
+#ifdef CONSTRAINT_SOLVER
+#if CONSTRAINT_SOLVER == "yices"
 local
   staload "libc/SATS/gmp.sats"
   staload "pats_lintprgm_myint_intinf.dats"
   
-  (*
   //Sort shouldn't be a parameter, since I only use integers for now
   implement $SMT.make_numeral<intinfknd> (ctx, num, srt) = wff where {
     extern fun yices_mpz (_: &mpz_vt): formula = "mac#"
@@ -114,9 +114,8 @@ local
     prval () = mienc (num)
     //
   }
-  *)
-  
 in end
+#endif
 
 local
 //

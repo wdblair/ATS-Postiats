@@ -46,4 +46,8 @@
 
 (* ****** ****** *)
 
+#define CONSTRAINT_SOLVER "yices"
+
+(* ****** ****** *)
+
 (* end of [pats_params.hats] *)
