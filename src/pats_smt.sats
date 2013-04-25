@@ -41,14 +41,25 @@
 
 (* ****** ****** *)
 
+#include "pats_params.hats"
+
+(* ****** ****** *)
+
 staload "pats_lintprgm.sats"
 
 (* ****** ****** *)
 
 absviewtype solver = ptr
 
+#ifdef CONSTRAINT_SOLVER
+
+#if CONSTRAINT_SOLVER == "z3"
 #include "pats_smt_z3.hats"
-// #include "pats_smt_yices.hats"
+#elif CONSTRAINT_SOLVER == "yices"  
+#include "pats_smt_yices.hats"
+#endif
+
+#endif
 
 // Yices - 32bit integers
 // Z3 - pointers
