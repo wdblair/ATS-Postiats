@@ -46,7 +46,9 @@
 
 (* ****** ****** *)
 
-#define CONSTRAINT_SOLVER "yices"
+#define USE_Z3 1
+
+// #define CONSTRAINT_SOLVER "none"
 
 (* ****** ****** *)
 
