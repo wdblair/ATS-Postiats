@@ -78,25 +78,19 @@ staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
 
-import Time = "contrib/time"
-
-staload Time("time.sats")
-staload _ = Time("time.dats")
-
-(* ****** ****** *)
-  
 staload SMT = "./pats_smt.sats"
 viewtypedef solver = $SMT.solver
 typedef formula = $SMT.formula
 
-staload _ = "./pats_smt_z3.dats"
-//staload _ = "./pats_smt_yices.dats"
-
 (* ****** ****** *)
 
+#ifdef USE_Z3
+staload _ = "./pats_smt_z3.dats"
+#endif
 
-#ifdef CONSTRAINT_SOLVER
-#if CONSTRAINT_SOLVER == "yices"
+#ifdef USE_YICES
+//staload _ = "./pats_smt_yices.dats"
+
 local
   staload "libc/SATS/gmp.sats"
   staload "pats_lintprgm_myint_intinf.dats"
@@ -207,13 +201,13 @@ icnstrlst_solve_smt  {n:pos} (
         res
       else let
         val cff_ats = iv[i-1]
-        val cff_z3 = $SMT.make_numeral<a> (solve, cff_ats, srt)
+        val cff_smt = $SMT.make_numeral<a> (solve, cff_ats, srt)
         val _ = myint_free (cff_ats)
         val formula =
           if i = 1 then
-            cff_z3
+            cff_smt
           else
-            $SMT.make_mul (solve, cff_z3, vars[i-2])
+            $SMT.make_mul (solve, cff_smt, vars[i-2])
       in 
         formula_of_vector (solve, iv, i-1, list_vt_cons(formula, res))
       end
@@ -325,7 +319,6 @@ val ics_asmp = let
           println! ("auxsolve: loop: s3p = ", s3p);
           print "auxsolve: loop: ic = "; print_icnstr (ic, n+1); print_newline ();
         ) // end of [val]
-*)
       in
         loop (loc0, vim, n, s3ps, list_vt_cons (ic, res))
       end // end of [list_cons]
@@ -353,14 +346,12 @@ val iset = indexset_make_s3exp (vim, s3p_conc)
 // HX: this is the entire constraint matrix
 var ics_all
   : icnstrlst (a, n+1) = list_vt_cons (ic_conc_neg, ics_asmp)
-//  Old solver
-// val tm = timer()
-// val _ = start(tm)
+  
+#ifndef CONSTRAINT_SOLVER
 val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
-// val elapsed = stop(tm)
-// val _ = println!("Solving: ",elapsed, " us")
-// New solver
-//val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
+#else
+val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
+#endif
 val () = icnstrlst_free<a> (ics_all, n+1)
 //
 (*
@@ -857,6 +848,7 @@ case+ 0 of
   } // end of [_]
 //
 end // end of [c3nstr_solve]
+
 
 (* ****** ****** *)
 

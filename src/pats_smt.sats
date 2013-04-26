@@ -51,18 +51,18 @@ staload "pats_lintprgm.sats"
 
 absviewtype solver = ptr
 
-#ifdef CONSTRAINT_SOLVER
+//Default
+#define __formula_size ptr
+#define __sort_size ptr
 
-#if CONSTRAINT_SOLVER == "z3"
+#ifdef USE_Z3
 #include "pats_smt_z3.hats"
-#elif CONSTRAINT_SOLVER == "yices"  
+#endif
+
+#ifdef USE_YICES
 #include "pats_smt_yices.hats"
 #endif
 
-#endif
-
-// Yices - 32bit integers
-// Z3 - pointers
 abst@ype formula = __formula_size
 
 abst@ype sort = __sort_size
