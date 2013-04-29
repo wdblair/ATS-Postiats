@@ -135,7 +135,7 @@ fun check (_: !solver): [s: status] int s = "check"
 // Debugging (SMT-Lib)
 
 fun string_of_formula (
-  _: !solver, _: formula
+  _: !solver, _: !formula
 ): string = "string_of_formula"
 
 (* ****** ****** *)
