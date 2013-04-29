@@ -260,15 +260,15 @@ SET (
 SET(SMT_INCLUDE "none" CACHE STRING "The SMT Solver you'd like to use, if any.")
 SET(SMT_LIB)
 
-IF( SMT_INCLUDE EQUAL "none")
+IF( SMT_INCLUDE STREQUAL "none")
       # Nothing
-ELSE( SMT_INCLUDE EQUAL "z3")
+ELSEIF( SMT_INCLUDE STREQUAL "z3")
       SET(SMT_LIB z3)
       LIST(APPEND SOURCES pats_smt_z3.dats)
-ELSE( SMT_INCLUDE EQUAL "yices")
-#      SET(SMT_LIB yices)
-#      LIST(APPEND SOURCES pats_smt_yices.dats)
-ENDIF(SMT_INCLUDE EQUAL "none")
+ELSEIF( SMT_INCLUDE STREQUAL "yices")
+      SET(SMT_LIB yices)
+      LIST(APPEND SOURCES pats_smt_yices.dats)
+ENDIF(SMT_INCLUDE STREQUAL "none")
 
 ATS_COMPILE (
 POSTIATS_C_TARGET

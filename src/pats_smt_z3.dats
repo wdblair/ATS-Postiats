@@ -38,8 +38,8 @@ staload "pats_lintprgm.sats"
 (* ****** ****** *)
 
 staload _ = "prelude/DATS/list_vt.dats"
-staload  "prelude/DATS/array.dats"
-staload  "prelude/DATS/integer.dats"
+staload _ = "prelude/DATS/array.dats"
+staload _ = "prelude/DATS/integer.dats"
 
 (* ****** ****** *)
 
@@ -97,6 +97,11 @@ local
     _: context, _: formula
   ): void = "mac#"
 
+  extern
+  fun Z3_dec_ref (
+    _: context, _: formula
+  ): void = "mac#"
+
   fun make_int_symbol (
     solve: !solver, id: int
   ): symbol = sym where {
@@ -127,8 +132,24 @@ local
     val () = array_ptr_initialize_lst_vt<formula> (!p, wffs)
     //
     val res = func (solve.ctx, len, !p)
-    val () = free (pf | p)
     val _ = Z3_inc_ref (solve.ctx, res)
+    val () = clear_formulas(!p, len') where {
+      fun clear_formulas {n:nat} (
+        buf: &(@[formula][n]), sz: size_t n
+      ):<cloref1> void = 
+        loop(buf, 0) where {
+        fun loop {i:nat | i <= n} (
+          buf: &(@[formula][n]), i: size_t i
+        ):<cloref1> void = 
+          if i = sz then
+            ()
+          else let
+            val fm = buf.[i]
+            val _ = Z3_dec_ref(solve.ctx, fm)
+          in loop(buf, i+1) end
+      }
+    }
+    val () = free (pf | p)
     //
   }
 in
@@ -146,6 +167,7 @@ in
     //
     extern fun Z3_mk_tactic (_: context, _: string): tactic = "mac#"
     extern fun Z3_tactic_inc_ref (_: context, _: tactic): void = "mac#"
+    extern fun Z3_tactic_dec_ref (_: context, _: tactic): void = "mac#"
     extern fun Z3_tactic_and_then (
       _: context, _: tactic, _:tactic
     ): tactic = "mac#"
@@ -160,12 +182,15 @@ in
     val _ = Z3_tactic_inc_ref (ctx, qflia)
     //
     val (z3solve) = Z3_mk_solver_from_tactic (ctx, qflia)
+    val () = Z3_tactic_dec_ref(ctx, qflia)
     val solve = '{ctx= ctx, slv= z3solve}
   }
   
   implement delete_solver (solve) = {
-    extern fun Z3_del_context(_: context): void = "mac#"
+    extern fun Z3_del_context (_: context): void = "mac#"
+    extern fun Z3_solver_dec_ref (_: context, _: z3_solver): void = "mac#"
     //
+    val () = Z3_solver_dec_ref(solve.ctx, solve.slv)
     val () = Z3_del_context(solve.ctx)
     prval _ = __free(solve) where {
       extern
@@ -283,6 +308,7 @@ in
     ): void = "mac#"
     //
     val _ = Z3_solver_assert(solve.ctx, solve.slv, formula)
+    val _ = Z3_dec_ref(solve.ctx, formula)
   }
   
   macdef Z3_FALSE = $extval(int, "Z3_L_FALSE")
