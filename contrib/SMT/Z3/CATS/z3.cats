@@ -59,10 +59,35 @@
 ATSinline()
 Z3_ast
 atscntrb_Z3_inc_ref
-  (Z3_ast a) { Z3_inc_ref (a); return a ; }
+  (Z3_context ctx, Z3_ast a) { Z3_inc_ref (ctx, a); return a ; }
 // end of [atscntrb_Z3_inc_ref]
 
-#define atscntrb_Z3_dec_ref(a) Z3_dec_ref(a)
+#define atscntrb_Z3_dec_ref(ctx, a) Z3_dec_ref(ctx, a)
+
+/* ****** ****** */
+
+#define Z3_DECLARE_MK_AST(function, ...)                    \
+  ATSinline()                                               \
+  Z3_ast                                                    \
+  atscntrb_##function                                       \
+  (Z3_context ctx, __VA_ARGS__)
+
+#define Z3_BODY_MK_AST(function, ...)                       \
+  Z3_ast a = function(ctx, __VA_ARGS__);                    \
+  Z3_error_code e = Z3_get_error_code(ctx);                 \
+  if (e != Z3_OK) {                                         \
+    Z3_string msg = Z3_get_error_msg_ex(ctx, e);            \
+    fprintf(stderr, "Z3 Error: %s\n", msg);                 \
+  }                                                         \
+  return atscntrb_Z3_inc_ref(ctx, a);                       \
+
+#define Z3_DECLARE_DEC_REF(type)                \
+  ATSinline()                                   \
+  atsype_void                                   \
+  atscntrb_##type##_dec_ref                     \
+  (Z3_context ctx, type a) {                    \
+    Z3_dec_ref(ctx, type##_to_ast(a));          \
+  }                                             \
 
 /* ****** ****** */
 
