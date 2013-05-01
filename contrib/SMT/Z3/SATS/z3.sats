@@ -112,7 +112,7 @@ void
 Z3_del_context (__in Z3_context c)
 Delete the given logical context.
 *)
-fun Z3_del_context (ctx: Z3_context): void
+fun Z3_del_context (ctx: Z3_context): void = "mac#%"
  
 (* ****** ****** *)
 

@@ -100,6 +100,11 @@ Z3_solver_get_model{l:addr}
   minus (Z3_solver l, Z3_model l2) | Z3_model l2
 ) // end of [Z3_solver_get_model]
 
+fun Z3_mk_solver_from_tactic
+(
+  ctx: !Z3_context, t: !Z3_tactic
+): Z3_solver = "mac#%" // end of [Z3_mk_solver_from_tactic]
+
 (* ****** ****** *)
 
 extern fun Z3_solver_get_num_scopes (

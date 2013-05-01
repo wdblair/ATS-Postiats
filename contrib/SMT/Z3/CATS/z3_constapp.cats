@@ -37,6 +37,12 @@
 
 /* ****** ****** */
 
+Z3_DECLARE_MK_AST(Z3_mk_fresh_const, Z3_string prefix, Z3_sort ty) {
+  Z3_BODY_MK_AST(Z3_mk_fresh_const, prefix, ty)
+}
+
+/* ****** ****** */
+
 #endif // end of [Z3_Z3_CONSTAPP_CATS]
 
 /* ****** ****** */
