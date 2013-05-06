@@ -183,6 +183,8 @@ icnstrlst_solve_smt  {n:pos} (
     case+ cnstr of 
       | list_vt_cons(!c, !cs) => {
         val wff = formula_of_constr(solve, !c)
+        val _ = 
+          println!("(assert ", $SMT.string_of_formula(solve, wff),",)")
         val _ = $SMT.assert(solve, wff)
         //
         val _ = assert_cnstr(solve, !cs)
@@ -265,7 +267,10 @@ icnstrlst_solve_smt  {n:pos} (
 //  val _ = println! "---- Profile Constraint Solving ----"
 //  val tm = timer()
 //  val _ = start(tm)
+  val () = println!("(push 1)")
   val () = assert_cnstr (solve, all)
+  val () = println!("(check-sat)")
+  val () = println!("(pop 1)")
 (*
   Profiling the solver
   val assertion = stop(tm)
