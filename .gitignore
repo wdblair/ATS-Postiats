@@ -21,7 +21,7 @@ patscc_env.sh
 patsopt_env.sh
 
 #
-# The compiler for POSTIATS 
+# The compiler for POSTIATS
 #
 src/patsopt
 src/.depend
