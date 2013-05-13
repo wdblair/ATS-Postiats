@@ -4,7 +4,7 @@ staload "SATS/fifo.sats"
 
 (* ****** ****** *)
 
-fun make_ubrr {n:pos} (baud: uint n): uint
+fun{} make_ubrr {n:pos} (baud: uint n): uint
 
 fun {m:mcu} init {n:pos} (
   baud: uint n
@@ -21,6 +21,10 @@ fun {m:mcu} async_init (
   baud: uint
 ): void
 
-fun {m:mcu} async_rx(_: !INT_SET | ): char
+fun {m:mcu} async_rx (
+  _: !INT_SET | 
+): char
 
-fun {m:mcu} async_tx(_: !INT_SET | c: char): int
+fun {m:mcu} async_tx (
+  _: !INT_SET | c: char
+) : int
