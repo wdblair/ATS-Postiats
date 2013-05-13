@@ -31,6 +31,7 @@ src/Makefile_atxt.txt
 src/TAGS
 src/tags
 src/TAGATS
+src/pats_contraint3_solve_smt.h
 
 bin/patscc
 bin/patsopt

@@ -1,5 +1,10 @@
 staload "SATS/io.sats"
 staload "SATS/interrupt.sats"
+staload "SATS/fifo.sats"
+
+(* ****** ****** *)
+
+fun make_ubrr {n:pos} (baud: uint n): uint
 
 fun {m:mcu} init {n:pos} (
   baud: uint n

@@ -46,14 +46,4 @@
 
 (* ****** ****** *)
 
-#define USE_Z3 1
-
-// #define USE_YICES 1
-
-#define USE_SMT 1
-
-// #define CONSTRAINT_SOLVER "none"
-
-(* ****** ****** *)
-
 (* end of [pats_params.hats] *)

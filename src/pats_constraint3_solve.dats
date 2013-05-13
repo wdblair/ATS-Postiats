@@ -84,32 +84,13 @@ typedef formula = $SMT.formula
 
 (* ****** ****** *)
 
-#ifdef USE_Z3
-staload _ = "./pats_smt_z3.dats"
-#endif
+import Time = "contrib/time"
 
-#ifdef USE_YICES
-//staload _ = "./pats_smt_yices.dats"
+staload Time("time.sats")
 
-local
-  staload "libc/SATS/gmp.sats"
-  staload "pats_lintprgm_myint_intinf.dats"
-  
-  //Sort shouldn't be a parameter, since I only use integers for now
-  implement $SMT.make_numeral<intinfknd> (ctx, num, srt) = wff where {
-    extern fun yices_mpz (_: &mpz_vt): formula = "mac#"
-    //
-    prval () = midec (num)
-    prval pfat_num = num.1
-    //
-    val wff = yices_mpz(!(num.2))
-    //
-    prval () = num.1 := pfat_num
-    prval () = mienc (num)
-    //
-  }
-in end
-#endif
+(* ****** ****** *)
+
+#include "pats_constraint3_solve_smt.hats"
 
 local
 //
@@ -181,16 +162,18 @@ icnstrlst_solve_smt  {n:pos} (
     solve: !solver, cnstr: &list_vt(icnstr(a, n), i)
   ):<cloref1> void = (
     case+ cnstr of 
+      | list_vt_nil () => {
+        prval () = fold@ cnstr
+      }
       | list_vt_cons(!c, !cs) => {
         val wff = formula_of_constr(solve, !c)
         val _ = 
           println!("(assert ", $SMT.string_of_formula(solve, wff),",)")
         val _ = $SMT.assert(solve, wff)
+        val tm = stop(t)
+        val _ = println!("assert:", tm)
         //
         val _ = assert_cnstr(solve, !cs)
-        prval () = fold@ cnstr
-       }
-      | list_vt_nil () => {
         prval () = fold@ cnstr
       }
   ) where {
@@ -264,28 +247,11 @@ icnstrlst_solve_smt  {n:pos} (
         | _ => zero
       //
   } // end of [assert_cnstr]
-//  val _ = println! "---- Profile Constraint Solving ----"
-//  val tm = timer()
-//  val _ = start(tm)
-  val () = println!("(push 1)")
   val () = assert_cnstr (solve, all)
-  val () = println!("(check-sat)")
-  val () = println!("(pop 1)")
-(*
-  Profiling the solver
-  val assertion = stop(tm)
-  val tm = timer()
-  val () = println! "---- Parsing ----"
-  val () = println! assertion
-  val _ = start(tm)
-*)  
+  val t = timer (); val _ = start (t)
   val ans = $SMT.check (solve)
-(*  
-  val checking = stop(tm)
-  val _ = println! "---- Solving ----"
-  val _ = println! checking
-  val _ = println! "----  End Profile ----"
-*)
+  val tm = stop (t)
+  val _ = println!("check:", tm)
   //
   val _ = $SMT.delete_solver (solve)
 in
@@ -352,8 +318,11 @@ val iset = indexset_make_s3exp (vim, s3p_conc)
 var ics_all
   : icnstrlst (a, n+1) = list_vt_cons (ic_conc_neg, ics_asmp)
   
-#ifndef CONSTRAINT_SOLVER
+#ifndef USE_SMT
+val t = timer (); val _ = start (t)
 val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
+val tm = stop (t)
+val _ = println! ("solve:", tm)
 #else
 val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
 #endif

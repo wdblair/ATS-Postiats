@@ -2,6 +2,8 @@ MCU=atmega328p
 F_CPU=16000000UL
 all: timer
 
+PATSOPT=patsopt-yices
+
 AVRPATH= $(PATSHOME)/contrib/avr
 
 timer: timer_dats.c
@@ -11,10 +13,10 @@ timer: timer_dats.c
 	avr-objcopy -O ihex $@ ~/Dropbox/$@.hex
 
 typecheck: timer.dats
-	patsopt-z3 -IATS $(PATSHOME)/contrib/avr --typecheck --dynamic $<
+	$(PATSOPT) -IATS $(PATSHOME)/contrib/avr --typecheck --dynamic $<
 
 timer_dats.c: timer.dats
-	patsopt-z3 -IATS $(PATSHOME)/contrib/avr --output $@ --dynamic $<
+	$(PATSOPT) -IATS $(PATSHOME)/contrib/avr --output $@ --dynamic $<
 
 .phony: clean
 
