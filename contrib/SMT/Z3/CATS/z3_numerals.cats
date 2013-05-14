@@ -27,27 +27,19 @@
 
 /* ****** ****** */
 
-#ifndef Z3_Z3_SORT_CATS
-#define Z3_Z3_SORT_CATS
+#ifndef Z3_Z3_NUMERALS_CATS
+#define Z3_Z3_NUMERALS_CATS
 
 /* ****** ****** */
 
-Z3_DECLARE_DEC_REF(Z3_sort)
+Z3_DECLARE_MK_AST(Z3_mk_numeral, const char * numeral, Z3_sort ty) {
+  Z3_BODY_MK_AST(Z3_mk_numeral, numeral, ty)
+}
 
-ATSinline()
-Z3_sort
-atscntrb_Z3_mk_int_sort(Z3_context ctx) {
-  Z3_sort ty = Z3_mk_int_sort(ctx);
-
-  Z3_error_code e = Z3_get_error_code(ctx);
-  if (e != Z3_OK) {
-    Z3_string msg = Z3_get_error_msg_ex(ctx, e);
-    fprintf(stderr, "Z3 Error: %s\n", msg);
-  }
-  Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty));
-  return ty;
+Z3_DECLARE_MK_AST(Z3_mk_int, int numeral, Z3_sort ty) {
+  Z3_BODY_MK_AST(Z3_mk_int, numeral, ty)
 }
 
 /* ****** ****** */
 
-#endif // end of [Z3_Z3_SORT_CATS]
+#endif
