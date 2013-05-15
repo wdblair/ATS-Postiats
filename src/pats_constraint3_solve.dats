@@ -170,7 +170,7 @@ icnstrlst_solve_smt  {n:pos} (
         val _ = 
           println!("(assert ", $SMT.string_of_formula(solve, wff),",)")
         val _ = $SMT.assert(solve, wff)
-        val tm = stop(t)
+        val tm = stop_ns(t)
         val _ = println!("assert:", tm)
         //
         val _ = assert_cnstr(solve, !cs)
@@ -250,7 +250,7 @@ icnstrlst_solve_smt  {n:pos} (
   val () = assert_cnstr (solve, all)
   val t = timer (); val _ = start (t)
   val ans = $SMT.check (solve)
-  val tm = stop (t)
+  val tm = stop_ns (t)
   val _ = println!("check:", tm)
   //
   val _ = $SMT.delete_solver (solve)
@@ -321,7 +321,7 @@ var ics_all
 #ifndef USE_SMT
 val t = timer (); val _ = start (t)
 val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
-val tm = stop (t)
+val tm = stop_ns (t)
 val _ = println! ("solve:", tm)
 #else
 val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
