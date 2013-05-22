@@ -149,6 +149,17 @@ end) // end of [intinf_get_int]
 (* ****** ****** *)
 
 implement
+intinf_get_string (x) =
+  $effmask_ref (let
+    val (vbox pf_mpz | p) = ref_get_view_ptr (x)
+    val str = mpz_get_str(10, !p)
+in
+  string_of_strptr(str)
+end) // end of [intinf_get_string]
+
+(* ****** ****** *)
+
+implement
 lt_intinf_int (x1, x2) =
   compare_intinf_int (x1, x2) < 0
 // end of [lt_intinf_int]

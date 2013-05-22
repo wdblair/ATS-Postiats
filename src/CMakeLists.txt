@@ -55,12 +55,12 @@ SET (
     pats_comarg.dats
     pats_comarg.sats
     pats_constraint3.dats
-    pats_constraint3_icnstr.dats
     pats_constraint3_init.dats
     pats_constraint3_print.dats
     pats_constraint3.sats
     pats_constraint3_simplify.dats
     pats_constraint3_solve.dats
+    pats_constraint3_smt.dats
     pats_counter.dats
     pats_counter.sats
     pats_depgen.dats
@@ -121,12 +121,6 @@ SET (
     pats_lexing_print.dats
     pats_lexing.sats
     pats_lexing_token.dats
-    pats_lintprgm.dats
-    pats_lintprgm_myint_int.dats
-    pats_lintprgm_myint_intinf.dats
-    pats_lintprgm_print.dats
-    pats_lintprgm.sats
-    pats_lintprgm_solve.dats
     pats_location.dats
     pats_location.sats
     pats_main.dats

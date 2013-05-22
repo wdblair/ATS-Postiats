@@ -33,7 +33,7 @@
 (* ****** ****** *)
 
 staload "pats_smt.sats"
-staload "pats_lintprgm.sats"
+staload "pats_intinf.sats"
 
 (* ****** ****** *)
 
@@ -61,15 +61,6 @@ assume solver = '{
   slv= z3_solver
 }
 
-%{^
-void * __make_mul (void *context, void *left, void *right) {
-  Z3_ast buf[2];
-  buf[0] = (Z3_ast) left;
-  buf[1] = (Z3_ast) right;
-  return Z3_mk_mul((Z3_context) context, 2, buf);
-}
-%}
-
 local
 
   extern
@@ -88,8 +79,8 @@ local
   ): formula = "mac#"
   
   extern
-  fun __make_mul (
-    _: context, _: formula, _: formula
+  fun Z3_mk_mul {n:nat} (
+    _: context, _: int n, _: &(@[formula][n])
   ): formula = "mac#"
   
   extern
@@ -228,18 +219,33 @@ in
   
   implement make_and (solve, wffs) =
     make_binop (solve, wffs, Z3_mk_and)
-    
-  (* ****** ****** *)
   
-  implement{a} make_numeral (solve, num, srt) = num where {
+  implement make_or2 (solve, l, r) = wff where {
+    var !args = @[formula][2](l)
+    val () = !args.[0] := l
+    val () = !args.[1] := r
+    val wff = Z3_mk_or (solve.ctx, 2, !args)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
+   
+  implement make_and2 (solve, l, r) = wff where {
+    var !args = @[formula][2](l)
+    val () = !args.[0] := l
+    val () = !args.[1] := r
+    val wff = Z3_mk_and (solve.ctx, 2, !args)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
+  
+  (* ****** ****** *)
+    
+  implement make_numeral_intinf (solve, n, srt) = num where {
     extern fun Z3_mk_numeral (
       _: context, _: string, _: sort
     ): formula = "mac#"
     //
-    val str = myint_string<a> (num)
+    val str = intinf_get_string (n)
     //
-    val num = Z3_mk_numeral(solve.ctx, str, srt)
-    val _ = Z3_inc_ref(solve.ctx, num)
+    val num = Z3_mk_numeral (solve.ctx, str, srt)
   }
   
   implement make_numeral_int (solver, num, srt) = wff where {
@@ -295,9 +301,12 @@ in
     val _ = Z3_inc_ref(solve.ctx, wff)
   }
   
-  implement make_mul (solve, l, r) = wff where {
-    val wff = __make_mul(solve.ctx, l, r)
-    val _ = Z3_inc_ref(solve.ctx, wff)
+  implement make_mul2 (solve, l, r) = wff where {
+    var !args = @[formula][2](l)
+    val () = !args.[0] := l
+    val () = !args.[1] := r
+    val wff = Z3_mk_mul (solve.ctx, 2, !args)
+    val _ = Z3_inc_ref(solve.ctx, wff)    
   }
   
   (* ****** ****** *)
