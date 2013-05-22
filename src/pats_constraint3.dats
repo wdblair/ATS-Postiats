@@ -447,12 +447,13 @@ end // end of [local]
 local
 
 fun auxeq (
-  env: &s2vbcfenv, s2e1: s2exp, s2e2: s2exp
-) : s3exp = let
+  env: &smtenv, s2e1: s2exp, s2e2: s2exp
+) : s2exp = let
 //
-val s2t1 = s2e1.s2exp_srt
-val s3e1 = s3exp_make (env, s2e1)
-and s3e2 = s3exp_make (env, s2e2)
+// val s2t1 = s2e1.s2exp_srt
+
+// val s3e1 = s3exp_make (env, s2e1)
+// and s3e2 = s3exp_make (env, s2e2)
 //
 (*
 val () = println! ("auxeq: s3e1 = ", s3e1)
@@ -460,22 +461,21 @@ and () = println! ("auxeq: s3e2 = ", s3e2)
 *)
 //
 in
+  s2exp_eqeq (s2e1, s2e2)
 //
+(*
 case+ 0 of
-| _ when s2rt_is_int (s2t1) => s3exp_ieq (s3e1, s3e2)
-| _ when s2rt_is_addr (s2t1) => s3exp_ieq (s3e1, s3e2)
-| _ when s2rt_is_bool (s2t1) => s3exp_beq (s3e1, s3e2)
-| _ when s2rt_is_char (s2t1) => s3exp_ieq (s3e1, s3e2)
 | _ => (
     if s2exp_syneq (s2e1, s2e2) then s3exp_true else s3exp_err (s2rt_bool)
   ) // end of [_]
+*)
 //
 end // end of [auxeq]
 
 fun auxbind (
   loc0: location
-, env: &s2vbcfenv, s2v1: s2var, s2e2: s2exp
-) : s3exp = let
+, env: &smtenv, s2v1: s2var, s2e2: s2exp
+) : s2exp = let
 (*
   val () = begin
     print "auxbind: s2v1 = "; print_s2var (s2v1); print_newline ();
@@ -483,15 +483,16 @@ fun auxbind (
   end // end of [val]
 *)
   val s2e1 = s2exp_var (s2v1)
-  val s3be = auxeq (env, s2e1, s2e2)
+  val s2be = auxeq (env, s2e1, s2e2)
   val s2f2 = s2exp2hnf (s2e2)
   val () = trans3_env_hypadd_bind (loc0, s2v1, s2f2)
 in
-  s3be
+  s2be
 end // end of [aux_bind]
 
 in (* in of [local] *)
 
+(*
 implement
 s3exp_make
   (env, s2e0) = let
@@ -572,6 +573,17 @@ s3exp_make_h3ypo
   | H3YPObind (s2v1, s2e2) => auxbind (h3p.h3ypo_loc, env, s2v1, s2e2)
   | H3YPOeqeq (s2e1, s2e2) => auxeq (env, s2e1, s2e2)
 ) // end of [s3exp_make_h3ypo]
+
+*)
+
+implement
+s2exp_make_h3ypo
+  (env, h3p) = (
+  case+ h3p.h3ypo_node of
+  | H3YPOprop s2p => s2p
+  | H3YPObind (s2v1, s2e2) => auxbind (h3p.h3ypo_loc, env, s2v1, s2e2)
+  | H3YPOeqeq (s2e1, s2e2) => auxeq (env, s2e1, s2e2)
+) // end of [s2exp_make_h3ypo]
 
 end // end of [local]
 
