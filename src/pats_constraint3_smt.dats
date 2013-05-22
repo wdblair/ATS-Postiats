@@ -73,7 +73,7 @@ staload "./pats_error.sats"
 (* ****** ****** *)
 
 local
-  
+
 staload LM = "libats/SATS/linmap_avltree.sats"
 staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
 

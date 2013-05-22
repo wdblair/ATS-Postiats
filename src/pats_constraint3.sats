@@ -184,6 +184,8 @@ fun formula_make (env: &smtenv, s2e: s2exp): formula
 //
 fun make_true (env: &smtenv): formula
 //
+fun s2exp_make_h3ypo (env: &smtenv, h3p: h3ypo): s2exp
+//
 // HX: these are auxiliary functions
 //
 fun formula_make_s2cst_s2explst
