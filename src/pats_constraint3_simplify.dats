@@ -56,6 +56,8 @@ staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
 
+(*
+
 implement s3exp_err (s2t) = S3Eerr (s2t)
 implement s3exp_var (s2v) = S3Evar (s2v)
 implement s3exp_cst (s2c) = S3Ecst (s2c)
@@ -91,6 +93,10 @@ s3exp_bool (b) =
 implement s3exp_bvar (s2v) = S3Ebvar (s2v)
 
 (* ****** ****** *)
+
+*)
+
+(*
 
 implement
 s3exp_bneg (s3e0) = (
@@ -705,5 +711,7 @@ s3explst_lintize_flag
 end // end of [s3explst_lintize_flag]
 
 (* ****** ****** *)
+
+*)
 
 (* end of [pats_constraint3_simplify.dats] *)

@@ -45,7 +45,7 @@
 
 (* ****** ****** *)
 
-staload "pats_lintprgm.sats"
+staload "pats_intinf.sats"
 
 (* ****** ****** *)
 
@@ -113,22 +113,38 @@ fun make_not (
   _: !solver, _: formula
 ): formula = "make_not"
 
+fun make_and2 (
+  _: !solver, _: formula, _: formula
+): formula = "make_and2"
+
+fun make_or2 (
+  _: !solver, _: formula, _: formula
+): formula = "make_or2"
+
 (* ****** ****** *)
 
 // Arithmetic
 
-fun {a:t@ype} make_numeral (
-  _: !solver, _: !myint(a), _: sort
-): formula = "make_numeral"
+symintr make_numeral 
 
 fun make_numeral_int (
   _: !solver, _: int, _: sort
 ): formula = "make_numeral_int"
 
-fun make_add (_: !solver, _: List_vt(formula)): formula = "make_add"
+overload make_numeral with make_numeral_int
+
+fun make_numeral_intinf (
+  _: !solver, _: intinf, _: sort
+): formula = "make_numeral_intinf"
+
+overload make_numeral with make_numeral_intinf
+
+fun make_add (_: !solver, _: List_vt(formula)): formula = "make_add_list"
+
+fun make_add2 (_: !solver, _: formula, _: formula): formula = "make_add2"
 
 //only need two multiplications
-fun make_mul (_: !solver, _: formula, _: formula): formula = "make_mul"
+fun make_mul2 (_: !solver, _: formula, _: formula): formula = "make_mul"
 
 fun make_lt (_: !solver, _: formula, _: formula): formula = "make_lt"
 fun make_le (_: !solver, _: formula, _: formula): formula = "make_le"

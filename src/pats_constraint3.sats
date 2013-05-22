@@ -44,10 +44,6 @@ typedef h3ypo = $TRENV3.h3ypo
 typedef c3nstr = $TRENV3.c3nstr
 
 (* ****** ****** *)
-
-staload "./pats_lintprgm.sats"
-
-(* ****** ****** *)
 //
 // eq=1/neq=~1/gte=2/lt=~2
 //
@@ -190,7 +186,7 @@ fun s3exp_imul (s3e1: s3exp, s3e2: s3exp): s3exp
   track  of  any propositions,  only  an  SMT  solver context  and  an
   environment of static variables.
 *)
-absviewt@ype smtenv_viewtype = @{smt=ptr, solve=ptr}
+absviewt@ype smtenv_viewtype = @{smt=ptr, vars=ptr}
 viewtypedef smtenv = smtenv_viewtype
 
 fun smtenv_nil (env: &smtenv? >> smtenv): void
@@ -284,6 +280,8 @@ fun s3exp_lintize (env: &s2vbcfenv, s3e: s3exp): s3exp
 
 (* ****** ****** *)
 
+(*
+
 absviewtype s2varindmap (n:int)
 
 fun s2varindmap_make
@@ -301,6 +299,7 @@ fun s2varindmap_find {n:nat}
   (map: !s2varindmap (n), s2v: s2var): natLte (n)
 // end of [s2varindmap_find]
 
+
 fun{a:t@ype}
 s3exp2icnstr{n:nat}
 (
@@ -315,6 +314,8 @@ s3exp2myintvec{n:nat}
 ) : myintvec (a, n+1) // end of [s3exp2myintvec]
 
 (* ****** ****** *)
+
+*)
 
 fun c3nstr_solve (c3t: c3nstr): void
 

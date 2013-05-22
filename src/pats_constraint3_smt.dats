@@ -32,6 +32,8 @@
 //
 (* ****** ****** *)
 
+#define ATS_DYNLOADFLAG 0
+
 staload UN = "prelude/SATS/unsafe.sats"
 staload _(*anon*) = "prelude/DATS/list_vt.dats"
 
@@ -50,6 +52,10 @@ staload "./pats_constraint3.sats"
 (* ****** ****** *)
 
 staload "./pats_smt.sats"
+
+(* ****** ****** *)
+
+staload "./pats_error.sats"
 
 (* ****** ****** *)
 
@@ -82,14 +88,14 @@ in
   
   implement smtenv_push (env) = (pf | ()) where {
     val _ = solver_push (env.smt)
-    val pf = __push () where {
+    prval pf = __push () where {
       extern praxi __push (): smtenv_push_v
     }
   }
   
   implement smtenv_pop (pf | env) = {
     val _ = solver_pop (env.smt)
-    val _ = __pop (pf) where {
+    prval _ = __pop (pf) where {
       extern praxi __pop (pf: smtenv_push_v): void
     }
   }
@@ -102,24 +108,35 @@ in
         make_int_sort (env.smt)
       else
         make_bool_sort (env.smt)
-    (* 
-      Identifiy variables with a string eventually. That way we can more 
-      easily provide meaningful counter examples to unsolved constraints.
+    (*
+      Identifiy variables with a string eventually. That way we can
+      provide meaningful counter examples to unsolved constraints.
     *)
     val fresh = make_fresh_constant (env.smt, smt_type)
     var res: sort
     val _ = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
     prval () = opt_clear (res)
   }
-
-  fun formula_of_s2exp (env: &smtenv, s2e: s2exp): formula = let
-    val type = make_int_sort(env.smt)
-  in
-    make_numeral_int (env.smt, 0, type)
-  end
   
-  implement smtenv_assert_sbexp (env, prop) = {
+  fun formula_of_s2exp (env: &smtenv, s2e: s2exp): formula =
+    case+ s2e.s2exp_node of
+      | S2Eint i => let
+        val type = make_int_sort(env.smt)
+      in
+        make_numeral (env.smt, i, type)
+      end
+      | S2Eintinf i => let
+        val type = make_int_sort(env.smt)
+      in
+        make_numeral (env.smt, i, type)
+      end
+      | _ => abort() where {
+        val _ = println!("Invalid S2 expression given.")
+      }
+      
+  implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_of_s2exp (env, prop)
-    val () = assert(env.smt, assumption)
-  }
+  in 
+    assert(env.smt, assumption)
+  end
 end
