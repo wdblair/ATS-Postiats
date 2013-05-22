@@ -303,6 +303,7 @@ in
     val () = !args.[0] := l
     val () = !args.[1] := r
     val wff = Z3_mk_mul (solve.ctx, 2, !args)
+<<<<<<< HEAD
     val _ = Z3_inc_ref (solve.ctx, wff)
   }
 
@@ -320,6 +321,9 @@ in
     val () = !args.[1] := r
     val wff = Z3_mk_sub (solve.ctx, 2, !args)
     val _ = Z3_inc_ref (solve.ctx, wff)
+=======
+    val _ = Z3_inc_ref(solve.ctx, wff)    
+>>>>>>> Removed most of the current constraint solver, starting with just s2 expressions.
   }
   
   implement make_div (solve, num, den) = wff where {

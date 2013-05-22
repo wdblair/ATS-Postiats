@@ -201,6 +201,8 @@ fun formula_make_s2cst_s2explst
 
 (* ****** ****** *)
 
+*)
+
 fun c3nstr_solve (c3t: c3nstr): void
 
 (* ****** ****** *)

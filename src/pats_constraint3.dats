@@ -285,6 +285,8 @@ s2exp_make_h3ypo
 
 end // end of [local]
 
+(*
+
 (* ****** ****** *)
 
 local
@@ -299,9 +301,11 @@ val (pf_the_s2cfunmap | ()) =
   vbox_make_view_ptr {s2cfunmap} (view@ (the_s2cfunmap) | &the_s2cfunmap)
 // end of [val]
 
+*)
+
 in // in of [local]
 
-  implement 
+  implement
   formula_make_s2cst_s2explst
     (env, s2c, s2es) = let
     val opt = let
@@ -320,11 +324,10 @@ in // in of [local]
 
 (* ****** ****** *)
 
+*)
+
 implement
-constraint3_initialize () = let
-  prval vbox (pf) = pf_the_s2cfunmap in
-  $effmask_ref (constraint3_initialize_map (the_s2cfunmap))
-end // end of [constraint3_initialize]
+constraint3_initialize () = ()
 
 end // end of [local]
 

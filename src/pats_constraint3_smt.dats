@@ -32,6 +32,8 @@
 //
 (* ****** ****** *)
 
+#define ATS_DYNLOADFLAG 0
+
 staload UN = "prelude/SATS/unsafe.sats"
 staload _(*anon*) = "prelude/DATS/list_vt.dats"
 
@@ -65,6 +67,10 @@ typedef formula = $SMT.formula
 (* ****** ****** *)
 
 staload "./pats_stamp.sats"
+
+(* ****** ****** *)
+
+staload "./pats_error.sats"
 
 (* ****** ****** *)
 
@@ -420,7 +426,7 @@ in
   
   implement f_sgn_int (env, s2es) = let
     val- s2e1 :: _ = s2es
-    val ty   = $SMT.make_int_sort (env.smt)
+    val ty   = $SMT.make_int_sort (env.smt0
     val pos  = $SMT.make_numeral (env.smt, 1, ty)
     val zero = $SMT.make_numeral (env.smt, 0, ty)
     val neg  = $SMT.make_numeral  (env.smt, ~1, ty)
@@ -444,7 +450,7 @@ in
     //
     val gt = $SMT.make_gt (env.smt, fbe1, fbe2)
   in
-    $SMT.make_ite (env.smt, gt, fbe1, fbe2)
+    $SMT.make_ite (env.smt, gt, fbe1, fbe20
   end // end of [f_max_int_int]
 
   implement f_min_int_int (env, s2es) = let
