@@ -138,130 +138,6 @@ end // end of [indexset_make_s3exp]
 (* ****** ****** *)
 
 fun {a:t@ype}
-icnstrlst_solve_smt  {n:pos} (
-  all: &icnstrlst(a, n), n: int n
-): int = let
-  val solve = $SMT.make_solver ()
-  val srt = $SMT.make_int_sort (solve)
-  //
-  fun decl_vars {i:nat | i <= n-1} (
-    solve: !solver, i: int i, res: list(formula, n-1-i)
-  ):<cloref1> list(formula, n-1) =
-    if i = 0 then
-      res
-    else let
-      val cst = $SMT.make_constant (solve, i, srt)
-    in
-      decl_vars (solve, i-1, list_cons(cst, res))
-    end
-  //
-  val vars = decl_vars (solve, n-1, list_nil())
-  val zero = $SMT.make_numeral_int (solve, 0, srt)
-  //
-  fun assert_cnstr {i:nat} (
-    solve: !solver, cnstr: &list_vt(icnstr(a, n), i)
-  ):<cloref1> void = (
-    case+ cnstr of 
-      | list_vt_nil () => {
-        prval () = fold@ cnstr
-      }
-      | list_vt_cons(!c, !cs) => {
-        val wff = formula_of_constr(solve, !c)
-        val _ = 
-          println!("(assert ", $SMT.string_of_formula(solve, wff),",)")
-        val _ = $SMT.assert(solve, wff)
-        val tm = stop_ns(t)
-        val _ = println!("assert:", tm)
-        //
-        val _ = assert_cnstr(solve, !cs)
-        prval () = fold@ cnstr
-      }
-  ) where {
-    //
-    fun formula_of_vector {i:nat | i <= n} (
-      solve: !solver, iv: !myintvec(a, n),
-        i: int i, res: list_vt(formula, n - i)
-    ):<cloref1> list_vt(formula, n) =
-      if i = 0 then
-        res
-      else let
-        val cff_ats = iv[i-1]
-        val cff_smt = $SMT.make_numeral<a> (solve, cff_ats, srt)
-        val _ = myint_free (cff_ats)
-        val formula =
-          if i = 1 then
-            cff_smt
-          else
-            $SMT.make_mul (solve, cff_smt, vars[i-2])
-      in 
-        formula_of_vector (solve, iv, i-1, list_vt_cons(formula, res))
-      end
-    //
-    fun formula_of_constr (
-      solve: !solver, c: !icnstr(a, n)
-    ):<cloref1> formula =
-      case+ c of 
-        | ICvec (knd, !iv) => let
-            //
-            val cffs = formula_of_vector (solve, !iv, n, list_vt_nil())
-            val sum = $SMT.make_add (solve, cffs)
-            val equation = 
-              case+ knd of
-                | ~2 (* lt *) =>
-                  $SMT.make_lt (solve, sum, zero)
-                | 2 (* gte *) =>
-                  $SMT.make_ge (solve, sum, zero)
-                | 1 (* eq *) =>
-                  $SMT.make_eq (solve, sum, zero)
-                | _ (* neq *) =>
-                  $SMT.make_not (solve, $SMT.make_eq(solve, sum, zero))
-            prval () = fold@ c
-         in
-          equation
-         end
-        | ICveclst (knd, !ivs) => let
-          fun loop(
-            solve: !solver, cnstr: &List_vt(icnstr(a, n)), 
-              res: List_vt(formula)
-          ):<cloref1> List_vt(formula) =
-            case+ cnstr of
-              | list_vt_cons(!c, !cs) => let
-                val formula = formula_of_constr (solve, !c)
-                val res' = loop (solve, !cs, list_vt_cons(formula, res))
-                prval () = fold@ cnstr
-              in res' end
-              | list_vt_nil() => res where {
-                prval () = fold@ cnstr
-              }
-          val wffs = loop (solve, !ivs, list_vt_nil())
-          val wff =
-            case+ knd of
-              | 0 (* conj *) =>
-                $SMT.make_and (solve, wffs)
-              | _ (* disj *) => 
-                $SMT.make_or (solve, wffs)
-          prval () = fold@ c
-        in
-          wff
-        end
-        | _ => zero
-      //
-  } // end of [assert_cnstr]
-  val () = assert_cnstr (solve, all)
-  val t = timer (); val _ = start (t)
-  val ans = $SMT.check (solve)
-  val tm = stop_ns (t)
-  val _ = println!("check:", tm)
-  //
-  val _ = $SMT.delete_solver (solve)
-in
-  // ~1 if unsat, otherwise 0
-  ans
-end //end of [icnstrlst_solve_smt]
-
-(* ****** ****** *)
-
-fun {a:t@ype}
 auxsolve {n:nat}
 (
   loc0: location
@@ -324,8 +200,9 @@ val ans = icnstrlst_solve<a> (iset, ics_all, n+1)
 val tm = stop_ns (t)
 val _ = println! ("solve:", tm)
 #else
-val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
+//val ans = icnstrlst_solve_smt<a> (ics_all, n+1)
 #endif
+val ans = 0
 val () = icnstrlst_free<a> (ics_all, n+1)
 //
 (*
@@ -436,34 +313,34 @@ c3nstr_solve_errmsg (c3t: c3nstr, unsolved: uint): int
 
 extern fun
 c3nstr_solve_main (
-  env: &s2vbcfenv, c3t: c3nstr, unsolved: &uint, err: &int
+  env: &smtenv, c3t: c3nstr, unsolved: &uint, err: &int
 ) : int(*status*)
 // end of [c3nstr_solve_main]
 
 extern fun
 c3nstr_solve_prop (
-  loc0: location, env: &s2vbcfenv, s2p: s2exp, err: &int
+  loc0: location, env: &smtenv, s2p: s2exp, err: &int
 ) : int(*status*)
 // end of [c3nstr_solve_prop]
 
 extern fun
 c3nstr_solve_itmlst (
   loc0: location
-, env: &s2vbcfenv
+, env: &smtenv
 , s3is: s3itmlst, unsolved: &uint, err: &int
 ) : int(*status*) // end of [c3nstr_solve_itmlst]
 
 extern fun
 c3nstr_solve_itmlst_cnstr (
   loc0: location
-, env: &s2vbcfenv
+, env: &smtenv
 , s3is: s3itmlst, c3t: c3nstr, unsolved: &uint, err: &int
 ) : int(*status*) // end of [c3nstr_solve_itmlst_cnstr]
 
 extern fun
 c3nstr_solve_itmlst_disj (
   loc0: location
-, env: &s2vbcfenv
+, env: &smtenv
 , s3is: s3itmlst, s3iss: s3itmlstlst, unsolved: &uint, err: &int
 ) : int(*status*) // end of [c3nstr_solve_itmlst_disj]
 
@@ -656,14 +533,13 @@ end // end of [c3nstr_solve_main]
 implement
 c3nstr_solve_prop
   (loc0, env, s2p, err) = let
-(*
   val () = begin
     print "c3nstr_solve_prop: s2p = ";
     pprint_s2exp (s2p); print_newline ();
   end // end of [val]
-*)
 in
-  s3explst_solve_s2exp (loc0, env, s2p, err)
+  0
+  // s3explst_solve_s2exp (loc0, env, s2p, err)
 end // end of [c3nstr_solve_prop]
 
 (* ****** ****** *)
@@ -685,16 +561,17 @@ case+ s3is of
 | list_cons (s3i, s3is) => (
   case+ s3i of
   | S3ITMsvar (s2v) => let
-      val () = s2vbcfenv_add_svar (env, s2v)
+      val () = smtenv_add_svar (env, s2v)
     in
       c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
     end // end of [S3ITMsvar]
   | S3ITMhypo (h3p) => let
-      val s3p = s3exp_make_h3ypo (env, h3p)
+      // Assert the assumption
+      val prop = s2exp_make_h3ypo (env, h3p)
+      // val s3p = s3exp_make_h3ypo (env, h3p)
       val () = (
-        case+ s3p of
-        | S3Eerr _ => let
-(*
+        case+ prop.s2exp_node of
+        | S2Eerr _ => let
             val () = begin
               prerr_warning3_loc (loc0);
               prerr ": unused hypothesis: ["; prerr_h3ypo (h3p); prerr "]";
@@ -704,9 +581,7 @@ case+ s3is of
           in
             // nothing
           end // end of [S3Eerr]
-        | _ => let
-            val s3p = s3exp_lintize (env, s3p) in s2vbcfenv_add_sbexp (env, s3p)
-          end // end of [_]
+        | _ => smtenv_assert_sbexp (env, prop)
       ) : void // end of [val]
     in
       c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
@@ -737,13 +612,13 @@ c3nstr_solve_itmlst_cnstr
 (
   loc0, env, s3is, c3t, unsolved, err
 ) = let
-  val (pf1 | ()) = s2vbcfenv_push (env)
+  val (pf1 | ()) = smtenv_push (env)
   val (pf2 | ()) = the_s2varbindmap_push ()
   val ans1 =
     c3nstr_solve_main (env, c3t, unsolved, err)
   // end of [val]
   val () = the_s2varbindmap_pop (pf2 | (*none*))
-  val () = s2vbcfenv_pop (pf1 | env)
+  val () = smtenv_pop (pf1 | env)
   val ans2 =
     c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
   // end of [val]
@@ -766,12 +641,12 @@ in
 //
 case+ s3iss of
 | list_cons (s3is, s3iss) => let
-    val (pf1 | ()) = s2vbcfenv_push (env)
+    val (pf1 | ()) = smtenv_push (env)
     val (pf2 | ()) = the_s2varbindmap_push ()
     val s3is1 = list_append (s3is, s3is0)
     val ans = c3nstr_solve_itmlst (loc0, env, s3is1, unsolved, err)
     val () = the_s2varbindmap_pop (pf2 | (*none*))
-    val () = s2vbcfenv_pop (pf1 |env)
+    val () = smtenv_pop (pf1 |env)
   in
     c3nstr_solve_itmlst_disj (loc0, env, s3is0, s3iss, unsolved, err)
   end // end of [list_cons]
@@ -788,14 +663,15 @@ c3nstr_solve (c3t) = let
     print "c3nstr_solve: c3t = "; print_c3nstr(c3t); print_newline ()
   end // end of [val]
 *)
-  var env: s2vbcfenv = s2vbcfenv_nil ()
+  var env : smtenv
+  val _ = smtenv_nil(env)
 //
 // HX-2010-09-09: this is needed for solving top-level constraints!!!
   val () = the_s2varbindmap_freetop ()
 //
   var unsolved: uint = 0u and err: int = 0
   val _(*status*) = c3nstr_solve_main (env, c3t, unsolved, err)
-  val () = s2vbcfenv_free (env)
+  val () = smtenv_free (env)
 in
 //
 case+ 0 of

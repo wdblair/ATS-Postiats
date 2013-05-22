@@ -73,13 +73,29 @@ abst@ype sort = __sort_size
 
 fun make_solver (): solver = "make_solver"
 
-fun delete_solver(_: solver): void = "delete_solver"
+fun delete_solver (_: solver): void = "delete_solver"
 
 fun make_int_sort (_: !solver): sort = "make_int_sort"
+
+fun make_bool_sort (_: !solver): sort = "make_bool_sort"
 
 fun make_constant (
   _: !solver, id: int, _: sort
 ): formula = "make_constant"
+
+fun make_fresh_constant (
+  _: !solver, _: sort
+): formula = "make_fresh_constant"
+
+(* ****** ****** *)
+
+fun solver_push (
+  _: !solver
+): void = "solver_push"
+
+fun solver_pop (
+  _: !solver
+): void = "solver_pop"
 
 (* ****** ****** *)
 

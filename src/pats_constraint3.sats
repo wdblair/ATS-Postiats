@@ -185,6 +185,27 @@ fun s3exp_imul (s3e1: s3exp, s3e2: s3exp): s3exp
 
 (* ****** ****** *)
 
+(* 
+  smtenv  is similar  to s2vbcfenv,  but it  doesn't explicitely  keep
+  track  of  any propositions,  only  an  SMT  solver context  and  an
+  environment of static variables.
+*)
+absviewt@ype smtenv_viewtype = @{smt=ptr, solve=ptr}
+viewtypedef smtenv = smtenv_viewtype
+
+fun smtenv_nil (env: &smtenv? >> smtenv): void
+fun smtenv_free (env: &smtenv >> smtenv?): void
+
+absview smtenv_push_v
+
+fun smtenv_push (env: &smtenv): (smtenv_push_v | void)
+fun smtenv_pop  (pf: smtenv_push_v | env: &smtenv): void
+
+fun smtenv_add_svar (env: &smtenv, s2v: s2var): void
+fun smtenv_assert_sbexp (env: &smtenv, s2e: s2exp): void
+
+(* ****** ****** *)
+
 absviewtype s2vbcfenv_viewtype
 viewtypedef s2vbcfenv = s2vbcfenv_viewtype
 
@@ -235,6 +256,8 @@ fun s3exp_make (env: &s2vbcfenv, s2e: s2exp): s3exp
 fun s3explst_make (env: &s2vbcfenv, s2es: s2explst): s3explst
 //
 fun s3exp_make_h3ypo (env: &s2vbcfenv, h3p: h3ypo): s3exp
+//
+fun s2exp_make_h3ypo (env: &smtenv, h3p: h3ypo): s2exp
 //
 // HX: these are auxiliary functions
 //
