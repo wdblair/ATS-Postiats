@@ -87,14 +87,14 @@ in
   }
   
   implement smtenv_push (env) = (pf | ()) where {
-    val _ = solver_push (env.smt)
+    val _ = push (env.smt)
     prval pf = __push () where {
       extern praxi __push (): smtenv_push_v
     }
   }
   
   implement smtenv_pop (pf | env) = {
-    val _ = solver_pop (env.smt)
+    val _ = pop (env.smt)
     prval _ = __pop (pf) where {
       extern praxi __pop (pf: smtenv_push_v): void
     }
@@ -131,7 +131,8 @@ in
         make_numeral (env.smt, i, type)
       end
       | _ => abort() where {
-        val _ = println!("Invalid S2 expression given.")
+        val _ = println!("Invalid S2 expression given:")
+        val _ = println!(s2e)
       }
       
   implement smtenv_assert_sbexp (env, prop) = let

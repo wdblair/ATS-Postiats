@@ -89,11 +89,11 @@ fun make_fresh_constant (
 
 (* ****** ****** *)
 
-fun solver_push (
+fun push (
   _: !solver
 ): void = "solver_push"
 
-fun solver_pop (
+fun pop (
   _: !solver
 ): void = "solver_pop"
 
