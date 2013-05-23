@@ -536,7 +536,7 @@ case+ s2e0.s2exp_node of
   case+ s2e1.s2exp_node of
   | S2Ecst s2c1 =>
       s3exp_make_s2cst_s2explst (env, s2c1, s2es2)
-//    // end of [S2Ecst]
+    // end of [S2Ecst]
   | _ => let
       val s3e1 = s3exp_make (env, s2e1)
       val s3es2 = s3explst_make (env, s2es2)
@@ -969,6 +969,8 @@ val (pf_the_s2cfunmap | ()) =
 // end of [val]
 
 *)
+
+
 
 in // in of [local]
 
