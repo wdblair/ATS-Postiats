@@ -130,6 +130,7 @@ in
       in
         make_numeral (env.smt, i, type)
       end
+      
       | _ => abort() where {
         val _ = println!("Invalid S2 expression given:")
         val _ = println!(s2e)
