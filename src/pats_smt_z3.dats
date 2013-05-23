@@ -195,14 +195,29 @@ in
     val srt = Z3_mk_int_sort (solve.ctx)
   }
   
+  implement make_bool_sort (solve) = srt where {
+    extern fun Z3_mk_bool_sort (_: context): sort = "mac#"
+    //
+    val srt = Z3_mk_bool_sort (solve.ctx)
+  }
+  
   implement make_constant (solve, id, srt) = cst where {
     extern fun Z3_mk_const (
       _: context, _: symbol, _: sort
     ): formula = "mac#"
     //
-    val sym = make_int_symbol(solve, id)
+    val sym = make_int_symbol (solve, id)
     val cst = Z3_mk_const (solve.ctx, sym, srt)
-    val _ = Z3_inc_ref(solve.ctx, cst)
+    val _ = Z3_inc_ref (solve.ctx, cst)
+  }
+  
+  implement make_fresh_constant (solve, srt) = cst where {
+    extern fun Z3_mk_fresh_const (
+      _: context, _: string, _: sort
+    ): formula = "mac#"  
+    //
+    val cst = Z3_mk_fresh_const (solve.ctx, "cnstr", srt)
+    val _ = Z3_inc_ref (solve.ctx, cst)
   }
   
   (* ****** ****** *)
@@ -306,7 +321,7 @@ in
     val () = !args.[0] := l
     val () = !args.[1] := r
     val wff = Z3_mk_mul (solve.ctx, 2, !args)
-    val _ = Z3_inc_ref(solve.ctx, wff)    
+    val _ = Z3_inc_ref (solve.ctx, wff)
   }
   
   (* ****** ****** *)
@@ -316,9 +331,26 @@ in
       _: context, _: z3_solver, _: formula
     ): void = "mac#"
     //
-    val _ = Z3_solver_assert(solve.ctx, solve.slv, formula)
-    val _ = Z3_dec_ref(solve.ctx, formula)
+    val _ = Z3_solver_assert (solve.ctx, solve.slv, formula)
+    val _ = Z3_dec_ref (solve.ctx, formula)
   }
+  
+  implement push (solve) = let
+    extern fun Z3_solver_push (
+      _: context, _: z3_solver
+    ): void = "mac#"
+    //
+  in
+    Z3_solver_push (solve.ctx, solve.slv)
+  end
+  
+  implement pop (solve) = let
+    extern fun Z3_solver_pop (
+      _: context, _: z3_solver, _: uint
+    ): void = "mac#"
+  in
+    Z3_solver_pop (solve.ctx, solve.slv, 1u)
+  end
   
   macdef Z3_FALSE = $extval(int, "Z3_L_FALSE")
   macdef Z3_TRUE = $extval(int, "Z3_L_TRUE")
