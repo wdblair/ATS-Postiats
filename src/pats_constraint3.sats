@@ -76,6 +76,8 @@ fun smtenv_assert_formula (env: &smtenv, fm: formula): void
 
 fun smtenv_check (env: &smtenv): int
 
+fun formula_cst (s2c: s2cst): formula
+
 (* ****** ****** *)
 
 fun s2exp_metdec_reduce (
@@ -185,6 +187,8 @@ fun formula_make (env: &smtenv, s2e: s2exp): formula
 fun make_true (env: &smtenv): formula
 //
 fun s2exp_make_h3ypo (env: &smtenv, h3p: h3ypo): s2exp
+//
+fun formula_make (env: &smtenv, s2e: s2exp): formula
 //
 // HX: these are auxiliary functions
 //

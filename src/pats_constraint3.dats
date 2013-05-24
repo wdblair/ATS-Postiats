@@ -303,10 +303,6 @@ val
   pf_the_s2cfunmap | ()
 ) = vbox_make_view_ptr{s2cfunmap}(view@(the_s2cfunmap) | &the_s2cfunmap)
 
-*)
-
-
-
 in // in of [local]
 
   implement
@@ -326,12 +322,15 @@ in // in of [local]
       | ~None_vt _ => make_true (env)
   end // end of [formula_make_s2cst_s2explst]
 
+end // end of [formula_make_s2cst_s2explst]
+
 (* ****** ****** *)
 
-*)
-
 implement
-constraint3_initialize () = ()
+constraint3_initialize () = let
+  prval vbox (pf) = pf_the_s2cfunmap in
+  $effmask_ref (constraint3_initialize_map (the_s2cfunmap))
+end // end of [constraint3_initialize]
 
 (* ****** ****** *)
 
