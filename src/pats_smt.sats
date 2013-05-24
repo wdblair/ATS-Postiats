@@ -99,15 +99,10 @@ fun pop (
 
 (* ****** ****** *)
 
-// Prop Logic
+// Prop Logic and Equality
 
-fun make_and (
-  _: !solver, _: List_vt(formula)
-): formula = "make_and"
-
-fun make_or (
-  _: !solver, _: List_vt(formula)
-): formula = "make_or"
+fun make_true  ( _: !solver ): formula
+fun make_false ( _: !solver ): formula
 
 fun make_not (
   _: !solver, _: formula
@@ -121,11 +116,15 @@ fun make_or2 (
   _: !solver, _: formula, _: formula
 ): formula = "make_or2"
 
+fun make_ite (
+  _: !solver, condition: formula, _: formula, _: formula
+): formula = "make_ite"
+
 (* ****** ****** *)
 
 // Arithmetic
 
-symintr make_numeral 
+symintr make_numeral
 
 fun make_numeral_int (
   _: !solver, _: int, _: sort
@@ -139,12 +138,15 @@ fun make_numeral_intinf (
 
 overload make_numeral with make_numeral_intinf
 
-fun make_add (_: !solver, _: List_vt(formula)): formula = "make_add_list"
+fun make_negate (_: !solver, _: formula): formula = "make_negate"
 
 fun make_add2 (_: !solver, _: formula, _: formula): formula = "make_add2"
 
-//only need two multiplications
-fun make_mul2 (_: !solver, _: formula, _: formula): formula = "make_mul"
+fun make_sub2 (_: !solver, _: formula, _: formula): formula = "make_sub2"
+
+fun make_mul2 (_: !solver, _: formula, _: formula): formula = "make_mul2"
+
+fun make_div (_: !solver, _: formula, _: formula): formula = "make_div"
 
 fun make_lt (_: !solver, _: formula, _: formula): formula = "make_lt"
 fun make_le (_: !solver, _: formula, _: formula): formula = "make_le"

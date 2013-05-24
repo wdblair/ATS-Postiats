@@ -77,6 +77,11 @@ local
   fun Z3_mk_add {n:nat} (
     _: context, _: int n, _: &(@[formula][n])
   ): formula = "mac#"
+
+  extern
+  fun Z3_mk_sub {n:nat} (
+    _: context, _: int n, _: &(@[formula][n])
+  ): formula = "mac#"
   
   extern
   fun Z3_mk_mul {n:nat} (
@@ -102,47 +107,7 @@ local
     //
     val sym = Z3_mk_int_symbol (solve.ctx, id)
   }
-  
-  (* ****** ****** *)
 
-  typedef binop_func = {n:nat} (
-    context, int n, &(@[formula][n])
-  ) -> formula
-  
-  (*
-    Z3 uses the same pattern for a few binary operators
-  *)
-  
-  fun make_binop (
-    solve: !solver, wffs: List_vt(formula), func: binop_func
-  ): formula = res where {
-    val len = list_vt_length (wffs)
-    val ()  = assertloc(len >= 0)
-    val len' = size1_of_int1 (len)  //need some shorthand, like (size)
-    val (pf | p, free) = array_ptr_allocfree<formula> (len')
-    val () = array_ptr_initialize_lst_vt<formula> (!p, wffs)
-    //
-    val res = func (solve.ctx, len, !p)
-    val _ = Z3_inc_ref (solve.ctx, res)
-    val () = clear_formulas(!p, len') where {
-      fun clear_formulas {n:nat} (
-        buf: &(@[formula][n]), sz: size_t n
-      ):<cloref1> void = 
-        loop(buf, 0) where {
-        fun loop {i:nat | i <= n} (
-          buf: &(@[formula][n]), i: size_t i
-        ):<cloref1> void = 
-          if i = sz then
-            ()
-          else let
-            val fm = buf.[i]
-            val _ = Z3_dec_ref(solve.ctx, fm)
-          in loop(buf, i+1) end
-      }
-    }
-    val () = free (pf | p)
-    //
-  }
 in
   implement make_solver () = solve where {
     abstype tactic = ptr
@@ -169,13 +134,15 @@ in
     val conf = Z3_mk_config ()
     val ctx = Z3_mk_context_rc (conf)
     //
-    val qflia = Z3_mk_tactic (ctx, "qflia")
-    val _ = Z3_tactic_inc_ref (ctx, qflia)
+    val qfnia = Z3_mk_tactic (ctx, "qfnia")
+    val _ = Z3_tactic_inc_ref (ctx, qfnia)
     //
-    val (z3solve) = Z3_mk_solver_from_tactic (ctx, qflia)
-    val () = Z3_tactic_dec_ref(ctx, qflia)
+    val (z3solve) = Z3_mk_solver_from_tactic (ctx, qfnia)
+    val () = Z3_tactic_dec_ref (ctx, qfnia)
     val solve = '{ctx= ctx, slv= z3solve}
   }
+  
+  (* ****** ****** *)
   
   implement delete_solver (solve) = {
     extern fun Z3_del_context (_: context): void = "mac#"
@@ -222,6 +189,20 @@ in
   
   (* ****** ****** *)
   
+  implement make_true (solve) = wff where {
+    extern fun Z3_mk_true (_: context): formula = "mac#"
+    //
+    val wff = Z3_mk_true (solve.ctx)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
+
+  implement make_false (solve) = wff where {
+    extern fun Z3_mk_false (_: context): formula = "mac#"
+    //
+    val wff = Z3_mk_false (solve.ctx)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
+  
   implement make_not (solve, phi) = psi where {
     extern fun Z3_mk_not (_: context, _: formula): formula = "mac#"
     //
@@ -229,12 +210,15 @@ in
     val _ = Z3_inc_ref (solve.ctx, psi)
   }
   
-  implement make_or (solve, wffs) = 
-    make_binop (solve, wffs, Z3_mk_or)
-  
-  implement make_and (solve, wffs) =
-    make_binop (solve, wffs, Z3_mk_and)
-  
+  implement make_ite (solve, cond, t, f) = wff where {
+    extern fun Z3_mk_ite (
+      _: context, _: formula, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_ite (solve.ctx, cond, t, f)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
+    
   implement make_or2 (solve, l, r) = wff where {
     var !args = @[formula][2](l)
     val () = !args.[0] := l
@@ -269,7 +253,12 @@ in
     val _ = Z3_inc_ref(solver.ctx, wff)
   }
   
-  implement make_add (solve, wffs) = make_binop(solve, wffs, Z3_mk_add)
+  implement make_negate (solver, num) = wff where {
+    extern fun Z3_mk_unary_minus (_: context, _: formula): formula = "mac#"
+    //
+    val wff = Z3_mk_unary_minus (solver.ctx, num)
+    val _   = Z3_inc_ref (solver.ctx, wff)
+  }
   
   implement make_lt (solve, l, r) = wff where {
     extern fun Z3_mk_lt (
@@ -323,7 +312,32 @@ in
     val wff = Z3_mk_mul (solve.ctx, 2, !args)
     val _ = Z3_inc_ref (solve.ctx, wff)
   }
+
+  implement make_add2 (solve, l, r) = wff where {
+    var !args = @[formula][2](l)
+    val () = !args.[0] := l
+    val () = !args.[1] := r
+    val wff = Z3_mk_add (solve.ctx, 2, !args)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
+
+  implement make_sub2 (solve, l, r) = wff where {
+    var !args = @[formula][2](l)
+    val () = !args.[0] := l
+    val () = !args.[1] := r
+    val wff = Z3_mk_sub (solve.ctx, 2, !args)
+    val _ = Z3_inc_ref (solve.ctx, wff)
+  }
   
+  implement make_div (solve, num, den) = wff where {
+    extern fun Z3_mk_div (
+      _: !context, _: formula, _: formula
+    ): formula = "mac#"
+    //
+    val wff = Z3_mk_div (solve.ctx, num, den)
+    val _   = Z3_inc_ref (solve.ctx, wff)
+  }
+ 
   (* ****** ****** *)
   
   implement assert (solve, formula) = {
