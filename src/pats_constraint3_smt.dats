@@ -426,7 +426,7 @@ in
   
   implement f_sgn_int (env, s2es) = let
     val- s2e1 :: _ = s2es
-    val ty   = $SMT.make_int_sort (env.smt0
+    val ty   = $SMT.make_int_sort (env.smt0)
     val pos  = $SMT.make_numeral (env.smt, 1, ty)
     val zero = $SMT.make_numeral (env.smt, 0, ty)
     val neg  = $SMT.make_numeral  (env.smt, ~1, ty)

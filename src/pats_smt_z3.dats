@@ -161,17 +161,7 @@ in
     val _ = Z3_inc_ref (solve.ctx, fm)
   }
   
-<<<<<<< HEAD
   implement make_int_constant (solve, id, srt) = cst where {
-=======
-  implement make_bool_sort (solve) = srt where {
-    extern fun Z3_mk_bool_sort (_: context): sort = "mac#"
-    //
-    val srt = Z3_mk_bool_sort (solve.ctx)
-  }
-  
-  implement make_constant (solve, id, srt) = cst where {
->>>>>>> Got the constraint solver shell working (doesn't solve anything yet).
     extern fun Z3_mk_const (
       _: context, _: symbol, _: sort
     ): formula = "mac#"
@@ -313,8 +303,6 @@ in
     val () = !args.[0] := l
     val () = !args.[1] := r
     val wff = Z3_mk_mul (solve.ctx, 2, !args)
-<<<<<<< HEAD
-<<<<<<< HEAD
     val _ = Z3_inc_ref (solve.ctx, wff)
   }
 
@@ -331,13 +319,7 @@ in
     val () = !args.[0] := l
     val () = !args.[1] := r
     val wff = Z3_mk_sub (solve.ctx, 2, !args)
-    val _ = Z3_inc_ref (solve.ctx, wff)
-=======
-    val _ = Z3_inc_ref(solve.ctx, wff)    
->>>>>>> Removed most of the current constraint solver, starting with just s2 expressions.
-=======
-    val _ = Z3_inc_ref (solve.ctx, wff)
->>>>>>> Got the constraint solver shell working (doesn't solve anything yet).
+    val _ = Z3_inc_ref (solve.ctx, wff)}
   }
   
   implement make_div (solve, num, den) = wff where {
@@ -365,10 +347,7 @@ in
       _: context, _: z3_solver
     ): void = "mac#"
     //
-<<<<<<< HEAD
     val _ = println!(Z3_solver_get_num_scopes (solve.ctx, solve.slv))
-=======
->>>>>>> Got the constraint solver shell working (doesn't solve anything yet).
   in
     Z3_solver_push (solve.ctx, solve.slv)
   end
@@ -378,12 +357,8 @@ in
       _: context, _: z3_solver, _: uint
     ): void = "mac#"
   in
-<<<<<<< HEAD
     if Z3_solver_get_num_scopes(solve.ctx, solve.slv) > 0u then
       Z3_solver_pop (solve.ctx, solve.slv, 1u)
-=======
-    Z3_solver_pop (solve.ctx, solve.slv, 1u)
->>>>>>> Got the constraint solver shell working (doesn't solve anything yet).
   end
   
   macdef Z3_FALSE = $extval(int, "Z3_L_FALSE")
