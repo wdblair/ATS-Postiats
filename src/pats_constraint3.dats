@@ -71,6 +71,14 @@ staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
 
+staload "./pats_smt.sats"
+
+(* ****** ****** *)
+
+staload "./pats_error.sats"
+
+(* ****** ****** *)
+
 #define l2l list_of_list_vt
 
 (* ****** ****** *)
@@ -537,6 +545,7 @@ case+ s2e0.s2exp_node of
   | S2Ecst s2c1 =>
       s3exp_make_s2cst_s2explst (env, s2c1, s2es2)
     // end of [S2Ecst]
+  // This clause below never occured when I ran over the examples in doc.
   | _ => let
       val s3e1 = s3exp_make (env, s2e1)
       val s3es2 = s3explst_make (env, s2es2)
@@ -954,12 +963,12 @@ case+ ans of
 end // end of [s2vbcfenv_replace_nonlin]
 
 (* ****** ****** *)
+
 *)
 local
 
-(*
-stadef env = s2vbcfenv
-typedef tfun = (&env, s2explst) -<fun1> s3exp
+stadef env = smtenv
+typedef tfun = (&env, s2explst) -<fun1> formula
 
 assume
 s2cfunmap = s2cstmap (tfun)
@@ -968,43 +977,35 @@ val (pf_the_s2cfunmap | ()) =
   vbox_make_view_ptr {s2cfunmap} (view@ (the_s2cfunmap) | &the_s2cfunmap)
 // end of [val]
 
-*)
-
-
-
 in // in of [local]
 
-(*
-implement
-s3exp_make_s2cst_s2explst
+implement 
+formula_make_s2cst_s2explst
   (env, s2c, s2es) = let
-(*
-val () = println! ("s3exp_make_s2cst_s2explst: s2c = ", s2c)
-val () = println! ("s3exp_make_s2cst_s2explst: s2es = ", s2es)
-*)
 val opt = let
   prval vbox (pf) = pf_the_s2cfunmap in s2cstmap_find (the_s2cfunmap, s2c)
 end // end of [val]
 //
+val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
+val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
 in
 //
 case+ opt of
 | ~Some_vt f => f (env, s2es)
-| ~None_vt _ => let
-    val s3e = s3exp_cst (s2c)
-    val s3es = s3explst_make (env, s2es)
-  in
-    s3exp_app (s3e, s3es)
-  end // end of [None_vt]
-//  
-end // end of [s3exp_make_s2cst_s2explst]
+// Maybe in this case we could just make an uninterpreted function.
+| ~None_vt _ => abort () where {
+  val _ = prerrln!("Constant ", s2c, " not found.")
+}
+
+end // end of [formula_make_s2cst_s2explst]
 
 (* ****** ****** *)
 
-*)
-
 implement
-constraint3_initialize () = ()
+constraint3_initialize () = let
+  prval vbox (pf) = pf_the_s2cfunmap in
+  $effmask_ref (constraint3_initialize_map (the_s2cfunmap))
+end // end of [constraint3_initialize]
 
 end // end of [local]
 

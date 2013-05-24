@@ -44,6 +44,10 @@ typedef h3ypo = $TRENV3.h3ypo
 typedef c3nstr = $TRENV3.c3nstr
 
 (* ****** ****** *)
+
+staload "./pats_smt.sats"
+
+(* ****** ****** *)
 //
 // eq=1/neq=~1/gte=2/lt=~2
 //
@@ -127,7 +131,10 @@ fun s3exp_var (s2v: s2var): s3exp
 fun s3exp_cst (s2c: s2cst): s3exp
 fun s3exp_app (_fun: s3exp, _arg: s3explst): s3exp
 
+fun formula_cst (s2c: s2cst): formula
+
 (* ****** ****** *)
+
 //
 val s3exp_null : s3exp
 val s3exp_unit : s3exp
@@ -202,6 +209,100 @@ fun smtenv_assert_sbexp (env: &smtenv, s2e: s2exp): void
 
 (* ****** ****** *)
 
+fun f_identity (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_neg_bool (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_add_bool_bool (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_mul_bool_bool (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_eq_bool_bool (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_neq_bool_bool (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_neg_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_add_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_sub_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_mul_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_ndiv_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_idiv_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_lt_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_lte_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_gt_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_gte_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_eq_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_neq_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_abs_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_sgn_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_max_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_min_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_ifint_bool_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+(* ****** ****** *)
+
 absviewtype s2vbcfenv_viewtype
 viewtypedef s2vbcfenv = s2vbcfenv_viewtype
 
@@ -255,6 +356,8 @@ fun s3exp_make_h3ypo (env: &s2vbcfenv, h3p: h3ypo): s3exp
 //
 fun s2exp_make_h3ypo (env: &smtenv, h3p: h3ypo): s2exp
 //
+fun formula_make (env: &smtenv, s2e: s2exp): formula
+//
 // HX: these are auxiliary functions
 //
 fun s3exp_make_s2cst_s2explst
@@ -262,6 +365,11 @@ fun s3exp_make_s2cst_s2explst
   env: &s2vbcfenv, s2c: s2cst, s2es: s2explst
 ) : s3exp // end of [s3exp_make_s2cst_s2explst]
 //
+fun formula_make_s2cst_s2explst
+(
+  env: &smtenv, s2c: s2cst, s2es: s2explst
+) : formula // end of [s3exp_make_s2cst_s2explst]
+
 (* ****** ****** *)
 //
 #define TAUTOLOGY (1)
