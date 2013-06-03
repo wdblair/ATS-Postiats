@@ -410,6 +410,7 @@ c3nstr_solve_itmlst_cnstr
 (
   loc0, env, s3is, c3t, unsolved, err
 ) = let
+  val _ = println! "push"
   val (pf1 | ()) = smtenv_push (env)
   val (pf2 | ()) = the_s2varbindmap_push ()
   val ans1 =
@@ -417,6 +418,7 @@ c3nstr_solve_itmlst_cnstr
   // end of [val]
   val () = the_s2varbindmap_pop (pf2 | (*none*))
   val () = smtenv_pop (pf1 | env)
+  val () = println! "pop"
   val ans2 =
     c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
   // end of [val]
