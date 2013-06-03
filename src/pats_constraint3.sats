@@ -190,7 +190,7 @@ fun s3exp_imul (s3e1: s3exp, s3e2: s3exp): s3exp
 
 (* 
   smtenv  is similar  to s2vbcfenv,  but it  doesn't explicitely  keep
-  track  of  any propositions,  only  an  SMT  solver context  and  an
+  track  of  any propositions.  Only  an  SMT  solver context  and  an
   environment of static variables.
 *)
 absviewt@ype smtenv_viewtype = @{smt=ptr, vars=ptr}
@@ -205,7 +205,11 @@ fun smtenv_push (env: &smtenv): (smtenv_push_v | void)
 fun smtenv_pop  (pf: smtenv_push_v | env: &smtenv): void
 
 fun smtenv_add_svar (env: &smtenv, s2v: s2var): void
+fun smtenv_get_var_exn (env: &smtenv, s2v: s2var): formula
 fun smtenv_assert_sbexp (env: &smtenv, s2e: s2exp): void
+fun smtenv_assert_formula (env: &smtenv, fm: formula): void
+
+fun smtenv_check (env: &smtenv): int
 
 (* ****** ****** *)
 

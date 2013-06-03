@@ -156,16 +156,22 @@ in
     }
   }
   
+  extern fun Z3_sort_to_ast (_: context, _: sort): formula = "mac#"
+  
   implement make_int_sort (solve) = srt where {
     extern fun Z3_mk_int_sort (_: context): sort = "mac#"
     //
     val srt = Z3_mk_int_sort (solve.ctx)
+    val fm = Z3_sort_to_ast (solve.ctx, srt)
+    val _ = Z3_inc_ref (solve.ctx, fm)
   }
   
   implement make_bool_sort (solve) = srt where {
     extern fun Z3_mk_bool_sort (_: context): sort = "mac#"
     //
     val srt = Z3_mk_bool_sort (solve.ctx)
+    val fm = Z3_sort_to_ast (solve.ctx, srt)
+    val _ = Z3_inc_ref (solve.ctx, fm)
   }
   
   implement make_constant (solve, id, srt) = cst where {
@@ -380,7 +386,7 @@ in
       | _ when res = Z3_FALSE => ~1
       | _ when res = Z3_TRUE => 0
       | _ =>> 0 //unknown might as well mean invalid
-  end 
+  end
   
   (* ****** ****** *)
   

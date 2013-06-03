@@ -55,6 +55,10 @@ staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
 
+staload "./pats_staexp2_util.sats"
+
+(* ****** ****** *)
+
 staload SMT = "./pats_smt.sats"
 
 viewtypedef solver = $SMT.solver
@@ -126,8 +130,23 @@ in
     val _ = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
     prval () = opt_clear (res)
   }
+
+  implement smtenv_get_var_exn (env, s2v) = let
+    val opt = $LM.linmap_search_opt (env.vars, s2v, cmp)
+  in
+    case+ opt of 
+      | ~Some_vt (formula) => formula
+      | ~None_vt _ => abort () where {
+        val _ = prerrln! ("SMT formula not found for s2var: ", s2v)
+      }
+  end
   
-  implement formula_make (env, s2e) =
+  (* ****** ****** *)
+  
+  implement formula_make (env, s2e) = let
+    val s2f = s2exp2hnf (s2e)
+    val s2e = s2hnf2exp (s2f)
+  in
     case+ s2e.s2exp_node of
       | S2Eint i => let
         val type = $SMT.make_int_sort (env.smt)
@@ -139,6 +158,7 @@ in
       in
         $SMT.make_numeral (env.smt, i, type)
       end
+      | S2Evar s2v => smtenv_get_var_exn (env, s2v)
       | S2Ecst s2c => (case+ s2c of
         | _ when
             s2cstref_equ_cst (the_null_addr, s2c) => let
@@ -149,12 +169,12 @@ in
             end
         | _ when
             s2cstref_equ_cst (the_true_bool, s2c) =>
-              $SMT.make_true(env.smt)
+              $SMT.make_true (env.smt)
         | _ when
             s2cstref_equ_cst (the_false_bool, s2c) =>
-              $SMT.make_false(env.smt)
+              $SMT.make_false (env.smt)
         | _ => abort () where {
-          val _ = prerrln!("Unknown constant:", s2c)
+          val _ = prerrln! ("Unknown constant:", s2c)
         }
       )
       | S2Eapp
@@ -164,21 +184,37 @@ in
                 formula_make_s2cst_s2explst (env, s2c1, s2es2)
               //
               | _ => abort () where {
-                val _ = prerrln!("Invalid application", s2e)
+                val _ = prerrln! ("Invalid application", s2e)
               }
           ) // end of [S2Eapp]
-      | _ => abort() where {
+      | _ => abort () where {
         val _ = prerrln! "Invalid S2 expression given:"
         val _ = prerrln! s2e
       }
+  end // end of [formula_make]
   
-  (* ****** ******  *)
+  (* ****** ****** *)
   
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
+    val _ = println! (
+      "Asserting: ", $SMT.string_of_formula(env.smt, assumption)
+    )
   in 
     $SMT.assert (env.smt, assumption)
   end
+
+  // A proposition is valid iff its negation is unsatisfiable given
+  // the current assumptions.
+  implement smtenv_assert_formula (env, prop) = let
+    val nprop = $SMT.make_not (env.smt, prop)
+  in
+    $SMT.assert (env.smt, nprop)
+  end
+  
+  (* ****** ******  *)
+  
+  implement smtenv_check (env) = $SMT.check (env.smt)
   
   (* ****** ******  *)
 

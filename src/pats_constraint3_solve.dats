@@ -334,9 +334,15 @@ c3nstr_solve_prop
     print "c3nstr_solve_prop: s2p = ";
     pprint_s2exp (s2p); print_newline ();
   end // end of [val]
+  val prop = formula_make (env, s2p)
+  //
+  val (pushed | ()) = smtenv_push (env)
+  val _ = smtenv_assert_formula (env, prop)
+  val res = smtenv_check (env)
+  val _ = smtenv_pop (pushed | env)
+  //
 in
-  0
-  // s3explst_solve_s2exp (loc0, env, s2p, err)
+  res
 end // end of [c3nstr_solve_prop]
 
 (* ****** ****** *)
@@ -365,7 +371,7 @@ case+ s3is of
   | S3ITMhypo (h3p) => let
       // Assert the assumption
       val prop = s2exp_make_h3ypo (env, h3p)
-      // val s3p = s3exp_make_h3ypo (env, h3p)
+      val _ = println!("Assume: ", prop)
       val () = (
         case+ prop.s2exp_node of
         | S2Eerr _ => let
@@ -409,6 +415,7 @@ c3nstr_solve_itmlst_cnstr
 (
   loc0, env, s3is, c3t, unsolved, err
 ) = let
+  val _ = println! "push"
   val (pf1 | ()) = smtenv_push (env)
   val (pf2 | ()) = the_s2varbindmap_push ()
   val ans1 =
@@ -416,6 +423,7 @@ c3nstr_solve_itmlst_cnstr
   // end of [val]
   val () = the_s2varbindmap_pop (pf2 | (*none*))
   val () = smtenv_pop (pf1 | env)
+  val () = println! "pop"
   val ans2 =
     c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
   // end of [val]
