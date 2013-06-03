@@ -177,6 +177,12 @@ in
           val _ = prerrln! ("Unknown constant:", s2c)
         }
       )
+      | S2Eeqeq (l, r) => let
+        val lhs = formula_make (env, l)
+        val rhs = formula_make (env, r)
+      in
+        $SMT.make_eq (env.smt, lhs, rhs)
+      end
       | S2Eapp
           (s2e1, s2es2) => (
             case+ s2e1.s2exp_node of
