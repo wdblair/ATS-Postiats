@@ -111,6 +111,7 @@ local
 in
   implement make_solver () = solve where {
     abstype tactic = ptr
+    abstype probe = ptr
     //  
     extern fun Z3_mk_config (): config = "mac#"
     extern fun Z3_mk_context_rc (_: config): context = "mac#"
@@ -131,14 +132,42 @@ in
       _: context, _: tactic, _: tactic
     ): tactic = "mac#"
     //
+    extern fun Z3_mk_probe (_: context, _: string): probe = "mac#"
+    extern fun Z3_probe_inc_ref (_: context, _: probe): void = "mac#"
+    //
+    extern fun  Z3_tactic_cond (
+      _: context, _: probe, _: tactic, _: tactic
+    ): tactic = "mac#"
+    //
     val conf = Z3_mk_config ()
     val ctx = Z3_mk_context_rc (conf)
     //
+    val qe = Z3_mk_tactic (ctx, "qe")
+    val _ = Z3_tactic_inc_ref (ctx, qe)
+    // 
+    val nlsat = Z3_mk_tactic (ctx, "nlsat")
+    val _ = Z3_tactic_inc_ref (ctx, nlsat)
+    //
     val qfnia = Z3_mk_tactic (ctx, "qfnia")
     val _ = Z3_tactic_inc_ref (ctx, qfnia)
+    //    
+    val faster_nonlin = Z3_tactic_and_then (ctx, qe, nlsat)
+    val _ = Z3_tactic_inc_ref (ctx, faster_nonlin)
     //
-    val (z3solve) = Z3_mk_solver_from_tactic (ctx, qfnia)
-    val () = Z3_tactic_dec_ref (ctx, qfnia)
+    val nonlinear = Z3_tactic_or_else (ctx, faster_nonlin, qfnia)
+    val _ = Z3_tactic_inc_ref (ctx, nonlinear)
+    //
+    val linear = Z3_mk_tactic (ctx, "qflia")
+    val _ = Z3_tactic_inc_ref (ctx, linear)
+    //
+    val is_qflia = Z3_mk_probe (ctx, "is-qflia")
+    val _ = Z3_probe_inc_ref (ctx, is_qflia)
+    //
+    val strategy = Z3_tactic_cond (ctx, is_qflia, linear, nonlinear)
+    val _ = Z3_tactic_inc_ref (ctx, strategy)
+    //
+    val (z3solve) = Z3_mk_solver_from_tactic (ctx, strategy)
+//    val () = Z3_tactic_dec_ref (ctx, strategy)
     val solve = '{ctx= ctx, slv= z3solve}
   }
   
@@ -174,7 +203,7 @@ in
     val _ = Z3_inc_ref (solve.ctx, fm)
   }
   
-  implement make_constant (solve, id, srt) = cst where {
+  implement make_int_constant (solve, id, srt) = cst where {
     extern fun Z3_mk_const (
       _: context, _: symbol, _: sort
     ): formula = "mac#"
