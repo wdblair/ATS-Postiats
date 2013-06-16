@@ -213,6 +213,12 @@ fun smtenv_check (env: &smtenv): int
 
 (* ****** ****** *)
 
+fun s2exp_metdec_reduce (
+  met: s2explst, met_bound: s2explst
+) : s2exp
+
+(* ****** ****** *)
+
 fun f_identity (
   env: &smtenv, s2es: s2explst
 ) : formula

@@ -32,12 +32,13 @@
 //
 (* ****** ****** *)
 
+#define ATS_STALOADFLAG 0
+
+(* ****** ****** *)
+
 %{#
 #include <z3.h>
-#include <yices.h>
 %}
-
-#define ATS_STALOADFLAG 0
 
 (* ****** ****** *)
 
@@ -79,7 +80,7 @@ fun make_int_sort (_: !solver): sort = "make_int_sort"
 
 fun make_bool_sort (_: !solver): sort = "make_bool_sort"
 
-fun make_constant (
+fun make_int_constant (
   _: !solver, id: int, _: sort
 ): formula = "make_constant"
 

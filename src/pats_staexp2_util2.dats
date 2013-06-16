@@ -131,7 +131,7 @@ case+ ls2es0 of
     (ls2e, ls2es) => let
     val SLABELED (l, name, s2e) = ls2e
     val s2e = s2exp_top (knd, s2e)
-    val ls2e = SLABELED (l, name, s2e) 
+    val ls2e = SLABELED (l, name, s2e)
     val ls2es = labs2explst_top (knd, ls2es)
   in
     list_cons (ls2e, ls2es)
@@ -152,6 +152,9 @@ fun s2exp_invar_flag (s2e: s2exp, flag: &int): s2exp
 
 extern
 fun s2exp_hnfize_flag (s2e: s2exp, flag: &int): s2exp
+extern
+fun s2exp_hnfize_flag_smt (s2e: s2exp, flag: &int): s2exp
+
 extern
 fun s2explst_hnfize_flag (s2es: s2explst, flag: &int): s2explst
 extern
@@ -402,6 +405,107 @@ end // end of [s2exp_hnfize_flag]
 
 (* ****** ****** *)
 
+
+implement
+s2exp_hnfize_flag_smt
+  (s2e0, flag) = let
+(*
+  val () = (
+    print "s2exp_hnfize_flag: s2e0 = "; print_s2exp (s2e0); print_newline ()
+  ) // end of [val]
+*)
+  val s2t0 = s2e0.s2exp_srt
+  val s2e0 = s2exp_linkrem_flag (s2e0, flag)
+in
+//
+case+ s2e0.s2exp_node of
+//
+| S2Eint _ => s2e0
+| S2Eintinf _ => s2e0
+//
+| S2Ecst _ => s2e0
+//
+| S2Eextype _ => s2e0
+| S2Eextkind _ => s2e0
+//
+| S2Evar (s2v) => s2e0
+
+| S2EVar _ => s2e0
+| S2Ehole _ => s2e0
+//
+| S2Edatconptr _ => s2e0
+| S2Edatcontyp _ => s2e0
+//
+| S2Eat _ => s2e0
+| S2Esizeof _ => s2e0
+//
+| S2Eeff _ => s2e0
+| S2Eeqeq _ => s2e0
+//
+| S2Eproj _ => s2e0
+//
+| S2Eapp (s2e_fun, s2es_arg) =>
+    s2exp_hnfize_app (s2e0, s2e_fun, s2es_arg, flag)
+  // end of [S2Eapp]
+| S2Elam (s2vs_arg, s2e_body) => let
+    val flag0 = flag
+    val s2e_body = s2exp_hnfize_flag_smt (s2e_body, flag)
+  in
+    if flag > flag0
+      then s2exp_lam_srt (s2t0, s2vs_arg, s2e_body) else s2e0
+    // end of [if]
+  end // end of [S2Elam]
+| S2Efun _ => s2e0
+| S2Emetfun _ => s2e0
+| S2Emetdec _ => s2e0
+//
+| S2Etop (knd, s2e) => s2exp_topize_flag (knd, s2e, flag)
+| S2Ewithout _ => s2e0
+//
+| S2Etyarr _ => s2e0
+| S2Etyrec _ => s2e0
+//
+| S2Einvar _ => s2exp_invar_flag (s2e0, flag)
+//
+| S2Eexi _=> s2e0
+| S2Euni _=> s2e0
+(*
+| S2Eexi (s2vs, s2ps, s2e_scope) => let
+    val flag0 = flag
+    val s2e_scope = s2exp_hnfize_flag (s2e_scope, flag)
+  in
+    if flag > flag0 then s2exp_exi (s2vs, s2ps, s2e_scope) else s2e0
+  end // end of [S2Euni]
+| S2Euni (s2vs, s2ps, s2e_scope) => let
+    val flag0 = flag
+    val s2e_scope = s2exp_hnfize_flag (s2e_scope, flag)
+  in
+    if flag > flag0 then s2exp_uni (s2vs, s2ps, s2e_scope) else s2e0
+  end // end of [S2Euni]
+*)
+//
+| S2Evararg _ => s2e0
+| S2Erefarg _ => s2e0
+| S2Ewth _ => s2e0
+//
+| S2Eerr () => s2e0
+//
+(*
+| _ => let
+    val () =
+    (
+      print "s2exp_hnfize_flag: s2e0 = "; print_s2exp (s2e0); print_newline ()
+    ) // end of [val]
+    val () = assertloc (false)
+  in
+    s2e0
+  end // end of [_]
+*)
+//
+end // end of [s2exp_hnfize_flag_smt]
+
+(* ****** ****** *)
+
 implement
 s2explst_hnfize_flag
   (s2es0, flag) = let
@@ -473,6 +577,12 @@ case+ opt of
 | None () => None ()
 //
 end // end of [s2expopt_hnfsize]
+
+
+implement
+s2exp_hnfize_smt (s2e) = let
+  var flag: int = 0 in s2exp_hnfize_flag_smt (s2e, flag)
+end // end of [s2exp_hnfsize_smt]
 
 (* ****** ****** *)
 

@@ -66,6 +66,10 @@ typedef formula = $SMT.formula
 
 (* ****** ****** *)
 
+staload "./pats_stamp.sats"
+
+(* ****** ****** *)
+
 staload "./pats_error.sats"
 
 (* ****** ****** *)
@@ -120,12 +124,9 @@ in
         $SMT.make_int_sort (env.smt)
       else
         $SMT.make_bool_sort (env.smt)
-    (*
-      Identifiy variables with their s2var string eventually. That way
-      we  can   provide  meaningful   counter  examples   to  unsolved
-      constraints for the user.
-    *)
-    val fresh = $SMT.make_fresh_constant (env.smt, smt_type)
+    val stamp = s2var_get_stamp (s2v)
+    val id = stamp_get_int (stamp)
+    val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
     var res: $SMT.sort
     val _ = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
     prval () = opt_clear (res)
@@ -144,8 +145,19 @@ in
   (* ****** ****** *)
   
   implement formula_make (env, s2e) = let
-    val s2f = s2exp2hnf (s2e)
-    val s2e = s2hnf2exp (s2f)
+    (* 
+      A  big issue  is that  if two  static variables  are equal,  the
+      following functions will replace one with the other. This is not
+      good for an  SMT based solver since the SMT  solver is not privy
+      to  such equalities.  Assumptions and  props involving  equality
+      often become 1 = 1.
+      
+      For example:
+        x = y usually becomes y = y
+      val s2f = s2exp2hnf (s2e)
+      val s2e = s2hnf2exp (s2f)
+    *)
+    val s2e = s2exp_hnfize_smt (s2e)
   in
     case+ s2e.s2exp_node of
       | S2Eint i => let
@@ -193,6 +205,11 @@ in
                 val _ = prerrln! ("Invalid application", s2e)
               }
           ) // end of [S2Eapp]
+      | S2Emetdec (met, met_bound) => let
+        val s2e_met = s2exp_metdec_reduce (met, met_bound)
+      in
+        formula_make (env, s2e_met)
+      end // end of [S3Emetdec]
       | _ => abort () where {
         val _ = prerrln! "Invalid S2 expression given:"
         val _ = prerrln! s2e
