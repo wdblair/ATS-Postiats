@@ -511,6 +511,10 @@ pats_main.dats
 
 ######
 
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+
+######
+
 ADD_EXECUTABLE (
 patsopt ${POSTIATS_C_TARGET}
 ) # end of [ADD_EXECUTABLE]
