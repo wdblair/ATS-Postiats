@@ -47,7 +47,7 @@ staload "./pats_stacst2.sats"
 
 staload "./pats_staexp2.sats"
 
-(* ****** ****** *)
+(* ****** ****** *) 
 
 staload "./pats_constraint3.sats"
 
