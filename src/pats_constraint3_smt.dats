@@ -47,7 +47,7 @@ staload "./pats_stacst2.sats"
 
 staload "./pats_staexp2.sats"
 
-(* ****** ****** *)
+(* ****** ****** *) 
 
 staload "./pats_constraint3.sats"
 
@@ -156,18 +156,6 @@ in
   (* ****** ****** *)
   
   implement formula_make (env, s2e) = let
-    (* 
-      A  big issue  is that  if two  static variables  are equal,  the
-      following functions will replace one with the other. This is not
-      good for an  SMT based solver since the SMT  solver is not privy
-      to  such equalities.  Assumptions and  props involving  equality
-      often become 1 = 1.
-      
-      For example:
-        x = y usually becomes y = y
-      val s2f = s2exp2hnf (s2e)
-      val s2e = s2hnf2exp (s2f)
-    *)
     val s2e = s2exp_hnfize_smt (s2e)
   in
     case+ s2e.s2exp_node of
@@ -238,8 +226,6 @@ in
     $SMT.assert (env.smt, assumption)
   end
 
-  // A proposition is valid iff its negation is unsatisfiable given
-  // the current assumptions.
   implement smtenv_assert_formula (env, prop) = let
     val nprop = $SMT.make_not (env.smt, prop)
     val _ = println! (
