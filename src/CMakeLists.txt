@@ -22,7 +22,7 @@ FIND_PACKAGE (ATS REQUIRED)
 IF (NOT ATS_FOUND)
 MESSAGE (FATAL_ERROR "ATS is not found!")
 ENDIF ()
-
+      
 SET (
     SOURCES
     pats_basics.dats
@@ -56,9 +56,7 @@ SET (
     pats_comarg.sats
     pats_constraint3.dats
     pats_constraint3_init.dats
-    pats_constraint3_print.dats
     pats_constraint3.sats
-    pats_constraint3_simplify.dats
     pats_constraint3_solve.dats
     pats_constraint3_smt.dats
     pats_counter.dats

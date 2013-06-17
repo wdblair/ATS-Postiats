@@ -292,8 +292,6 @@ dynload pats_lintprgm_myint_intinf.dats
 //
 dynload "pats_constraint3.dats"
 dynload "pats_constraint3_init.dats"
-dynload "pats_constraint3_print.dats"
-dynload "pats_constraint3_simplify.dats"
 dynload "pats_constraint3_solve.dats"
 dynload "pats_constraint3_smt.dats"
 //
