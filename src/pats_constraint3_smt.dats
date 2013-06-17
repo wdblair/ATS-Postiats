@@ -32,8 +32,6 @@
 //
 (* ****** ****** *)
 
-#define ATS_DYNLOADFLAG 0
-
 staload UN = "prelude/SATS/unsafe.sats"
 staload _(*anon*) = "prelude/DATS/list_vt.dats"
 
@@ -75,7 +73,7 @@ staload "./pats_error.sats"
 (* ****** ****** *)
 
 local
-
+  
 staload LM = "libats/SATS/linmap_avltree.sats"
 staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
 
@@ -102,6 +100,7 @@ in
   }
   
   implement smtenv_push (env) = (pf | ()) where {
+    val _ = println! ("(push 1)")
     val _ = $SMT.push (env.smt)
     prval pf = __push () where {
       extern praxi __push (): smtenv_push_v
@@ -109,6 +108,7 @@ in
   }
   
   implement smtenv_pop (pf | env) = {
+    val _ = println! ("(pop 1)")
     val _ = $SMT.pop (env.smt)
     prval _ = __pop (pf) where {
       extern praxi __pop (pf: smtenv_push_v): void
@@ -117,15 +117,26 @@ in
   
   implement smtenv_add_svar (env, s2v) = {
     val type = s2var_get_srt (s2v)
+    var is_int : bool
     //Only support ints and bools for now...
     val smt_type =
       if s2rt_is_int (type) orelse s2rt_is_addr (type)
-        orelse s2rt_is_char (type) orelse s2rt_is_dat (type) then
-        $SMT.make_int_sort (env.smt)
-      else
+        orelse s2rt_is_char (type) orelse s2rt_is_dat (type) then let 
+        val _ = is_int := true
+      in
+         $SMT.make_int_sort (env.smt)
+      end
+      else let 
+        val _ = is_int := false
+      in
         $SMT.make_bool_sort (env.smt)
+      end
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
+    //
+    val label = if is_int then "Int" else "Bool"
+    val _ = println! ("(declare-fun k!", id, " () ", label, ")")
+    //  
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
     var res: $SMT.sort
     val _ = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
@@ -221,7 +232,7 @@ in
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
     val _ = println! (
-      "Asserting: ", $SMT.string_of_formula(env.smt, assumption)
+      "(assert ", $SMT.string_of_formula(env.smt, assumption),")"
     )
   in 
     $SMT.assert (env.smt, assumption)
@@ -231,13 +242,20 @@ in
   // the current assumptions.
   implement smtenv_assert_formula (env, prop) = let
     val nprop = $SMT.make_not (env.smt, prop)
+    val _ = println! (
+      "(assert ", $SMT.string_of_formula (env.smt, nprop), ")"
+    )
   in
     $SMT.assert (env.smt, nprop)
   end
   
   (* ****** ******  *)
   
-  implement smtenv_check (env) = $SMT.check (env.smt)
+  implement smtenv_check (env) = let
+    val _ = println!("(check-sat)")
+  in
+    $SMT.check (env.smt)
+  end
   
   (* ****** ******  *)
 

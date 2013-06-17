@@ -289,6 +289,7 @@ dynload "pats_constraint3_init.dats"
 dynload "pats_constraint3_print.dats"
 dynload "pats_constraint3_simplify.dats"
 dynload "pats_constraint3_solve.dats"
+dynload "pats_constraint3_smt.dats"
 //
 dynload "pats_histaexp.dats"
 dynload "pats_histaexp_print.dats"

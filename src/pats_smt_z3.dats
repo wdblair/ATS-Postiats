@@ -121,6 +121,7 @@ in
     extern fun Z3_mk_solver (
       _: context
     ): z3_solver = "mac#"
+    extern fun Z3_solver_inc_ref (_: context, _: z3_solver): void = "mac#"
     //
     extern fun Z3_mk_tactic (_: context, _: string): tactic = "mac#"
     extern fun Z3_tactic_inc_ref (_: context, _: tactic): void = "mac#"
@@ -166,7 +167,9 @@ in
     val strategy = Z3_tactic_cond (ctx, is_qflia, linear, nonlinear)
     val _ = Z3_tactic_inc_ref (ctx, strategy)
     //
-    val (z3solve) = Z3_mk_solver_from_tactic (ctx, strategy)
+    //val (z3solve) = Z3_mk_solver_from_tactic (ctx, strategy)
+    val z3solve = Z3_mk_solver(ctx)
+    val _ = Z3_solver_inc_ref(ctx, z3solve)
 //    val () = Z3_tactic_dec_ref (ctx, strategy)
     val solve = '{ctx= ctx, slv= z3solve}
   }
@@ -397,8 +400,12 @@ in
     extern fun Z3_solver_pop (
       _: context, _: z3_solver, _: uint
     ): void = "mac#"
+    extern fun Z3_solver_get_num_scopes (
+      _: context, _: z3_solver
+    ): uint = "mac#"
   in
-    Z3_solver_pop (solve.ctx, solve.slv, 1u)
+    if Z3_solver_get_num_scopes(solve.ctx, solve.slv) > 0u then
+      Z3_solver_pop (solve.ctx, solve.slv, 1u)
   end
   
   macdef Z3_FALSE = $extval(int, "Z3_L_FALSE")
