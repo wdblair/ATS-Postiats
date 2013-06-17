@@ -285,8 +285,6 @@ s2exp_make_h3ypo
 
 end // end of [local]
 
-(*
-
 (* ****** ****** *)
 
 local
