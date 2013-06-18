@@ -47,7 +47,7 @@ staload "./pats_stacst2.sats"
 
 staload "./pats_staexp2.sats"
 
-(* ****** ****** *) 
+(* ****** ****** *)
 
 staload "./pats_constraint3.sats"
 
@@ -121,7 +121,7 @@ in
     //Only support ints and bools for now...
     val smt_type =
       if s2rt_is_int (type) orelse s2rt_is_addr (type)
-        orelse s2rt_is_char (type) orelse s2rt_is_dat (type) then let 
+        orelse s2rt_is_char (type) then let 
         val _ = is_int := true
       in
          $SMT.make_int_sort (env.smt)
@@ -184,9 +184,18 @@ in
         | _ when
             s2cstref_equ_cst (the_false_bool, s2c) =>
               $SMT.make_false (env.smt)
-        | _ => abort () where {
-          val _ = prerrln! ("Unknown constant:", s2c)
-        }
+        | _ => let
+          val srt = s2cst_get_srt (s2c)
+          val ty  = if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
+                      orelse s2rt_is_char (srt) then
+                        $SMT.make_int_sort (env.smt)
+                    else
+                      $SMT.make_bool_sort (env.smt)
+          val stamp = s2cst_get_stamp (s2c)
+          val id    = stamp_get_int (stamp)
+        in
+          $SMT.make_int_constant (env.smt, id, ty)
+        end
       )
       | S2Eeqeq (l, r) => let
         val lhs = formula_make (env, l)
