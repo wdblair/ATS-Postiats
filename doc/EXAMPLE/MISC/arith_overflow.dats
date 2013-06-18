@@ -82,7 +82,7 @@ if l < r then let
 // if the next line replaces the above one
 // as arith overflow may potentially occur
 //
-  val m = (l + r) / 2
+  val m = half (l + r)
 *)
   val m2 = intb2int (m)
   val sgn = cmp (x0, A.[m2])
