@@ -136,7 +136,7 @@ in
     //
     val label = if is_int then "Int" else "Bool"
     val _ = println! ("(declare-fun k!", id, " () ", label, ")")
-    //  
+    //
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
     var res: $SMT.sort
     val _ = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
