@@ -249,7 +249,6 @@ case+ 0 of
   | _ => (
       if s2exp_syneq (s2e1, s2e2) then s2exp_bool(true) else s2exp_err (s2rt_bool)
   ) // end of [_]
-*)
 //
 end // end of [auxeq]
 
