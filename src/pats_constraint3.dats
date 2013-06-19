@@ -233,26 +233,21 @@ local
 fun auxeq (
   env: &smtenv, s2e1: s2exp, s2e2: s2exp
 ) : s2exp = let
-//
-// val s2t1 = s2e1.s2exp_srt
-
-// val s3e1 = s3exp_make (env, s2e1)
-// and s3e2 = s3exp_make (env, s2e2)
-//
+  val s2t1 = s2e1.s2exp_srt
 (*
 val () = println! ("auxeq: s3e1 = ", s3e1)
 and () = println! ("auxeq: s3e2 = ", s3e2)
 *)
 //
 in
-  s2exp_eqeq (s2e1, s2e2)
-//
-(*
 case+ 0 of
-| _ => (
-    if s2exp_syneq (s2e1, s2e2) then s3exp_true else s3exp_err (s2rt_bool)
+  | _ when s2rt_is_int  (s2t1) => s2exp_eqeq (s2e1, s2e2)
+  | _ when s2rt_is_addr (s2t1) => s2exp_eqeq (s2e1, s2e2)
+  | _ when s2rt_is_bool (s2t1) => s2exp_eqeq (s2e1, s2e2)
+  | _ when s2rt_is_char (s2t1) => s2exp_eqeq (s2e1, s2e2)
+  | _ => (
+      if s2exp_syneq (s2e1, s2e2) then s2exp_bool(true) else s2exp_err (s2rt_bool)
   ) // end of [_]
-*)
 //
 end // end of [auxeq]
 
