@@ -255,65 +255,74 @@ end // end of [local]
 (* ****** ****** *)
 
 implement
-s2rt_is_int (s2t) =
-(
-case+ s2t of
-| S2RTbas s2tb => (
-  case+ s2tb of
-  | S2RTBASpre (sym) => sym = $SYM.symbol_INT | _ => false
-  ) // end of [S2RTbas]
+s2rt_is_int (s2t) = let
+  val s2t = s2rt_delink (s2t)
+in
+  case+ s2t of
+  | S2RTbas (s2tb) => (
+    case+ s2tb of
+    | S2RTBASpre (sym) =>
+      sym = $SYM.symbol_INT
+    | _ => false
+    ) // end of [S2RTbas]
   | _ => false
-) // end of [s2rt_is_int]
+end  // end of [s2rt_is_int]
 
 implement
-s2rt_is_addr (s2t) =
-(
-case+ s2t of
-| S2RTbas s2tb => (
-  case+ s2tb of
-  | S2RTBASpre (sym) => sym = $SYM.symbol_ADDR | _ => false
-  ) // end of [S2RTbas]
-  | _ => false
-) // end of [s2rt_is_addr]
-implement
-s2rt_is_bool (s2t) =
-(
-case+ s2t of
-| S2RTbas s2tb => (
-  case+ s2tb of
-  | S2RTBASpre (sym) => sym = $SYM.symbol_BOOL | _ => false
-  ) // end of [S2RTbas]
-| _ => false
-) // end of [s2rt_is_int]
+s2rt_is_addr (s2t) = let
+  val s2t = s2rt_delink (s2t)
+in
+  case+ s2t of
+  | S2RTbas s2tb => (
+    case+ s2tb of
+    | S2RTBASpre (sym) => sym = $SYM.symbol_ADDR | _ => false
+    ) // end of [S2RTbas]
+    | _ => false
+end // end of [s2rt_is_addr]
 
 implement
-s2rt_is_char (s2t) =
-(
-case+ s2t of
-| S2RTbas s2tb => (
-  case+ s2tb of
-  | S2RTBASpre (sym) => sym = $SYM.symbol_CHAR | _ => false
-  ) // end of [S2RTbas]
-  | _ => false
-) // end of [s2rt_is_int]
+s2rt_is_bool (s2t) = let
+  val s2t = s2rt_delink (s2t)
+in
+  case+ s2t of
+    | S2RTbas s2tb => (
+      case+ s2tb of
+      | S2RTBASpre (sym) => sym = $SYM.symbol_BOOL | _ => false
+      ) // end of [S2RTbas]
+    | _ => false
+end // end of [s2rt_is_bool]
 
 implement
-s2rt_is_dat (s2t) =
-(
-case+ s2t of
-| S2RTbas s2tb => (
-  case+ s2tb of S2RTBASdef _ => true | _ => false
+s2rt_is_char (s2t) = let
+  val s2t = s2rt_delink (s2t)
+in  
+  case+ s2t of
+  | S2RTbas s2tb => (
+    case+ s2tb of
+    | S2RTBASpre (sym) => sym = $SYM.symbol_CHAR | _ => false
+    ) // end of [S2RTbas]
+    | _ => false
+end // end of [s2rt_is_char]
+
+implement
+s2rt_is_dat (s2t) = let
+  val s2t = s2rt_delink (s2t)
+in
+  case+ s2t of
+  | S2RTbas s2tb => (
+    case+ s2tb of S2RTBASdef _ => true | _ => false
   ) // end of [S2RTbas]
-| _ => false // end of [S2RTbas]
-) // end of [s2rt_is_dat]
+  | _ => false // end of [S2RTbas]
+end // end of [s2rt_is_dat]
 
 (* ****** ****** *)
 
 implement
-s2rt_is_fun (s2t) =
-(
+s2rt_is_fun (s2t) = let
+  val s2t = s2rt_delink (s2t)
+in
   case+ s2t of S2RTfun _ => true | _ => false
-) // end of [s2rt_is_fun]
+end // end of [s2rt_is_fun]
 
 implement
 s2rt_is_prf (s2t) =
