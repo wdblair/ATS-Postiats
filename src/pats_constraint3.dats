@@ -319,8 +319,6 @@ in // in of [local]
       | ~None_vt _ => make_true (env)
   end // end of [formula_make_s2cst_s2explst]
 
-end // end of [formula_make_s2cst_s2explst]
-
 (* ****** ****** *)
 
 implement
