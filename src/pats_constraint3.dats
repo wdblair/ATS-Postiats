@@ -71,7 +71,8 @@ staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
 
-staload "./pats_smt.sats"
+staload SMT = "./pats_smt.sats"
+typedef formula = $SMT.formula
 
 (* ****** ****** *)
 
@@ -298,24 +299,22 @@ val (pf_the_s2cfunmap | ()) =
 
 in // in of [local]
 
-implement 
-formula_make_s2cst_s2explst
-  (env, s2c, s2es) = let
-  val opt = let
-    prval vbox (pf) = pf_the_s2cfunmap in s2cstmap_find (the_s2cfunmap, s2c)
-  end // end of [val]
-//
-(*
-val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
-val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
-*)
-in
-  case+ opt of
-    | ~Some_vt f => f (env, s2es)
-    | ~None_vt _ => abort () where {
-      val _ = prerrln!("Constant ", s2c, " not found.")
-    }
-end // end of [formula_make_s2cst_s2explst]
+  implement 
+  formula_make_s2cst_s2explst
+    (env, s2c, s2es) = let
+    val opt = let
+      prval vbox (pf) = pf_the_s2cfunmap in s2cstmap_find (the_s2cfunmap, s2c)
+    end // end of [val]
+  //
+  (*
+  val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
+  val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
+  *)
+  in
+    case+ opt of
+      | ~Some_vt f => f (env, s2es)
+      | ~None_vt _ => make_true (env)
+  end // end of [formula_make_s2cst_s2explst]
 
 (* ****** ****** *)
 

@@ -114,14 +114,13 @@ in
       extern praxi __pop (pf: smtenv_push_v): void
     }
   }
-  
+ 
   implement smtenv_add_svar (env, s2v) = {
     val type = s2var_get_srt (s2v)
     var is_int : bool
-    //Only support ints and bools for now...
     val smt_type =
       if s2rt_is_int (type) orelse s2rt_is_addr (type)
-        orelse s2rt_is_char (type) then let 
+        orelse s2rt_is_char (type) then let
         val _ = is_int := true
       in
          $SMT.make_int_sort (env.smt)
@@ -226,6 +225,14 @@ in
   
   (* ****** ****** *)
   
+  implement make_true (env) = let
+    val ty = $SMT.make_bool_sort(env.smt)
+  in
+    $SMT.make_fresh_constant(env.smt, ty)
+  end
+  
+  (* ****** ****** *)
+    
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
     val _ = println! (
