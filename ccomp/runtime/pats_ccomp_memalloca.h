@@ -51,7 +51,7 @@ extern void *alloca (size_t bsz) ;
 ATSinline()
 atsvoid_t0ype
 atsruntime_afree_libc
-  (atstype_ptr ptr) { return ; }
+  (atstype_ptr ptr { return ; 
 // end of [atsruntime_afree_libc]
 
 ATSinline()

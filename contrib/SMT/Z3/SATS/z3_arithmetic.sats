@@ -45,6 +45,8 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 #endif
 //
 (* ****** ****** *)
+ 
+fun Z3_mk_sub2 (ctx: !Z3_context, left: !Z3_ast, right: !Z3_ast): Z3_ast = "mac#%"
 
 fun Z3_mk_add{n:int}
 (
@@ -74,6 +76,12 @@ fun Z3_mk_ge
 (
   ctx: !Z3_context, left: !Z3_ast, right: !Z3_ast
 ) : Z3_ast = "mac#%" // end of [Z3_mk_ge]
+
+fun Z3_mk_add2 (ctx: !Z3_context, left: !Z3_ast, right: !Z3_ast): Z3_ast = "mac#%"
+
+fun Z3_mk_mul2 (ctx: !Z3_context, left: !Z3_ast, right: !Z3_ast): Z3_ast = "mac#%"
+
+fun Z3_mk_div (ctx: !Z3_context, num: !Z3_ast, den: !Z3_ast): Z3_ast = "mac#%"
 
 (* ****** ****** *)
 //

@@ -42,6 +42,26 @@ atscntrb_Z3_mk_add2
   return atscntrb_Z3_inc_ref(Z3_mk_add(ctx, 2, a01)) ;
 } // end of [atscntrb_Z3_mk_add2]
 
+ATSinline()
+Z3_ast
+atscntrb_Z3_mk_add2 (Z3_context ctx, Z3_ast l, Z3_ast r) {
+  Z3_ast args[2] = {l, r};
+  Z3_BODY_MK_AST(Z3_mk_add, 2, args)
+}
+
+ATSinline()
+Z3_ast
+atscntrb_Z3_mk_sub2 (Z3_context ctx, Z3_ast l, Z3_ast r) {
+  Z3_ast args[2] = {l, r};
+  Z3_BODY_MK_AST(Z3_mk_sub, 2, args)
+}
+
+ATSinline()
+Z3_ast
+atscntrb_Z3_mk_div (Z3_context ctx, Z3_ast l, Z3_ast r) {
+  Z3_BODY_MK_AST(Z3_mk_div, l, r)
+}
+
 /* ****** ****** */
 
 ATSinline()
@@ -59,5 +79,3 @@ atscntrb_Z3_mk_mul2
 #endif // end of [Z3_Z3_ARITHMETIC_CATS]
 
 /* ****** ****** */
-
-/* end of [z3_airthmetic.cats] */
