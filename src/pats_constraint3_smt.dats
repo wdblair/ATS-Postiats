@@ -132,6 +132,7 @@ in
       end
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
+    val _ = println!("Variables: ", $LM.linmap_size(env.vars))
     //
     val label = if is_int then "Int" else "Bool"
     val _ = println! ("(declare-fun k!", id, " () ", label, ")")

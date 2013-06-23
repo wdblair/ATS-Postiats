@@ -64,9 +64,8 @@ absviewtype solver = ptr
 #include "pats_smt_yices.hats"
 #endif
 
-abst@ype formula = __formula_size
-
-abst@ype sort = __sort_size
+absviewt@ype formula = __formula_size
+absviewt@ype sort = __sort_size
 
 (* ****** ****** *)
 
@@ -81,11 +80,11 @@ fun make_int_sort (_: !solver): sort = "make_int_sort"
 fun make_bool_sort (_: !solver): sort = "make_bool_sort"
 
 fun make_int_constant (
-  _: !solver, id: int, _: sort
+  _: !solver, id: int, _: !sort
 ): formula = "make_constant"
 
 fun make_fresh_constant (
-  _: !solver, _: sort
+  _: !solver, _: !sort
 ): formula = "make_fresh_constant"
 
 (* ****** ****** *)
@@ -128,13 +127,13 @@ fun make_ite (
 symintr make_numeral
 
 fun make_numeral_int (
-  _: !solver, _: int, _: sort
+  _: !solver, _: int, _: !sort
 ): formula = "make_numeral_int"
 
 overload make_numeral with make_numeral_int
 
 fun make_numeral_intinf (
-  _: !solver, _: intinf, _: sort
+  _: !solver, _: intinf, _: !sort
 ): formula = "make_numeral_intinf"
 
 overload make_numeral with make_numeral_intinf

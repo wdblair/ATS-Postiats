@@ -107,7 +107,10 @@ local
     //
     val sym = Z3_mk_int_symbol (solve.ctx, id)
   }
-
+  
+  extern fun Z3_solver_get_num_scopes (
+    _: context, _: z3_solver
+  ): uint = "mac#"  
 in
   implement make_solver () = solve where {
     abstype tactic = ptr
@@ -392,6 +395,7 @@ in
       _: context, _: z3_solver
     ): void = "mac#"
     //
+    val _ = println!(Z3_solver_get_num_scopes (solve.ctx, solve.slv))
   in
     Z3_solver_push (solve.ctx, solve.slv)
   end
@@ -400,9 +404,6 @@ in
     extern fun Z3_solver_pop (
       _: context, _: z3_solver, _: uint
     ): void = "mac#"
-    extern fun Z3_solver_get_num_scopes (
-      _: context, _: z3_solver
-    ): uint = "mac#"
   in
     if Z3_solver_get_num_scopes(solve.ctx, solve.slv) > 0u then
       Z3_solver_pop (solve.ctx, solve.slv, 1u)
