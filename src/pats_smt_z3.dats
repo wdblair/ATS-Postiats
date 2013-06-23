@@ -356,9 +356,6 @@ in
     extern fun Z3_solver_pop (
       _: context, _: z3_solver, _: uint
     ): void = "mac#"
-    extern fun Z3_solver_get_num_scopes (
-      _: context, _: z3_solver
-    ): uint = "mac#"
   in
     if Z3_solver_get_num_scopes(solve.ctx, solve.slv) > 0u then
       Z3_solver_pop (solve.ctx, solve.slv, 1u)
