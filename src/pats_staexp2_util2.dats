@@ -151,12 +151,22 @@ extern
 fun s2exp_invar_flag (s2e: s2exp, flag: &int): s2exp
 
 extern
-fun s2exp_hnfize_flag (s2e: s2exp, flag: &int): s2exp
+fun s2exp_hnfize_flag_normal (
+  s2e: s2exp, flag: &int, ignore_var: bool
+): s2exp
+
+overload s2exp_hnfize_flag with s2exp_hnfize_flag_normal
+
 extern
-fun s2exp_hnfize_flag_smt (s2e: s2exp, flag: &int): s2exp
+fun s2exp_hnfize_flag_full (
+  s2e: s2exp, flag: &int
+): s2exp
+
+overload s2exp_hnfize_flag with s2exp_hnfize_flag_full
 
 extern
 fun s2explst_hnfize_flag (s2es: s2explst, flag: &int): s2explst
+
 extern
 fun labs2explst_hnfize_flag (ls2es: labs2explst, flag: &int): labs2explst
 
@@ -328,6 +338,9 @@ case+ s2e0.s2exp_node of
 | S2Eextkind _ => s2e0
 //
 | S2Evar (s2v) =>
+  if ignorevars then
+    s2e0
+  else
     s2exp_hnfize_flag_svar (s2e0, s2v, flag)
 | S2EVar _ => s2e0
 | S2Ehole _ => s2e0
@@ -506,6 +519,11 @@ end // end of [s2exp_hnfize_flag_smt]
 
 (* ****** ****** *)
 
+implement s2exp_hnfize_flag_full (s2es, flag) = 
+  s2exp_hnfize_flag_normal (s2es, flag, false)
+
+(* ****** ****** *)
+
 implement
 s2explst_hnfize_flag
   (s2es0, flag) = let
@@ -581,7 +599,7 @@ end // end of [s2expopt_hnfsize]
 
 implement
 s2exp_hnfize_smt (s2e) = let
-  var flag: int = 0 in s2exp_hnfize_flag_smt (s2e, flag)
+  var flag: int = 0 in s2exp_hnfize_flag (s2e, flag, true)
 end // end of [s2exp_hnfsize_smt]
 
 (* ****** ****** *)
