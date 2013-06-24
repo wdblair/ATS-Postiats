@@ -76,6 +76,8 @@ atscntrb_Z3_mk_mul2
 
 /* ****** ****** */
 
-#endif // end of [Z3_Z3_ARITHMETIC_CATS]
+#define atscntrb_Z3_get_num_scopes Z3_get_num_scopes
 
 /* ****** ****** */
+
+#endif

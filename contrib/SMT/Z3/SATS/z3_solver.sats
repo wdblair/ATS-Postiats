@@ -102,4 +102,10 @@ Z3_solver_get_model{l:addr}
 
 (* ****** ****** *)
 
+extern fun Z3_solver_get_num_scopes (
+  _: context, _: z3_solver
+): uint = "mac#%"
+
+(* ****** ****** *)
+
 (* end of [z3_solver.sats] *)

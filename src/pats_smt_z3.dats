@@ -63,54 +63,6 @@ assume solver = '{
 
 local
 
-  extern
-  fun Z3_mk_and {n:nat} (
-    _: context, _: int n, _: &(@[formula][n])
-  ): formula = "mac#"
-  
-  extern
-  fun Z3_mk_or {n:nat} (
-    _: context, _: int n, _: &(@[formula][n])
-  ): formula = "mac#"
-  
-  extern
-  fun Z3_mk_add {n:nat} (
-    _: context, _: int n, _: &(@[formula][n])
-  ): formula = "mac#"
-
-  extern
-  fun Z3_mk_sub {n:nat} (
-    _: context, _: int n, _: &(@[formula][n])
-  ): formula = "mac#"
-  
-  extern
-  fun Z3_mk_mul {n:nat} (
-    _: context, _: int n, _: &(@[formula][n])
-  ): formula = "mac#"
-  
-  extern
-  fun Z3_inc_ref (
-    _: context, _: formula
-  ): void = "mac#"
-
-  extern
-  fun Z3_dec_ref (
-    _: context, _: formula
-  ): void = "mac#"
-
-  fun make_int_symbol (
-    solve: !solver, id: int
-  ): symbol = sym where {
-    extern fun Z3_mk_int_symbol (
-      _: context, _: int
-    ): symbol = "mac#"
-    //
-    val sym = Z3_mk_int_symbol (solve.ctx, id)
-  }
-  
-  extern fun Z3_solver_get_num_scopes (
-    _: context, _: z3_solver
-  ): uint = "mac#"  
 in
   implement make_solver () = solve where {
     abstype tactic = ptr
