@@ -32,6 +32,7 @@ src/TAGS
 src/tags
 src/TAGATS
 src/pats_contraint3_solve_smt.h
+src/pats_constraint3_solve_smt.hats
 
 bin/patscc
 bin/patsopt
