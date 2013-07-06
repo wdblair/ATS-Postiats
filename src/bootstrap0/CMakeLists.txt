@@ -1,9 +1,9 @@
 CMAKE_MINIMUM_REQUIRED (VERSION 2.8)
 
-PROJECT (POSTIATS C)
+PROJECT (POSTIATS_BOOT C)
 
 SET (
-   CMAKE_MODULE_PATH $ENV{ATSHOME}/share/CMake
+CMAKE_MODULE_PATH $ENV{ATSHOME}/share/CMake
 ) # end of [SET]
 
 FIND_PACKAGE (ATS REQUIRED)
@@ -241,7 +241,7 @@ SET (
 )
 
 ADD_EXECUTABLE (
-         patsopt ${SOURCES}
+         patsopt-boot ${SOURCES}
 ) # end of [ADD_EXECUTABLE]
 
-TARGET_LINK_LIBRARIES (patsopt gmp z3 rt)
+TARGET_LINK_LIBRARIES (patsopt-boot gmp z3 rt)
