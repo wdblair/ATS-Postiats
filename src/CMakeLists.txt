@@ -247,9 +247,9 @@ SET (
 ### Setup for SMT Solvers
 
 # The location of yices and Z3 should be discovered automatically, but
-# assume its in a standard place now.
+# assume it's in a standard place now.
 
-SET(SMT_INCLUDE "none" CACHE STRING "The SMT Solver you'd like to use, if any.")  
+SET(SMT_INCLUDE "none" CACHE STRING "The SMT Solver you'd like to use, if any.")
 SET(SMT_LIB)
 
 IF( SMT_INCLUDE STREQUAL "none")

@@ -51,6 +51,13 @@ utils/atsyntax/HTML
 utils/atsyntax/pats2xhtml
 
 #
+# building patsopt through Postiats
+src/bootstrap0/BUILD/*
+src/bootstrap0/patsopt-boot
+
+#
+
+#
 # ATSHOME/ccomp
 #
 
