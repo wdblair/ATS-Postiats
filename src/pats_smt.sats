@@ -158,11 +158,19 @@ fun make_eq (_: !solver, _: formula, _: formula): formula = "make_eq"
 
 // Solving
 
-fun assert (_: !solver, _: formula): void = "assert"
+fun assert (_: !solver, _: formula): void = "smt_assert"
 
 sortdef status = {a: int | a >= ~1 ; a <= 1}
 
-fun check (_: !solver): [s: status] int s = "check"
+fun check (_: !solver): [s: status] int s = "smt_check"
+
+(* ****** ****** *)
+
+fun formula_dup (_: !solver, _: !formula): formula = "formula_dup"
+
+fun formula_free (_: !solver, _: formula): void = "formula_free"
+
+fun sort_free (_: !solver, _: sort): void = "sort_free"
 
 (* ****** ****** *)
 

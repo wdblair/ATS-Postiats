@@ -60,7 +60,7 @@ staload "./pats_staexp2_util.sats"
 staload SMT = "./pats_smt.sats"
 
 viewtypedef solver = $SMT.solver
-typedef formula = $SMT.formula
+viewtypedef formula = $SMT.formula
 
 (* ****** ****** *)
 
@@ -77,7 +77,7 @@ staload "./pats_error.sats"
 (* ****** ****** *)
 
 local
-  
+
 staload LM = "libats/SATS/linmap_avltree.sats"
 staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
 
@@ -87,20 +87,40 @@ fn cmp (
 
 viewtypedef smtenv_struct = @{
   smt=solver,
-  vars= $LM.map(s2var, formula)
+  vars= $LM.map(s2var, formula),
+  int= $SMT.sort,
+  bool= $SMT.sort
 }
 
 assume smtenv_viewtype = smtenv_struct
 
 in
-  implement smtenv_nil (env) = {
-    val _ = env.smt := $SMT.make_solver ()
-    val _ = env.vars := $LM.linmap_make_nil ()
-  }
+  implement smtenv_nil (env) = begin
+    env.smt := $SMT.make_solver ();
+    env.vars := $LM.linmap_make_nil ();
+    env.int := $SMT.make_int_sort (env.smt);
+    env.bool := $SMT.make_bool_sort (env.smt);
+  end
   
   implement smtenv_free (env) = {
-   val () = $SMT.delete_solver (env.smt)
-   val () = $LM.linmap_free (env.vars)
+   val vars = $LM.linmap_listize_free (env.vars)
+   val _ = release_vars (env.smt, vars) where {
+     viewtypedef tuple = @(s2var, formula)
+     //   
+     fun release_vars (slv: !solver, vs: List_vt(tuple)): void = 
+      case+ vs of 
+        | ~list_vt_nil () => ()
+        | ~list_vt_cons (@(_, v), vss) => let
+          val _ = $SMT.formula_free(slv, v)
+        in 
+          release_vars(slv, vss)
+        end
+   }
+   val () = begin
+      $SMT.sort_free (env.smt, env.int);
+      $SMT.sort_free (env.smt, env.bool);
+      $SMT.delete_solver (env.smt);
+   end
   }
   
   implement smtenv_push (env) = (pf | ()) where {
@@ -118,11 +138,11 @@ in
       extern praxi __pop (pf: smtenv_push_v): void
     }
   }
- 
+  
   implement smtenv_add_svar (env, s2v) = {
     val type = s2var_get_srt (s2v)
     var is_int : bool
-    val smt_type =
+    val smt_type = (
       if s2rt_is_int (type) orelse s2rt_is_addr (type)
         orelse s2rt_is_char (type) then let
         val _ = is_int := true
@@ -134,6 +154,7 @@ in
       in
         $SMT.make_bool_sort (env.smt)
       end
+    ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
     val _ = println!("Variables: ", $LM.linmap_size(env.vars))
@@ -142,17 +163,32 @@ in
     val _ = println! ("(declare-fun k!", id, " () ", label, ")")
     //
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
-    var res: $SMT.sort
-    val _ = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
-    prval () = opt_clear (res)
+    var res: $SMT.formula?
+    val found = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
+    val () = 
+      if found then let
+        prval () = opt_unsome{$SMT.formula} (res)
+      in
+        $SMT.formula_free(env.smt, res)
+      end
+      else {
+        val () = opt_unnone {$SMT.formula}  (res)
+      }
+    val () = $SMT.sort_free(env.smt, smt_type)
   }
-
+  
   implement smtenv_get_var_exn (env, s2v) = let
-    val opt = $LM.linmap_search_opt (env.vars, s2v, cmp)
+    val opt = $LM.linmap_search_reference (env.vars, s2v, cmp)
   in
     case+ opt of 
-      | ~Some_vt (formula) => formula
-      | ~None_vt _ => abort () where {
+      | Some (ref) => let
+        val (vbox (pf) | p) = ref_get_view_ptr {formula} (ref)
+      in
+        $effmask_ref (
+          $SMT.formula_dup(env.smt, !p)
+        )
+      end
+      | None => abort () where {
         val _ = prerrln! ("SMT formula not found for s2var: ", s2v)
       }
   end
@@ -163,25 +199,18 @@ in
     val s2e = s2exp_hnfize_smt (s2e)
   in
     case+ s2e.s2exp_node of
-      | S2Eint i => let
-        val type = $SMT.make_int_sort (env.smt)
-      in
-        $SMT.make_numeral (env.smt, i, type)
-      end
-      | S2Eintinf i => let
-        val type = $SMT.make_int_sort (env.smt)
-      in
-        $SMT.make_numeral (env.smt, i, type)
-      end
+      | S2Eint i => 
+        $SMT.make_numeral (env.smt, i, env.int)
+      //
+      | S2Eintinf i =>
+        $SMT.make_numeral (env.smt, i, env.int)
+      //
       | S2Evar s2v => smtenv_get_var_exn (env, s2v)
       | S2Ecst s2c => (case+ s2c of
         | _ when
-            s2cstref_equ_cst (the_null_addr, s2c) => let
-              val ty = $SMT.make_int_sort (env.smt)
-              val zero = $SMT.make_numeral (env.smt, 0, ty)
-            in
-              zero
-            end
+            s2cstref_equ_cst (the_null_addr, s2c) =>
+              $SMT.make_numeral (env.smt, 0, env.int)
+        //
         | _ when
             s2cstref_equ_cst (the_true_bool, s2c) =>
               $SMT.make_true (env.smt)
@@ -190,15 +219,14 @@ in
               $SMT.make_false (env.smt)
         | _ => let
           val srt = s2cst_get_srt (s2c)
-          val ty  = if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
-                      orelse s2rt_is_char (srt) then
-                        $SMT.make_int_sort (env.smt)
-                    else
-                      $SMT.make_bool_sort (env.smt)
           val stamp = s2cst_get_stamp (s2c)
           val id    = stamp_get_int (stamp)
         in
-          $SMT.make_int_constant (env.smt, id, ty)
+          if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
+            orelse s2rt_is_char (srt) then
+            $SMT.make_int_constant (env.smt, id, env.int)
+          else 
+            $SMT.make_int_constant (env.smt, id, env.bool)
         end
       )
       | S2Eeqeq (l, r) => let
@@ -230,11 +258,8 @@ in
   
   (* ****** ****** *)
   
-  implement make_true (env) = let
-    val ty = $SMT.make_bool_sort(env.smt)
-  in
-    $SMT.make_fresh_constant(env.smt, ty)
-  end
+  implement make_true (env) =
+      $SMT.make_true(env.smt)
   
   (* ****** ****** *)
     
@@ -414,12 +439,13 @@ in
     val- s2e1 :: _ = s2es
     //
     val fie1 = formula_make (env, s2e1)
-    val ty = $SMT.make_int_sort (env.smt)
-    val zero = $SMT.make_numeral (env.smt, 0, ty)
-    val neg = $SMT.make_negate (env.smt, fie1)
+    val zero = $SMT.make_numeral (env.smt, 0, env.int)
+    val fie1' = $SMT.formula_dup (env.smt, fie1)
+    val fie1'' = $SMT.formula_dup (env.smt, fie1)
+    val neg = $SMT.make_negate (env.smt, fie1')
     val check_lt = $SMT.make_lt (env.smt, fie1, zero)
   in
-    $SMT.make_ite (env.smt, check_lt, neg, fie1)
+    $SMT.make_ite (env.smt, check_lt, neg, fie1'')
   end
   
   implement f_sgn_int (env, s2es) = let
@@ -430,11 +456,12 @@ in
     val neg  = $SMT.make_numeral  (env.smt, ~1, ty)
     //
     val fbe1 = formula_make (env, s2e1)
+    val fbe1' = $SMT.formula_dup (env.smt, fbe1)
     //
     val check_neg = $SMT.make_lt (env.smt, fbe1, zero)
-    val check_zero = $SMT.make_eq (env.smt, fbe1, zero)
+    val check_zero = $SMT.make_eq (env.smt, fbe1', zero')
     //
-    val cond1 = $SMT.make_ite (env.smt, check_zero, zero, pos)
+    val cond1 = $SMT.make_ite (env.smt, check_zero, zero'', pos)
     val cond2 = $SMT.make_ite (env.smt, check_neg,  neg, cond1)
   in
     cond2
@@ -444,7 +471,9 @@ in
     val- s2e1 :: s2e2 ::  _ = s2es
     //
     val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val fbe1' = $SMT.formula_dup (env.smt, fbe1)
+    val fbe2  = formula_make (env, s2e2)
+    val fbe2' = $SMT.formula_dup (env.smt, fbe2)
     //
     val gt = $SMT.make_gt (env.smt, fbe1, fbe2)
   in
@@ -456,12 +485,13 @@ in
     //
     val fbe1 = formula_make (env, s2e1)
     val fbe2 = formula_make (env, s2e2)
+    val fbe1' = $SMT.formula_dup (env.smt, fbe1)
+    val fbe2' = $SMT.formula_dup (env.smt, fbe2)
     //
     val gt = $SMT.make_le (env.smt, fbe1, fbe2)
   in
-    $SMT.make_ite (env.smt, gt, fbe1, fbe2)
+    $SMT.make_ite (env.smt, gt, fbe1', fbe2')
   end // end of [f_min_int_int]
-
 
   implement f_ifint_bool_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: s2e3 ::  _ = s2es
@@ -473,5 +503,5 @@ in
   in
     $SMT.make_ite (env.smt, cond, t, f)
   end // end of [f_ifint_bool_int_int]
-                                    
+  
 end
