@@ -52,7 +52,7 @@ staload "./pats_constraint3.sats"
 (* ****** ****** *)
 
 staload SMT = "./pats_smt.sats"
-typedef formula = $SMT.formula
+viewtypedef formula = $SMT.formula
 
 (* ****** ****** *)
 

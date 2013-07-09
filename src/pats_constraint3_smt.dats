@@ -163,23 +163,36 @@ in
     val _ = println! ("(declare-fun k!", id, " () ", label, ")")
     //
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
-    var res: $SMT.formula?
+    var res: formula?
     val found = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
     val () = 
       if found then let
-        prval () = opt_unsome{$SMT.formula} (res)
+        prval () = opt_unsome{formula} (res)
       in
         $SMT.formula_free(env.smt, res)
       end
       else {
-        val () = opt_unnone {$SMT.formula}  (res)
+        prval () = opt_unnone {formula} (res)
       }
     val () = $SMT.sort_free(env.smt, smt_type)
   }
   
   implement smtenv_get_var_exn (env, s2v) = let
-    val opt = $LM.linmap_search_reference (env.vars, s2v, cmp)
+    val ptr = $LM.linmap_search_ref (env.vars, s2v, cmp)
   in
+    if ptr = null then
+      abort () where {
+        val _ = prerrln! ("SMT formula not found for s2var: ", s2v)
+      }
+    else let
+      val variable = $UN.ptr1_get<formula>(ptr)
+    in
+      $SMT.formula_dup(env.smt, variable) where {
+        // Not having it...
+        // val _ = $UN.cast2Ptr{formula}(variable)
+      }
+    end
+    (*
     case+ opt of 
       | Some (ref) => let
         val (vbox (pf) | p) = ref_get_view_ptr {formula} (ref)
@@ -189,8 +202,9 @@ in
         )
       end
       | None => abort () where {
-        val _ = prerrln! ("SMT formula not found for s2var: ", s2v)
+        
       }
+    *)
   end
   
   (* ****** ****** *)

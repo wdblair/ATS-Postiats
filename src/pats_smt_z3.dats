@@ -62,70 +62,59 @@ assume sort = Z3_sort
 implement make_solver () = let
   val conf = Z3_mk_config ()
   val ctx = Z3_mk_context_rc (conf)
-  val _ = Z3_del_config(conf)
-  val solve = Z3_mk_solver(ctx)
+  val _ = Z3_del_config (conf)
+  val solve = Z3_mk_solver (ctx)
 in
   '{ctx= ctx, slv= solve}
 end
 
 implement delete_solver (solve) = {
-
-  val _ = Z3_solver_dec_ref (solve.ctx, solve.slv)
-  val _ = Z3_del_context (solve.ctx)
-//  val _ = free@{solver_vtype}{0}(solve)
-  prval _ = __free (solve) where {
-    extern praxi __free{a:viewt@ype}(_: a): void
-  }
+    val _ = Z3_solver_dec_ref (solve.ctx, solve.slv)
+    val _ = Z3_del_context (solve.ctx)
+    prval _ = __free (solve) where {
+      extern praxi __free{a:viewt@ype}(_: a): void
+    }
 }
 
-implement make_int_sort (solve) = 
+implement make_int_sort (solve) =
   Z3_mk_int_sort(solve.ctx)
 
-implement make_bool_sort (solve) = 
+implement make_bool_sort (solve) =
   Z3_mk_bool_sort(solve.ctx)
-
+  
 implement make_int_constant (solve, id, sort) = let
   val sym = Z3_mk_int_symbol (solve.ctx, id)
 in
   Z3_mk_const (solve.ctx, sym, sort)
 end
 
-  implement make_sub2 (solve, l, r) = wff where {
-    var !args = @[formula][2](l)
-    val () = !args.[0] := l
-    val () = !args.[1] := r
-    val wff = Z3_mk_sub (solve.ctx, 2, !args)
-    val _ = Z3_inc_ref (solve.ctx, wff)}
-  }
-  
-  implement make_div (solve, num, den) = wff where {
-    extern fun Z3_mk_div (
-      _: !context, _: formula, _: formula
-    ): formula = "mac#"
-    //
-    val wff = Z3_mk_div (solve.ctx, num, den)
-    val _   = Z3_inc_ref (solve.ctx, wff)
-  }
- 
-  (* ****** ****** *)
-  
-  implement assert (solve, formula) = {
-    extern fun Z3_solver_assert (
-      _: context, _: z3_solver, _: formula
-    ): void = "mac#"
-    //
-    val _ = Z3_solver_assert (solve.ctx, solve.slv, formula)
-    val _ = Z3_dec_ref (solve.ctx, formula)
-  }
-  
-  implement push (solve) = let
-    extern fun Z3_solver_push (
-      _: context, _: z3_solver
-    ): void = "mac#"
-    //
-    val _ = println!(Z3_solver_get_num_scopes (solve.ctx, solve.slv))
-  in
-    Z3_solver_push (solve.ctx, solve.slv)
+implement make_true (solve) = Z3_mk_true(solve.ctx)
+
+implement make_false (solve) = Z3_mk_false(solve.ctx)
+
+implement make_not (solve, phi) = let
+  val psi = Z3_mk_not(solve.ctx, phi)
+  val _ = Z3_dec_ref(solve.ctx, phi)
+in
+  psi
+end
+
+implement make_ite (solve, cond, t, f) = let
+  val ite = Z3_mk_ite(solve.ctx, cond, t, f)
+  val () = begin
+    Z3_dec_ref(solve.ctx, cond);
+    Z3_dec_ref(solve.ctx, t);
+    Z3_dec_ref(solve.ctx, f);
+  end
+in
+  ite
+end
+
+implement make_or2 (solve, l, r) = let
+  val phi = Z3_mk_or2(solve.ctx, l, r)
+  val () = begin
+    Z3_dec_ref(solve.ctx, l);
+    Z3_dec_ref(solve.ctx, r);
   end
 in
   phi
@@ -141,7 +130,7 @@ in
   phi
 end
 
-implement make_numeral_int (solve, num, srt) = 
+implement make_numeral_int (solve, num, srt) =
   Z3_mk_int(solve.ctx, num, srt)
 
 implement make_negate (solve, num) = let
@@ -247,11 +236,11 @@ in
     Z3_solver_pop (solve.ctx, solve.slv, 1u)
 end
 
-macdef Z3_FALSE = $extval(Z3_lbool, "Z3_L_FALSE")
-macdef Z3_TRUE  = $extval(Z3_lbool, "Z3_L_TRUE")
+macdef Z3_FALSE = $extval (Z3_lbool, "Z3_L_FALSE")
+macdef Z3_TRUE  = $extval (Z3_lbool, "Z3_L_TRUE")
 
 implement check (solve) = let
-  val res = Z3_solver_check(solve.ctx, solve.slv)
+  val res = Z3_solver_check (solve.ctx, solve.slv)
 in
   if res =  Z3_FALSE then
     ~1

@@ -39,8 +39,7 @@ staload "./pats_basics.sats"
 
 staload
 INTINF = "./pats_intinf.sats"
-staload INTINF1 = "./pats_intinf_type.sats"
-typedef intinf = $INTINF1.intinf
+typedef intinf = $INTINF.intinf
 typedef intinfset = $INTINF.intinfset
 macdef fprint_intinf = $INTINF.fprint_intinf
 macdef fprint_intinfset = $INTINF.fprint_intinfset
