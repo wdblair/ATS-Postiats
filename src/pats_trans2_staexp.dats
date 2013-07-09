@@ -48,7 +48,7 @@ staload UT = "./pats_utils.sats"
 (* ****** ****** *)
 
 staload ERR = "./pats_error.sats"
-staload INT = "./pats_intinf.sats"
+staload INTINF = "./pats_intinf.sats"
 
 (* ****** ****** *)
 

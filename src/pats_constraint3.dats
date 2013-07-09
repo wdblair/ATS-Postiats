@@ -53,7 +53,8 @@ implement prerr_FILENAME<> () = prerr "pats_constraint3"
 
 (* ****** ****** *)
 
-staload "./pats_intinf.sats"
+staload INTINF = "./pats_intinf.sats"
+typedef intinf = $INTINF.intinf
 
 (* ****** ****** *)
 
@@ -72,7 +73,7 @@ staload "./pats_constraint3.sats"
 (* ****** ****** *)
 
 staload SMT = "./pats_smt.sats"
-typedef formula = $SMT.formula
+viewtypedef formula = $SMT.formula
 
 (* ****** ****** *)
 
