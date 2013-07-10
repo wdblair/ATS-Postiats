@@ -185,7 +185,7 @@ extern
 fun s2exp_hnfize_app
 (
   s2e0: s2exp, s2e_fun: s2exp, s2es_arg: s2explst, flag: &int
-) : s2exp // [s2exp_hnfize_app]
+): s2exp // [s2exp_hnfize_app]
 
 (* ****** ****** *)
 
@@ -527,11 +527,6 @@ case+ s2e0.s2exp_node of
 *)
 //
 end // end of [s2exp_hnfize_flag_smt]
-
-(* ****** ****** *)
-
-implement s2exp_hnfize_flag_full (s2es, flag) = 
-  s2exp_hnfize_flag_normal (s2es, flag, false)
 
 (* ****** ****** *)
 

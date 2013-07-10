@@ -130,8 +130,24 @@ in
   phi
 end
 
+implement make_eq (solve, l, r) = let
+  val phi = Z3_mk_eq(solve.ctx, l, r)
+  val () = begin
+    Z3_dec_ref(solve.ctx, l);
+    Z3_dec_ref(solve.ctx, r);
+  end
+in
+  phi
+end
+
 implement make_numeral_int (solve, num, srt) =
   Z3_mk_int(solve.ctx, num, srt)
+  
+implement make_numeral_intinf (solve, num, srt) = let
+  val str = intinf_get_string (num)
+in
+  Z3_mk_numeral (solve.ctx, str, srt)
+end
 
 implement make_negate (solve, num) = let
   val neg = Z3_mk_unary_minus (solve.ctx, num)

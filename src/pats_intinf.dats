@@ -49,7 +49,6 @@ staload _(*anon*) = "./pats_utils.dats"
 (* ****** ****** *)
 
 staload "libc/SATS/gmp.sats"
-staload "./pats_intinf_type.sats"
 staload "./pats_intinf.sats"
 
 (* ****** ****** *)
