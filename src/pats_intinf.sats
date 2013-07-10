@@ -86,7 +86,7 @@ fun intinf_get_int (n: intinf):<> int
 
 (* ****** ****** *)
 
-// fun intinf_get_string (n: intinf):<> string = "intinf_get_string"
+fun intinf_get_string (n: intinf):<> string = "intinf_get_string"
 
 (* ****** ****** *)
 

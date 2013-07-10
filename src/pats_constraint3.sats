@@ -58,7 +58,7 @@ fun formula_cst (s2c: s2cst): formula
   track  of  any propositions.  Only  an  SMT  solver context  and  an
   environment of static variables.
 *)
-absviewt@ype smtenv_viewtype = @{smt=ptr, vars=ptr}
+absviewt@ype smtenv_viewtype = @{smt=ptr, vars=ptr, sortinteger=ptr, sortboolean=ptr}
 viewtypedef smtenv = smtenv_viewtype
 
 fun smtenv_nil (env: &smtenv? >> smtenv): void
