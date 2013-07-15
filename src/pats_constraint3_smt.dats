@@ -169,7 +169,7 @@ in
     val found = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
     val () = 
       if found then let
-        prval () = opt_unsome{formula} (res)
+        prval () = opt_unsome {formula} (res)
       in
         $SMT.formula_free(env.smt, res)
       end
@@ -196,7 +196,7 @@ in
       variable
     end
   end
-  
+
   (* ****** ****** *)
   
   implement formula_make (env, s2e) = let
@@ -254,6 +254,17 @@ in
       in
         formula_make (env, s2e_met)
       end // end of [S3Emetdec]
+      | S2Esizeof (s2exp) => let
+        val s2ze = s2zexp_make_s2exp (s2exp)
+      in
+        case+ s2ze of  
+          | S2ZEbot () => abort () where {
+            val _ = prerrln! ("[S2Esizeof] No information available")
+          }
+          | _ => abort () where {
+            val _ = prerrln!("Size Of Expression: ", s2ze)
+          }
+      end
       | _ => abort () where {
         val _ = prerrln! "Invalid S2 expression given:"
         val _ = prerrln! s2e
