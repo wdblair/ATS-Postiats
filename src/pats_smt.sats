@@ -138,6 +138,12 @@ fun make_numeral_intinf (
 
 overload make_numeral with make_numeral_intinf
 
+fun make_numeral_uninterpreted (
+  _: !solver, _: !sort
+): formula = "make_int"
+
+overload make_numeral with make_numeral_uninterpreted
+
 fun make_negate (_: !solver, _: formula): formula = "make_negate"
 
 fun make_add2 (_: !solver, _: formula, _: formula): formula = "make_add2"

@@ -149,6 +149,11 @@ in
   Z3_mk_numeral (solve.ctx, str, srt)
 end
 
+implement make_numeral_uninterpreted (solve, srt) = let
+in
+  Z3_mk_fresh_const (solve.ctx, "uninterp", srt)
+end
+
 implement make_negate (solve, num) = let
   val neg = Z3_mk_unary_minus (solve.ctx, num)
   val () = begin
