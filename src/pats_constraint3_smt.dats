@@ -261,8 +261,11 @@ in
           | S2ZEbot () => abort () where {
             val _ = prerrln! ("[S2Esizeof] No information available")
           }
+          | S2ZEvar (s2v) => abort () where {
+            val _ = prerrln! (s2v)
+          }
           | _ => abort () where {
-            val _ = prerrln!("Size Of Expression: ", s2ze)
+            val _ = prerrln! ("Size Of Expression: ", s2ze)
           }
       end
       | _ => abort () where {
