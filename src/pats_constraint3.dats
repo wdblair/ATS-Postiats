@@ -273,7 +273,6 @@ end // end of [aux_bind]
 
 in (* in of [local] *)
 
-(*
 implement
 s2exp_make_h3ypo
   (env, h3p) = (
