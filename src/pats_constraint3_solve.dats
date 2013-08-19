@@ -375,7 +375,6 @@ case+ s3is of
               prerr ": unused hypothesis: ["; prerr_h3ypo (h3p); prerr "]";
               prerr_newline ()
             end // end of [val]
-*)
           in
             // nothing
           end // end of [S3Eerr]

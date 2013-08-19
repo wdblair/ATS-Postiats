@@ -497,7 +497,7 @@ in
     //
     val gt = $SMT.make_gt (env.smt, fbe1, fbe2)
   in
-    $SMT.make_ite (env.smt, gt, fbe1, fbe20
+    $SMT.make_ite (env.smt, gt, fbe1', fbe2')
   end // end of [f_max_int_int]
 
   implement f_min_int_int (env, s2es) = let
