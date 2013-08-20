@@ -325,10 +325,12 @@ end // end of [c3nstr_solve_main]
 implement
 c3nstr_solve_prop
   (loc0, env, s2p, err) = let
+  (*
   val () = begin
     print "c3nstr_solve_prop: s2p = ";
     pprint_s2exp (s2p); print_newline ();
   end // end of [val]
+  *)
   val prop = formula_make (env, s2p)
   //
   val (pushed | ()) = smtenv_push (env)
@@ -366,7 +368,9 @@ case+ s3is of
   | S3ITMhypo (h3p) => let
       // Assert the assumption
       val prop = s2exp_make_h3ypo (env, h3p)
-      val _ = println!("Assume: ", prop)
+      (*
+            val _ = println!("Assume: ", prop)
+      *)
       val () = (
         case+ prop.s2exp_node of
         | S2Eerr _ => let
@@ -495,7 +499,6 @@ case+ 0 of
   } // end of [_]
 //
 end // end of [c3nstr_solve]
-
 
 (* ****** ****** *)
 

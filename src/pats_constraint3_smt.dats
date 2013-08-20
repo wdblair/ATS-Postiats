@@ -78,6 +78,10 @@ staload "./pats_error.sats"
 
 (* ****** ****** *)
 
+val log_smt = false
+
+(* ****** ****** *)
+
 local
 
 staload LM = "libats/SATS/linmap_avltree.sats"
@@ -126,7 +130,7 @@ in
   }
   
   implement smtenv_push (env) = (pf | ()) where {
-    val _ = println! ("(push 1)")
+    val _ = if log_smt then println! ("(push 1)")
     val _ = $SMT.push (env.smt)
     prval pf = __push () where {
       extern praxi __push (): smtenv_push_v
@@ -134,7 +138,7 @@ in
   }
   
   implement smtenv_pop (pf | env) = {
-    val _ = println! ("(pop 1)")
+    val _ = if log_smt then println! ("(pop 1)")
     val _ = $SMT.pop (env.smt)
     prval _ = __pop (pf) where {
       extern praxi __pop (pf: smtenv_push_v): void
@@ -159,10 +163,10 @@ in
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val _ = println!("Variables: ", $LM.linmap_size(env.vars))
+    val _ = if log_smt then println!("Variables: ", $LM.linmap_size(env.vars))
     //
     val label = if is_int then "Int" else "Bool"
-    val _ = println! ("(declare-fun k!", id, " () ", label, ")")
+    val _ = if log_smt then println! ("(declare-fun k!", id, " () ", label, ")")
     //
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
     var res: formula?
@@ -283,7 +287,7 @@ in
     
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
-    val _ = println! (
+    val _ = if log_smt then println! (
       "(assert ", $SMT.string_of_formula(env.smt, assumption),")"
     )
   in 
@@ -292,7 +296,7 @@ in
 
   implement smtenv_assert_formula (env, prop) = let
     val nprop = $SMT.make_not (env.smt, prop)
-    val _ = println! (
+    val _ = if log_smt then println! (
       "(assert ", $SMT.string_of_formula (env.smt, nprop), ")"
     )
   in
@@ -302,7 +306,7 @@ in
   (* ****** ******  *)
   
   implement smtenv_check (env) = let
-    val _ = println!("(check-sat)")
+    val _ = if log_smt then println!("(check-sat)")
   in
     $SMT.check (env.smt)
   end
