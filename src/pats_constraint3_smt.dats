@@ -94,8 +94,10 @@ fn cmp (
 viewtypedef smtenv_struct = @{
   smt= solver,
   vars= $LM.map(s2var, formula),
-  sortinteger= sort,
-  sortboolean= sort
+  sorts = @{
+    integer= sort,
+    boolean= sort
+  }
 }
 
 assume smtenv_viewtype = smtenv_struct
@@ -104,8 +106,8 @@ in
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
     env.vars := $LM.linmap_make_nil ();
-    env.sortinteger := $SMT.make_int_sort (env.smt);
-    env.sortboolean := $SMT.make_bool_sort (env.smt);
+    env.sorts.integer := $SMT.make_int_sort (env.smt);
+    env.sorts.boolean := $SMT.make_bool_sort (env.smt);
   end
   
   implement smtenv_free (env) = {
@@ -123,8 +125,8 @@ in
         end
    }
    val () = begin
-      $SMT.sort_free (env.smt, env.sortinteger);
-      $SMT.sort_free (env.smt, env.sortboolean);
+      $SMT.sort_free (env.smt, env.sorts.integer);
+      $SMT.sort_free (env.smt, env.sorts.boolean);
       $SMT.delete_solver (env.smt);
    end
   }
@@ -208,16 +210,16 @@ in
   in
     case+ s2e.s2exp_node of
       | S2Eint i => 
-        $SMT.make_numeral (env.smt, i, env.sortinteger)
+        $SMT.make_numeral (env.smt, i, env.sorts.integer)
       //
       | S2Eintinf i =>
-        $SMT.make_numeral (env.smt, i, env.sortinteger)
+        $SMT.make_numeral (env.smt, i, env.sorts.integer)
       //
       | S2Evar s2v => smtenv_get_var_exn (env, s2v)
       | S2Ecst s2c => (case+ s2c of
         | _ when
             s2cstref_equ_cst (the_null_addr, s2c) =>
-              $SMT.make_numeral (env.smt, 0, env.sortinteger)
+              $SMT.make_numeral (env.smt, 0, env.sorts.integer)
         //
         | _ when
             s2cstref_equ_cst (the_true_bool, s2c) =>
@@ -232,9 +234,9 @@ in
         in
           if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
             orelse s2rt_is_char (srt) then
-            $SMT.make_int_constant (env.smt, id, env.sortinteger)
+            $SMT.make_int_constant (env.smt, id, env.sorts.integer)
           else 
-            $SMT.make_int_constant (env.smt, id, env.sortboolean)
+            $SMT.make_int_constant (env.smt, id, env.sorts.boolean)
         end
       )
       | S2Eeqeq (l, r) => let
@@ -261,12 +263,12 @@ in
       | S2Esizeof (s2exp) => let
         val s2ze = s2zexp_make_s2exp (s2exp)
       in
-        case+ s2ze of  
+        case+ s2ze of
           | S2ZEbot () => abort () where {
             val _ = prerrln! ("[S2Esizeof] No information available")
           }
           | S2ZEvar (s2v) => abort () where {
-            val _ = prerrln! (s2v)
+            val _ = prerrln! ("Sizeof static variable: ", s2v)
           }
           | _ => abort () where {
             val _ = prerrln! ("Size Of Expression: ", s2ze)
@@ -461,7 +463,7 @@ in
     val- s2e1 :: _ = s2es
     //
     val fie1 = formula_make (env, s2e1)
-    val zero = $SMT.make_numeral (env.smt, 0, env.sortinteger)
+    val zero = $SMT.make_numeral (env.smt, 0, env.sorts.integer)
     val fie1' = $SMT.formula_dup (env.smt, fie1)
     val fie1'' = $SMT.formula_dup (env.smt, fie1)
     val neg = $SMT.make_negate (env.smt, fie1')
@@ -473,11 +475,11 @@ in
   implement f_sgn_int (env, s2es) = let
     val- s2e1 :: _ = s2es
     //
-    val pos  = $SMT.make_numeral (env.smt, 1, env.sortinteger)
-    val zero  = $SMT.make_numeral (env.smt, 0, env.sortinteger)
-    val zero' = $SMT.make_numeral (env.smt, 0, env.sortinteger)
-    val zero'' = $SMT.make_numeral (env.smt, 0, env.sortinteger)
-    val neg  = $SMT.make_numeral  (env.smt, ~1, env.sortinteger)
+    val pos  = $SMT.make_numeral (env.smt, 1, env.sorts.integer)
+    val zero  = $SMT.make_numeral (env.smt, 0, env.sorts.integer)
+    val zero' = $SMT.make_numeral (env.smt, 0, env.sorts.integer)
+    val zero'' = $SMT.make_numeral (env.smt, 0, env.sorts.integer)
+    val neg  = $SMT.make_numeral  (env.smt, ~1, env.sorts.integer)
     //
     val fbe1 = formula_make (env, s2e1)
     val fbe1' = $SMT.formula_dup (env.smt, fbe1)
