@@ -59,9 +59,12 @@ fun formula_cst (s2c: s2cst): formula
   environment of static variables.
 *)
 absviewt@ype smtenv_viewtype = @{
-  smt=ptr,
-  vars=ptr,
-  sorts = @{
+  smt= ptr,
+  variables= @{
+    static= ptr,
+    sizeof= ptr
+  },
+  sorts= @{
     integer= ptr,
     boolean= ptr
   }

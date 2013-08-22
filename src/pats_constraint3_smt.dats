@@ -84,53 +84,66 @@ val log_smt = false
 
 local
 
-staload LM = "libats/SATS/linmap_avltree.sats"
-staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
+  staload LM = "libats/SATS/linmap_avltree.sats"
+  staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
 
-fn cmp (
-  x1: s2var, x2: s2var
-) :<cloref> int = compare_s2var_s2var (x1, x2)
+  fn cmp (
+    x1: s2var, x2: s2var
+  ) :<cloref> int = compare_s2var_s2var (x1, x2)
 
-viewtypedef smtenv_struct = @{
-  smt= solver,
-  vars= $LM.map(s2var, formula),
-  sorts = @{
-    integer= sort,
-    boolean= sort
+  viewtypedef smtenv_struct = @{
+    smt= solver,
+    variables= @{
+      (* 
+        Map static variables to their respective SMT formulas
+      *)
+      static= $LM.map(s2var, formula),
+      (*
+        Map static variables to their size representation
+      *)
+      sizeof= $LM.map(s2var, formula)
+    },
+    sorts = @{
+      integer= sort,
+      boolean= sort
+    }
   }
-}
 
-assume smtenv_viewtype = smtenv_struct
+  assume smtenv_viewtype = smtenv_struct
 
 in
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
-    env.vars := $LM.linmap_make_nil ();
+    env.variables.static := $LM.linmap_make_nil ();
+    env.variables.sizeof := $LM.linmap_make_nil ();
     env.sorts.integer := $SMT.make_int_sort (env.smt);
     env.sorts.boolean := $SMT.make_bool_sort (env.smt);
   end
   
-  implement smtenv_free (env) = {
-   val vars = $LM.linmap_listize_free (env.vars)
-   val _ = release_vars (env.smt, vars) where {
-     viewtypedef tuple = @(s2var, formula)
-     //
-     fun release_vars (slv: !solver, vs: List_vt(tuple)): void = 
-      case+ vs of 
-        | ~list_vt_nil () => ()
-        | ~list_vt_cons (@(_, v), vss) => let
-          val _ = $SMT.formula_free(slv, v)
-        in 
-          release_vars(slv, vss)
-        end
-   }
-   val () = begin
+  implement smtenv_free (env) = let
+   val static = $LM.linmap_listize_free (env.variables.static)
+   val sizeof = $LM.linmap_listize_free (env.variables.sizeof)
+   //
+   viewtypedef tuple = @(s2var, formula)
+   //
+   fun release_vars (slv: !solver, vs: List_vt(tuple)): void = 
+    case+ vs of 
+      | ~list_vt_nil () => ()
+      | ~list_vt_cons (@(_, v), vss) => let
+        val _ = $SMT.formula_free(slv, v)
+      in 
+        release_vars (slv, vss)
+      end
+   //
+   in begin
+      release_vars (env.smt, static);
+      release_vars (env.smt, sizeof);
       $SMT.sort_free (env.smt, env.sorts.integer);
       $SMT.sort_free (env.smt, env.sorts.boolean);
       $SMT.delete_solver (env.smt);
+     end
    end
-  }
-  
+   
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")
     val _ = $SMT.push (env.smt)
@@ -165,15 +178,15 @@ in
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val _ = if log_smt then println!("Variables: ", $LM.linmap_size(env.vars))
+    val _ = if log_smt then println!("Variables: ", $LM.linmap_size(env.variables.static))
     //
     val label = if is_int then "Int" else "Bool"
     val _ = if log_smt then println! ("(declare-fun k!", id, " () ", label, ")")
     //
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
     var res: formula?
-    val found = $LM.linmap_insert (env.vars, s2v, fresh, cmp, res)
-    val () = 
+    val found = $LM.linmap_insert (env.variables.static, s2v, fresh, cmp, res)
+    val () =
       if found then let
         prval () = opt_unsome {formula} (res)
       in
@@ -186,7 +199,7 @@ in
   }
   
   implement smtenv_get_var_exn (env, s2v) = let
-    val [l:addr] ptr = $LM.linmap_search_ref (env.vars, s2v, cmp)
+    val [l:addr] ptr = $LM.linmap_search_ref (env.variables.static, s2v, cmp)
   in
     if ptr = null then
       abort () where {
@@ -267,11 +280,40 @@ in
           | S2ZEbot () => abort () where {
             val _ = prerrln! ("[S2Esizeof] No information available")
           }
-          | S2ZEvar (s2v) => abort () where {
-            val _ = prerrln! ("Sizeof static variable: ", s2v)
-          }
+          | S2ZEvar (s2v) => let
+            val [l:addr] ptr = $LM.linmap_search_ref (env.variables.sizeof, s2v, cmp)
+            //
+            prval (free, pf) = __assert () where {
+              extern praxi __assert (): (formula @ l -<prf> void, formula @ l)
+            }
+            //
+            val sizeof = (
+              if ptr = null then dup where {
+                var res: formula?
+                val size = $SMT.make_fresh_constant (env.smt, env.sorts.integer)
+                val dup = $SMT.formula_dup (env.smt, size)
+                val found = $LM.linmap_insert<s2var,formula> (
+                    env.variables.sizeof, s2v, size, cmp, res
+                )
+                val _ = 
+                  if found then let
+                      prval () = opt_unsome {formula} (res)
+                    in
+                      $SMT.formula_free(env.smt, res)
+                    end
+                  else {
+                    prval () = opt_unnone {formula} (res)
+                  }
+              }
+            else
+              $SMT.formula_dup(env.smt, !ptr)
+            ): formula
+            prval () = free(pf)
+          in
+            sizeof
+          end
           | _ => abort () where {
-            val _ = prerrln! ("Size Of Expression: ", s2ze)
+            val _ = prerrln! ("Cannot handle Size of Expression: ", s2ze)
           }
       end
       | _ => abort () where {
