@@ -88,6 +88,9 @@ in
   Z3_mk_const (solve.ctx, sym, sort)
 end
 
+implement make_fresh_constant (solve, sort) =
+    Z3_mk_fresh_const (solve.ctx, "postiats", sort)
+
 implement make_true (solve) = Z3_mk_true(solve.ctx)
 
 implement make_false (solve) = Z3_mk_false(solve.ctx)
