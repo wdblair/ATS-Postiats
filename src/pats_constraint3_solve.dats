@@ -368,9 +368,6 @@ case+ s3is of
   | S3ITMhypo (h3p) => let
       // Assert the assumption
       val prop = s2exp_make_h3ypo (env, h3p)
-      (*
-            val _ = println!("Assume: ", prop)
-      *)
       val () = (
         case+ prop.s2exp_node of
         | S2Eerr _ => let

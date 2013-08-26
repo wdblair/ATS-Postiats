@@ -86,11 +86,16 @@ local
 
   staload LM = "libats/SATS/linmap_avltree.sats"
   staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
-
+  
+  staload FM = "libats/SATS/funmap_avltree.sats"
+  staload _(*anon*) = "libats/DATS/funmap_avltree.dats"
+  
   fn cmp (
     x1: s2var, x2: s2var
   ) :<cloref> int = compare_s2var_s2var (x1, x2)
-
+  
+  typedef substitution = @(s2zexp, s2var)
+    
   viewtypedef smtenv_struct = @{
     smt= solver,
     variables= @{
@@ -99,30 +104,34 @@ local
       *)
       static= $LM.map(s2var, formula),
       (*
-        Map static variables to their size representation
+        I should keep s3exp if only to make this field more accessible
+        for other purposes.
       *)
-      sizeof= $LM.map(s2var, formula)
+      substitutes= List_vt(substitution)
     },
     sorts = @{
       integer= sort,
       boolean= sort
-    }
+    },
+    err= int 
   }
-
+  
   assume smtenv_viewtype = smtenv_struct
 
 in
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
     env.variables.static := $LM.linmap_make_nil ();
-    env.variables.sizeof := $LM.linmap_make_nil ();
+    // env.variables.sizeof := $LM.linmap_make_nil ();
+    env.variables.substitutes := list_vt_nil();
     env.sorts.integer := $SMT.make_int_sort (env.smt);
     env.sorts.boolean := $SMT.make_bool_sort (env.smt);
+    env.err := 0;
   end
   
   implement smtenv_free (env) = let
    val static = $LM.linmap_listize_free (env.variables.static)
-   val sizeof = $LM.linmap_listize_free (env.variables.sizeof)
+   // val sizeof = $LM.linmap_listize_free (env.variables.sizeof)
    //
    viewtypedef tuple = @(s2var, formula)
    //
@@ -137,7 +146,8 @@ in
    //
    in begin
       release_vars (env.smt, static);
-      release_vars (env.smt, sizeof);
+      // release_vars (env.smt, sizeof);
+      list_vt_free(env.variables.substitutes);
       $SMT.sort_free (env.smt, env.sorts.integer);
       $SMT.sort_free (env.smt, env.sorts.boolean);
       $SMT.delete_solver (env.smt);
@@ -222,7 +232,7 @@ in
     val s2e = s2exp_hnfize_smt (s2e)
   in
     case+ s2e.s2exp_node of
-      | S2Eint i => 
+      | S2Eint i =>
         $SMT.make_numeral (env.smt, i, env.sorts.integer)
       //
       | S2Eintinf i =>
@@ -274,58 +284,58 @@ in
         formula_make (env, s2e_met)
       end // end of [S3Emetdec]
       | S2Esizeof (s2exp) => let
-        val s2ze = s2zexp_make_s2exp (s2exp)
+        fun find_substitution (
+          xs: &List_vt(substitution), needle: s2zexp
+        ): Option(s2var) =
+          case+ xs of
+            | list_vt_cons((s2z, s2v), !xss) => 
+              if s2zexp_syneq(s2z, needle) then let
+                val _ = fold@(xs)
+              in Some(s2v) end
+              else let
+                val res = find_substitution(!xss, needle)
+                val _ = fold@ xs
+              in res end
+            | list_vt_nil ()  => let
+              val () = fold@ xs
+            in None() end
+        //
+        val s2ze = s2zexp_make_s2exp(s2exp)
+        val opt = find_substitution (env.variables.substitutes, s2ze)
       in
-        case+ s2ze of
-          | S2ZEbot () => abort () where {
-            val _ = prerrln! ("[S2Esizeof] No information available")
-          }
-          | S2ZEvar (s2v) => let
-            val [l:addr] ptr = $LM.linmap_search_ref (env.variables.sizeof, s2v, cmp)
-            //
-            prval (free, pf) = __assert () where {
-              extern praxi __assert (): (formula @ l -<prf> void, formula @ l)
-            }
-            //
-            val sizeof = (
-              if ptr = null then dup where {
-                var res: formula?
-                val size = $SMT.make_fresh_constant (env.smt, env.sorts.integer)
-                val dup = $SMT.formula_dup (env.smt, size)
-                val found = $LM.linmap_insert<s2var,formula> (
-                    env.variables.sizeof, s2v, size, cmp, res
-                )
-                val _ = 
-                  if found then let
-                      prval () = opt_unsome {formula} (res)
-                    in
-                      $SMT.formula_free(env.smt, res)
-                    end
-                  else {
-                    prval () = opt_unnone {formula} (res)
-                  }
-              }
-            else
-              $SMT.formula_dup(env.smt, !ptr)
-            ): formula
-            prval () = free(pf)
+        case+ opt of 
+          | Some (s2v) => smtenv_get_var_exn (env, s2v)
+          | None () => let 
+            val s2v = s2var_make_srt (s2rt_int)
+            val _ = 
+              env.variables.substitutes := 
+                list_vt_cons (@(s2ze, s2v), env.variables.substitutes)
+            val _ = smtenv_add_svar (env, s2v)
           in
-            sizeof
+            smtenv_get_var_exn(env, s2v)
           end
-          | _ => abort () where {
-            val _ = prerrln! ("Cannot handle Size of Expression: ", s2ze)
-          }
       end
-      | _ => abort () where {
-        val _ = prerrln! "Invalid S2 expression given:"
-        val _ = prerrln! s2e
-      }
+      | _ => let
+        val srt = s2e.s2exp_srt
+        val stub = (
+            if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
+                orelse s2rt_is_char (srt) then
+              $SMT.make_fresh_constant (env.smt, env.sorts.integer)
+            else 
+              $SMT.make_fresh_constant (env.smt, env.sorts.boolean)
+        ): formula
+        (* TODO: Make this error mean something to calling functions *)
+        val _ = env.err := env.err + 1
+        val _ = prerrln! ("warning(3): s3exp_make_s2exp: s2e =:", s2e)
+      in
+        stub
+      end
   end // end of [formula_make]
   
   (* ****** ****** *)
   
   implement make_true (env) =
-      $SMT.make_true(env.smt)
+      $SMT.make_true (env.smt)
   
   (* ****** ****** *)
     
