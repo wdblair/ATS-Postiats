@@ -207,11 +207,14 @@ case+ s2e0.s2exp_node of
 | S2Eextype _ => s2e0
 | S2Eextkind _ => s2e0
 //
-| S2Evar (s2v) =>
+| S2Evar (s2v) => let
+  val default_s2e0 = s2exp_hnfize_flag_svar (s2e0, s2v, flag)
+ in
   if ignorevars then
     s2e0
   else
-    s2exp_hnfize_flag_svar (s2e0, s2v, flag)
+    default_s2e0 
+ end
 | S2EVar _ => s2e0
 | S2Ehole _ => s2e0
 //
@@ -431,7 +434,6 @@ end // end of [s2exp_hnfize_flag_app]
 (* ****** ****** *)
 
 (* ****** ****** *)
-
 
 implement
 s2exp_hnfize_flag_smt
