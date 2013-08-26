@@ -371,11 +371,13 @@ case+ s3is of
       val () = (
         case+ prop.s2exp_node of
         | S2Eerr _ => let
+        (*
             val () = begin
               prerr_warning3_loc (loc0);
               prerr ": unused hypothesis: ["; prerr_h3ypo (h3p); prerr "]";
               prerr_newline ()
             end // end of [val]
+        *)
           in
             // nothing
           end // end of [S3Eerr]
