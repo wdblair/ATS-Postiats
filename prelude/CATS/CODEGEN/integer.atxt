@@ -175,13 +175,6 @@ atspre_g0string2uint_size
 //
 #atscode_separator_for_C()
 //
-
-\#define atspre_g1uint2uint_ulint_uint(x) ((atstype_uint)x)'
-
-//
-#atscode_separator_for_C()
-//
-
 %{
 local
 //
