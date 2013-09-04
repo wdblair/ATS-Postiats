@@ -122,7 +122,6 @@ in
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
     env.variables.static := $LM.linmap_make_nil ();
-    // env.variables.sizeof := $LM.linmap_make_nil ();
     env.variables.substitutes := list_vt_nil();
     env.sorts.integer := $SMT.make_int_sort (env.smt);
     env.sorts.boolean := $SMT.make_bool_sort (env.smt);
@@ -131,11 +130,10 @@ in
   
   implement smtenv_free (env) = let
    val static = $LM.linmap_listize_free (env.variables.static)
-   // val sizeof = $LM.linmap_listize_free (env.variables.sizeof)
    //
-   viewtypedef tuple = @(s2var, formula)
+   viewtypedef binding = @(s2var, formula)
    //
-   fun release_vars (slv: !solver, vs: List_vt(tuple)): void = 
+   fun release_vars (slv: !solver, vs: List_vt(binding)): void = 
     case+ vs of 
       | ~list_vt_nil () => ()
       | ~list_vt_cons (@(_, v), vss) => let
@@ -146,7 +144,6 @@ in
    //
    in begin
       release_vars (env.smt, static);
-      // release_vars (env.smt, sizeof);
       list_vt_free(env.variables.substitutes);
       $SMT.sort_free (env.smt, env.sorts.integer);
       $SMT.sort_free (env.smt, env.sorts.boolean);
@@ -255,8 +252,7 @@ in
           val stamp = s2cst_get_stamp (s2c)
           val id    = stamp_get_int (stamp)
         in
-          if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
-            orelse s2rt_is_char (srt) then
+          if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
             $SMT.make_int_constant (env.smt, id, env.sorts.integer)
           else 
             $SMT.make_int_constant (env.smt, id, env.sorts.boolean)

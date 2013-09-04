@@ -83,12 +83,6 @@ viewtypedef formula = $SMT.formula
 
 (* ****** ****** *)
 
-import Time = "contrib/time"
-
-staload Time("time.sats")
-
-(* ****** ****** *)
-
 #include "pats_constraint3_solve_smt.hats"
 
 (* ****** ****** *)
