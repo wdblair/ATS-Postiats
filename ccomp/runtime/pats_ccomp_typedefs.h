@@ -54,8 +54,6 @@ typedef void atsvoid_t0ype ;
 typedef int atstype_int ;
 typedef unsigned int atstype_uint ;
 
-typedef uint8_t atstype_uint8 ;
-
 typedef long int atstype_lint ;
 typedef unsigned long int atstype_ulint ;
 
