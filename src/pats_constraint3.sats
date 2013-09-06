@@ -52,6 +52,9 @@ staload "./pats_smt.sats"
 datatype s3ubexp =
   | S3UBsizeof of (s2zexp)
   | S3UBcst of (s2cst)
+  | S3UBapp of (s3ubexp, s3ubexplst)
+  
+where s3ubexplst = List(s3ubexp)
   
 fun s3ubexp_get_srt (_: s3ubexp): s2rt
 

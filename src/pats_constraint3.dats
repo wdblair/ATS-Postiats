@@ -287,7 +287,7 @@ end // end of [local]
 (* ****** ****** *)
 
 implement s3ubexp_get_srt (s3be) =
-  case+ s3be of 
+  case+ s3be of
     | S3UBsizeof (s2ze) => s2rt_int
     | S3UBcst (s2c) => s2cst_get_srt (s2c)
 
@@ -302,9 +302,9 @@ implement s3ubexp_syneq (s3b0, s3b1) =
     | S3UBcst (s2c) => (
       case+ s3b1 of
         | S3UBcst (s2c') => s2c = s2c'
-        | _ => false      
+        | _ => false
     )
-
+    
 implement s3ubexp_sizeof (s2ze) = S3UBsizeof (s2ze)
 
 implement s3ubexp_cst (s2c) = S3UBcst (s2c)
@@ -333,13 +333,22 @@ in // in of [local]
     end // end of [val]
   //
   (*
-  val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
-  val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
+    val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
+    val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
   *)
   in
     case+ opt of
       | ~Some_vt f => f (env, s2es)
-      | ~None_vt _ => make_true (env)
+      | ~None_vt _ => let
+        val s3ub = s3ubexp_cst (s2c)
+        val srt  = s3ubexp_get_srt (s3ub)
+        val s2v  = s2var_make_srt (srt)
+      in
+        prerrln! ("formula_make_s2cst_s2explst: ", srt);
+        smtenv_make_substitution (env, s3ub, s2v);
+        smtenv_add_svar (env, s2v);
+        smtenv_get_var_exn (env, s2v)
+      end
   end // end of [formula_make_s2cst_s2explst]
 
 (* ****** ****** *)

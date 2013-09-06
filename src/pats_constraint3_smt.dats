@@ -250,6 +250,7 @@ in
   
   implement formula_make (env, s2e) = let
     val s2e = s2exp_hnfize_smt (s2e)
+    val _ = prerrln! ("formula_make: ", s2e)
   in
     case+ s2e.s2exp_node of
       | S2Eint i =>
@@ -277,9 +278,11 @@ in
         in
            if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
             $SMT.make_int_constant (env.smt, id, env.sorts.integer)
-           else if s2rt_is_bool (srt) then
-            $SMT.make_int_constant (env.smt, id, env.sorts.boolean)
-           else let 
+           else if s2rt_is_bool (srt) then let
+            val _ = prerrln!("Adding bool: ", s2c)
+            in $SMT.make_int_constant (env.smt, id, env.sorts.boolean) end
+           else let
+              val _ = prerrln! ("Substituting S2Ecst: ", s2c)
               val s3ub = s3ubexp_cst (s2c)
               val opt = smtenv_find_substitution (env, s3ub)
            in 
