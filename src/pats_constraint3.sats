@@ -49,7 +49,16 @@ staload "./pats_smt.sats"
 
 (* ****** ****** *)
 
-fun formula_cst (s2c: s2cst): formula
+datatype s3ubexp =
+  | S3UBsizeof of (s2zexp)
+  | S3UBcst of (s2cst)
+  
+fun s3ubexp_get_srt (_: s3ubexp): s2rt
+
+fun s3ubexp_syneq (_: s3ubexp, _: s3ubexp): bool
+
+fun s3ubexp_sizeof (_: s2zexp): s3ubexp
+fun s3ubexp_cst (_: s2cst): s3ubexp
 
 (* ****** ****** *)
 
@@ -71,12 +80,17 @@ absviewt@ype smtenv_viewtype = @{
   err= int
 }
 
+(* ****** ****** *)
+
 viewtypedef smtenv = smtenv_viewtype
 
 fun smtenv_nil (env: &smtenv? >> smtenv): void
 fun smtenv_free (env: &smtenv >> smtenv?): void
 
 absview smtenv_push_v
+
+fun smtenv_find_substitution (env: &smtenv, sub: s3ubexp): Option(s2var)
+fun smtenv_make_substitution (env: &smtenv, sub: s3ubexp, s2v: s2var): void
 
 fun smtenv_push (env: &smtenv): (smtenv_push_v | void)
 fun smtenv_pop  (pf: smtenv_push_v | env: &smtenv): void
@@ -88,19 +102,11 @@ fun smtenv_assert_formula (env: &smtenv, fm: formula): void
 
 fun smtenv_check (env: &smtenv): int
 
-fun formula_cst (s2c: s2cst): formula
-
 (* ****** ****** *)
 
 fun s2exp_metdec_reduce (
   met: s2explst, met_bound: s2explst
-) : s2exp
-
-(* ****** ****** *)
-
-fun s2exp_metdec_reduce (
-  met: s2explst, met_bound: s2explst
-) : s2exp
+): s2exp
 
 (* ****** ****** *)
 

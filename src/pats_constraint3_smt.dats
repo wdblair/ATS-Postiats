@@ -83,19 +83,18 @@ val log_smt = false
 (* ****** ****** *)
 
 local
-
   staload LM = "libats/SATS/linmap_avltree.sats"
   staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
   
   staload FM = "libats/SATS/funmap_avltree.sats"
   staload _(*anon*) = "libats/DATS/funmap_avltree.dats"
   
+  typedef substitution = @(s3ubexp, s2var)
+  
   fn cmp (
     x1: s2var, x2: s2var
   ) :<cloref> int = compare_s2var_s2var (x1, x2)
   
-  typedef substitution = @(s2zexp, s2var)
-    
   viewtypedef smtenv_struct = @{
     smt= solver,
     variables= @{
@@ -150,7 +149,31 @@ in
       $SMT.delete_solver (env.smt);
      end
    end
+  
+  implement smtenv_find_substitution (env, sub) = let
+    fun find_loop (
+      xs: &List_vt(substitution), needle: s3ubexp
+    ): Option(s2var) =
+      case+ xs of
+        | list_vt_cons(@(s3ub, s2v), !xss) =>
+          if s3ubexp_syneq (needle, s3ub) then let
+            val _ = fold@(xs)
+           in Some(s2v) end
+          else let
+            val opt = find_loop(!xss, needle)
+            val _ = fold@(xs)
+          in opt end
+        | list_vt_nil() => let
+          val () = fold@(xs)
+        in None() end
+    //
+  in
+    find_loop(env.variables.substitutes, sub)
+  end
    
+  implement smtenv_make_substitution (env, sub, s2v) = 
+    env.variables.substitutes := list_vt_cons(@(sub, s2v), env.variables.substitutes)
+    
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")
     val _ = $SMT.push (env.smt)
@@ -185,7 +208,7 @@ in
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val _ = if log_smt then println!("Variables: ", $LM.linmap_size(env.variables.static))
+    val _ = if log_smt then println! ("Variables: ", $LM.linmap_size(env.variables.static))
     //
     val label = if is_int then "Int" else "Bool"
     val _ = if log_smt then println! ("(declare-fun k!", id, " () ", label, ")")
@@ -252,10 +275,24 @@ in
           val stamp = s2cst_get_stamp (s2c)
           val id    = stamp_get_int (stamp)
         in
-          if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
+           if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
             $SMT.make_int_constant (env.smt, id, env.sorts.integer)
-          else 
+           else if s2rt_is_bool (srt) then
             $SMT.make_int_constant (env.smt, id, env.sorts.boolean)
+           else let 
+              val s3ub = s3ubexp_cst (s2c)
+              val opt = smtenv_find_substitution (env, s3ub)
+           in 
+              case+ opt of 
+                | Some (s2v) => smtenv_get_var_exn (env, s2v)
+                | None () => let
+                  val s2v = s2var_make_srt (srt)
+                  val _ = smtenv_make_substitution (env, s3ub, s2v)
+                  val _ = smtenv_add_svar (env, s2v)
+                in
+                  smtenv_get_var_exn(env, s2v)
+                end
+           end
         end
       )
       | S2Eeqeq (l, r) => let
@@ -280,35 +317,18 @@ in
         formula_make (env, s2e_met)
       end // end of [S3Emetdec]
       | S2Esizeof (s2exp) => let
-        fun find_substitution (
-          xs: &List_vt(substitution), needle: s2zexp
-        ): Option(s2var) =
-          case+ xs of
-            | list_vt_cons((s2z, s2v), !xss) => 
-              if s2zexp_syneq(s2z, needle) then let
-                val _ = fold@(xs)
-              in Some(s2v) end
-              else let
-                val res = find_substitution(!xss, needle)
-                val _ = fold@ xs
-              in res end
-            | list_vt_nil ()  => let
-              val () = fold@ xs
-            in None() end
-        //
-        val s2ze = s2zexp_make_s2exp(s2exp)
-        val opt = find_substitution (env.variables.substitutes, s2ze)
+        val s2ze = s2zexp_make_s2exp (s2exp)
+        val s3ube = s3ubexp_sizeof (s2ze)
+        val opt = smtenv_find_substitution (env, s3ube)
       in
         case+ opt of 
           | Some (s2v) => smtenv_get_var_exn (env, s2v)
-          | None () => let 
+          | None () => let
             val s2v = s2var_make_srt (s2rt_int)
-            val _ = 
-              env.variables.substitutes := 
-                list_vt_cons (@(s2ze, s2v), env.variables.substitutes)
-            val _ = smtenv_add_svar (env, s2v)
+            val _  = smtenv_make_substitution (env, s3ube, s2v)
+            val _ =  smtenv_add_svar (env, s2v)
           in
-            smtenv_get_var_exn(env, s2v)
+            smtenv_get_var_exn (env, s2v)
           end
       end
       | _ => let
@@ -325,7 +345,7 @@ in
         val _ = prerrln! ("warning(3): s3exp_make_s2exp: s2e =:", s2e)
       in
         stub
-      end
+      end // end of [_]
   end // end of [formula_make]
   
   (* ****** ****** *)
@@ -338,7 +358,7 @@ in
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
     val _ = if log_smt then println! (
-      "(assert ", $SMT.string_of_formula(env.smt, assumption),")"
+      "(assert ", $SMT.string_of_formula (env.smt, assumption),")"
     )
   in 
     $SMT.assert (env.smt, assumption)

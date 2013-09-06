@@ -286,6 +286,31 @@ end // end of [local]
 
 (* ****** ****** *)
 
+implement s3ubexp_get_srt (s3be) =
+  case+ s3be of 
+    | S3UBsizeof (s2ze) => s2rt_int
+    | S3UBcst (s2c) => s2cst_get_srt (s2c)
+
+implement s3ubexp_syneq (s3b0, s3b1) =
+  case+ s3b0 of
+    | S3UBsizeof (s2ze) => (
+      case+ s3b1 of
+        | S3UBsizeof (s2ze') =>
+          s2zexp_syneq (s2ze, s2ze')
+        | _ => false
+    )
+    | S3UBcst (s2c) => (
+      case+ s3b1 of
+        | S3UBcst (s2c') => s2c = s2c'
+        | _ => false      
+    )
+
+implement s3ubexp_sizeof (s2ze) = S3UBsizeof (s2ze)
+
+implement s3ubexp_cst (s2c) = S3UBcst (s2c)
+
+(* ****** ****** *)
+
 local
 
 stadef env = smtenv
