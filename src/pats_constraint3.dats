@@ -290,7 +290,10 @@ implement s3ubexp_get_srt (s3be) =
   case+ s3be of
     | S3UBsizeof (s2ze) => s2rt_int
     | S3UBcst (s2c) => s2cst_get_srt (s2c)
-
+    | S3UBapp (func, _) => s2t where {
+      val-S2RTfun (_, s2t) = s2cst_get_srt (func)
+    }
+    
 implement s3ubexp_syneq (s3b0, s3b1) =
   case+ s3b0 of
     | S3UBsizeof (s2ze) => (
@@ -304,10 +307,18 @@ implement s3ubexp_syneq (s3b0, s3b1) =
         | S3UBcst (s2c') => s2c = s2c'
         | _ => false
     )
+    | S3UBapp (func0, args0) => (
+      case+ s3b1 of 
+        | S3UBapp (func1, args1) =>
+          if func0 = func1 then s2explst_syneq (args0, args1) else false
+        | _ => false
+    )
     
 implement s3ubexp_sizeof (s2ze) = S3UBsizeof (s2ze)
 
 implement s3ubexp_cst (s2c) = S3UBcst (s2c)
+
+implement s3ubexp_app (func, args) = S3UBapp (func, args)
 
 (* ****** ****** *)
 
@@ -340,17 +351,14 @@ in // in of [local]
     case+ opt of
       | ~Some_vt f => f (env, s2es)
       | ~None_vt _ => let
-        val s3ub = s3ubexp_cst (s2c)
-        val srt  = s3ubexp_get_srt (s3ub)
-        val s2v  = s2var_make_srt (srt)
+        val function = s2c
+        val args = s2es
+        val app  = s3ubexp_app (function, args)
       in
-        prerrln! ("formula_make_s2cst_s2explst: ", srt);
-        smtenv_make_substitution (env, s3ub, s2v);
-        smtenv_add_svar (env, s2v);
-        smtenv_get_var_exn (env, s2v)
+        formula_from_substitution (env, app)
       end
   end // end of [formula_make_s2cst_s2explst]
-
+  
 (* ****** ****** *)
 
 implement

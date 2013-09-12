@@ -150,6 +150,21 @@ in
      end
    end
   
+  implement formula_from_substitution (env, s3ub) = let
+    val srt = s3ubexp_get_srt (s3ub)
+    val opt = smtenv_find_substitution (env, s3ub)
+  in 
+    case+ opt of 
+      | Some (s2v) => smtenv_get_var_exn (env, s2v)
+      | None () => let
+        val s2v = s2var_make_srt (srt)
+        val _ = smtenv_make_substitution (env, s3ub, s2v)
+        val _ = smtenv_add_svar (env, s2v)
+       in
+        smtenv_get_var_exn(env, s2v)
+       end
+  end
+  
   implement smtenv_find_substitution (env, sub) = let
     fun find_loop (
       xs: &List_vt(substitution), needle: s3ubexp
@@ -250,7 +265,6 @@ in
   
   implement formula_make (env, s2e) = let
     val s2e = s2exp_hnfize_smt (s2e)
-    val _ = prerrln! ("formula_make: ", s2e)
   in
     case+ s2e.s2exp_node of
       | S2Eint i =>
@@ -279,23 +293,12 @@ in
            if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
             $SMT.make_int_constant (env.smt, id, env.sorts.integer)
            else if s2rt_is_bool (srt) then let
-            val _ = prerrln!("Adding bool: ", s2c)
             in $SMT.make_int_constant (env.smt, id, env.sorts.boolean) end
            else let
-              val _ = prerrln! ("Substituting S2Ecst: ", s2c)
               val s3ub = s3ubexp_cst (s2c)
-              val opt = smtenv_find_substitution (env, s3ub)
            in 
-              case+ opt of 
-                | Some (s2v) => smtenv_get_var_exn (env, s2v)
-                | None () => let
-                  val s2v = s2var_make_srt (srt)
-                  val _ = smtenv_make_substitution (env, s3ub, s2v)
-                  val _ = smtenv_add_svar (env, s2v)
-                in
-                  smtenv_get_var_exn(env, s2v)
-                end
-           end
+              formula_from_substitution (env, s3ub)
+           end        
         end
       )
       | S2Eeqeq (l, r) => let
@@ -311,7 +314,7 @@ in
                 formula_make_s2cst_s2explst (env, s2c1, s2es2)
               //
               | _ => abort () where {
-                val _ = prerrln! ("Invalid application", s2e)
+                val _ = prerrln! ("formula_make: Invalid application ", s2e)
               }
           ) // end of [S2Eapp]
       | S2Emetdec (met, met_bound) => let
@@ -321,18 +324,9 @@ in
       end // end of [S3Emetdec]
       | S2Esizeof (s2exp) => let
         val s2ze = s2zexp_make_s2exp (s2exp)
-        val s3ube = s3ubexp_sizeof (s2ze)
-        val opt = smtenv_find_substitution (env, s3ube)
+        val s3ub = s3ubexp_sizeof (s2ze)
       in
-        case+ opt of 
-          | Some (s2v) => smtenv_get_var_exn (env, s2v)
-          | None () => let
-            val s2v = s2var_make_srt (s2rt_int)
-            val _  = smtenv_make_substitution (env, s3ube, s2v)
-            val _ =  smtenv_add_svar (env, s2v)
-          in
-            smtenv_get_var_exn (env, s2v)
-          end
+        formula_from_substitution (env, s3ub)
       end
       | _ => let
         val srt = s2e.s2exp_srt

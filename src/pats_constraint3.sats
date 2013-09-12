@@ -52,9 +52,7 @@ staload "./pats_smt.sats"
 datatype s3ubexp =
   | S3UBsizeof of (s2zexp)
   | S3UBcst of (s2cst)
-  | S3UBapp of (s3ubexp, s3ubexplst)
-  
-where s3ubexplst = List(s3ubexp)
+  | S3UBapp of (s2cst, s2explst)
   
 fun s3ubexp_get_srt (_: s3ubexp): s2rt
 
@@ -62,6 +60,7 @@ fun s3ubexp_syneq (_: s3ubexp, _: s3ubexp): bool
 
 fun s3ubexp_sizeof (_: s2zexp): s3ubexp
 fun s3ubexp_cst (_: s2cst): s3ubexp
+fun s3ubexp_app (_: s2cst, _: s2explst): s3ubexp
 
 (* ****** ****** *)
 
@@ -91,6 +90,8 @@ fun smtenv_nil (env: &smtenv? >> smtenv): void
 fun smtenv_free (env: &smtenv >> smtenv?): void
 
 absview smtenv_push_v
+
+fun formula_from_substitution (env: &smtenv, sub: s3ubexp): formula
 
 fun smtenv_find_substitution (env: &smtenv, sub: s3ubexp): Option(s2var)
 fun smtenv_make_substitution (env: &smtenv, sub: s3ubexp, s2v: s2var): void
