@@ -199,16 +199,17 @@ libatslex/SATS/DOCUGEN/HTML
 libatslex/SATS/DOCUGEN/TRYIT
 
 #
-# ATSLIB/libatsyntax
+# ATSLIB/libatsynmark
 #
 
-libatsyntax/libatsyntax.a
+libatsynmark/libatsynmark.a
 
 #
 # ATSLIB/contrib
 #
 
 contrib/cairo/cairo-1.12.*
+contrib/cairo/TUTORIAL/IMAGE
 contrib/zeromq/DOC/zguide
 
 contrib/*/atsctrb_*.o
@@ -283,8 +284,13 @@ doc/DISTRIB/ATS-Postiats/libats/?ATS/*.?ats
 doc/DISTRIB/ATS-Postiats/libats/?ATS/SHARE/*.?ats
 doc/DISTRIB/ATS-Postiats/libats/ML/?ATS/*.?ats
 doc/DISTRIB/ATS-Postiats/libats/ML/?ATS/SHARE/*.?ats
-doc/DISTRIB/ATS-Postiats/contrib/atshwxi/intinf/?ATS/*.?ats
-doc/DISTRIB/ATS-Postiats/contrib/atshwxi/testing/?ATS/*.?ats
+doc/DISTRIB/ATS-Postiats/contrib/GTK/*
+doc/DISTRIB/ATS-Postiats/contrib/glib/*
+doc/DISTRIB/ATS-Postiats/contrib/cairo/*
+doc/DISTRIB/ATS-Postiats/contrib/libgmp/*
+doc/DISTRIB/ATS-Postiats/contrib/libats-hwxi/intinf/*
+doc/DISTRIB/ATS-Postiats/contrib/libats-hwxi/testing/*
+doc/DISTRIB/ATS-Postiats/contrib/libats-hwxi/teaching/*
 doc/DISTRIB/ATS-Postiats/doc/EXAMPLE/INTRO/Makefile
 doc/DISTRIB/ATS-Postiats/doc/EXAMPLE/INTRO/*.?ats
 doc/DISTRIB/ATS-Postiats/doc/EXAMPLE/ATSLIB/Makefile
@@ -325,6 +331,6 @@ doc/BOOK/ATS2TUTORIAL/*_atxt.dats
 doc/BOOK/ATS2TUTORIAL/*/main.db
 doc/BOOK/ATS2TUTORIAL/HTML
 doc/BOOK/ATS2TUTORIAL/CODE/*.html
-doc/BOOK/ATS2TUTORIAL/*/*_extracted.dats
+doc/BOOK/ATS2TUTORIAL/CODE/chap_*.dats
 
 ###### end of [.gitignore] ######

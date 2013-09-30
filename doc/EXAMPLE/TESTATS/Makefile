@@ -20,6 +20,20 @@ cleanall:: ; $(RMF) clofuns
 
 ######
 
+all:: conjdisj
+conjdisj: conjdisj.dats ; \
+  $(PATSCC) -cleanaft -DATS_MEMALLOC_LIBC -o $@ $<
+cleanall:: ; $(RMF) conjdisj
+
+######
+
+all:: dotoverld
+dotoverld: dotoverld.dats ; \
+  $(PATSCC) -cleanaft -DATS_MEMALLOC_LIBC -o $@ $<
+cleanall:: ; $(RMF) dotoverld
+
+######
+
 all:: extfcall
 extfcall: extfcall.dats ; $(PATSCC) -cleanaft -o $@ $<
 cleanall:: ; $(RMF) extfcall
@@ -55,6 +69,12 @@ cleanall:: ; $(RMF) patrefas
 all:: sumodd
 sumodd: sumodd.dats ; $(PATSCC) -cleanaft -o $@ $<
 cleanall:: ; $(RMF) sumodd
+
+######
+
+all:: stkalloc
+stkalloc: stkalloc.dats ; $(PATSCC) -cleanaft -o $@ $<
+cleanall:: ; $(RMF) stkalloc
 
 ######
 

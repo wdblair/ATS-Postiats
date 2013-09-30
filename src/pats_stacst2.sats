@@ -125,6 +125,13 @@ val the_sub_addr_addr : s2cstref // (addr, addr) -> int
 //
 (* ****** ****** *)
 
+val the_lte_cls_cls : s2cstref // : (cls, cls) -> bool
+val the_gte_cls_cls : s2cstref // : (cls, cls) -> bool
+val the_lterel_cls_cls : s2cstref // : (cls, cls, bool) -> bool
+val the_gterel_cls_cls : s2cstref // : (cls, cls, bool) -> bool
+
+(* ****** ****** *)
+
 val the_atstkind_type : s2cstref
 val the_atstkind_t0ype : s2cstref
 

@@ -1,20 +1,23 @@
 //
-// A simple example for testing hiredis_ML
+// A simple example
+// for testing hiredis_ML
 //
 (* ****** ****** *)
 //
-#include
-"share/atspre_staload_tmpdef.hats"
+// Author: Hongwei Xi
+// Authoremail: gmhwxiATgmailDOTcom
 //
 (* ****** ****** *)
-
-staload "hiredis/SATS/hiredis.sats"
-staload _(*anon*) = "hiredis/DATS/hiredis.dats"
-
+//
+#include "share/atspre_staload.hats"
+//
 (* ****** ****** *)
-
-staload "hiredis/SATS/hiredis_ML.sats"
-
+//
+staload "./../SATS/hiredis.sats"
+staload "./../SATS/hiredis_ML.sats"
+//
+staload _(*anon*) = "./../DATS/hiredis.dats"
+//
 (* ****** ****** *)
 
 val arg = "fact_arg"
@@ -23,7 +26,7 @@ val res = "fact_res"
 (* ****** ****** *)
 
 fun fact
-  (n: int): void = let
+  (n: int): int = let
 //
 fun loop
 (
@@ -60,19 +63,25 @@ val-RDSstring (r) = redis_get (ctx, res)
 val ((*void*)) = redisFree (ctx)
 //
 in
-  println! ("fact(", n, ") = ", r)
+  g0string2int (r)
 end // end of [fact]
 
 (* ****** ****** *)
 
 implement
-main0 () =
-{
+main0 (argc, argv) = let
 //
-val () = fact (10)
+val n =
+(
+  if argc >= 2
+    then g0string2int(argv[1]) else 10(*default*)
+  // end of [if]
+) : int // end of [val]
 //
-} (* end of [main0] *)
-
+in
+  println! ("fact(", n, ") = ", fact (n))
+end // end of [main0]
+          
 (* ****** ****** *)
 
 (* end of [fact.dats] *)

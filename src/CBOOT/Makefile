@@ -3,12 +3,28 @@
 # for ATS/Postiats C-bootstrapping
 #
 ######
-
+#
 CCOMP=gcc
-
+#
 ######
 
-GCFLAG=-D_ATS_GCATS
+LIBGC :=
+gcats_o :=
+
+######
+#
+# GCFLAG=-D_ATS_NGC
+# GCFLAG=-D_ATS_GCATS
+# GCFLAG=-D_ATS_GCBDW
+#
+######
+
+ifeq ($(GCFLAG),-D_ATS_GCBDW)
+  LIBGC := -lgc
+endif
+ifeq ($(GCFLAG),-D_ATS_GCATS)
+  gcats_o := gcats.o
+endif
 
 ######
 
@@ -102,6 +118,7 @@ SOURCES := \
   pats_e1xpval.sats \
   pats_e1xpval.dats \
   pats_e1xpval_error.dats \
+  pats_filename_reloc.dats \
   pats_trans1_error.dats \
   pats_trans1_e0xp.dats \
   pats_trans1_effect.dats \
@@ -273,8 +290,8 @@ OBJECTSstadyn := $(OBJECTSsta) $(OBJECTSdyn)
 #
 patsopt: \
   pats_main_dats.o $(OBJECTSstadyn) \
-  prelude_libats.o libc_libats.o libats_libats.o gcats.o ; \
-  $(CCOMP) -O2 -I . $(GCFLAG) -o $@ ccomp/runtime/ats_prelude.c $^ -lgmp
+  prelude_libats.o libc_libats.o libats_libats.o $(gcats_o) ; \
+  $(CCOMP) -O2 -I . $(GCFLAG) -o $@ ccomp/runtime/ats_prelude.c $^ -lgmp $(LIBGC)
 #
 ######
 

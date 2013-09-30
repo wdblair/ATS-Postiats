@@ -8,11 +8,11 @@ PATSCC=$(PATSHOME)/bin/patscc
 
 ######
 
-all:: array-queue
+all:: postfix_eval
 
 ######
 
-array-queue: array-queue.dats ; $(PATSCC) -DATS_MEMALLOC_LIBC -o $@ $<
+postfix_eval: postfix_eval.dats; $(PATSCC) -DATS_MEMALLOC_LIBC -o $@ $<
 
 ######
 
@@ -20,11 +20,12 @@ RMF=rm -f
 
 ######
 
+clean:: ; $(RMF) *~
 clean:: ; $(RMF) *_?ats.o
 clean:: ; $(RMF) *_?ats.c
 
 cleanall:: clean
-cleanall:: ; $(RMF) array-queue
+cleanall:: ; $(RMF) postfix_eval
 
 ######
 

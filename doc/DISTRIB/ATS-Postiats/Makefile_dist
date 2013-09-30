@@ -21,10 +21,14 @@ src_patsopt: ; make -j4 -C src patsopt
 bin_patsopt: src_patsopt ; cp -f src/patsopt bin/patsopt
 
 ######
-
-src2_patsopt: ; make -j4 -C src/CBOOT patsopt
+#
+CCOMP=gcc
+GCFLAG=-D_ATS_GCATS
+#
+src2_patsopt: ; \
+  make -j4 -C src/CBOOT CCOMP=$(CCOMP) GCFLAG=$(GCFLAG) patsopt
 bin2_patsopt: src2_patsopt ; cp -f src/CBOOT/patsopt bin/patsopt
-
+#
 ######
 
 utl_atscc: ; make -C utils/atscc patscc
@@ -99,9 +103,9 @@ install_files:: bin/patscc ; \
   $(INSTALL) -T -m 755 $< $(bindir)/patscc && echo $<
 install_files:: bin/patsopt ; \
   $(INSTALL) -T -m 755 $< $(bindir)/patsopt && echo $<
-install_files:: patscc_env.sh ; \
+install_files:: bin/patscc_env.sh ; \
   $(INSTALL) -T -m 755 $< $(PATSHOMERELOC)/bin/patscc
-install_files:: patsopt_env.sh ; \
+install_files:: bin/patsopt_env.sh ; \
   $(INSTALL) -T -m 755 $< $(PATSHOMERELOC)/bin/patsopt
 
 install_files:: ; \

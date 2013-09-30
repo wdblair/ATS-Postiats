@@ -1,20 +1,23 @@
 //
-// A simple example for testing hiredis_ML
+// A simple example
+// for testing hiredis_ML
 //
 (* ****** ****** *)
 //
-#include
-"share/atspre_staload_tmpdef.hats"
+// Author: Hongwei Xi
+// Authoremail: gmhwxiATgmailDOTcom
 //
 (* ****** ****** *)
-
-staload "hiredis/SATS/hiredis.sats"
-staload _(*anon*) = "hiredis/DATS/hiredis.dats"
-
+//
+#include "share/atspre_staload.hats"
+//
 (* ****** ****** *)
-
-staload "hiredis/SATS/hiredis_ML.sats"
-
+//
+staload "./../SATS/hiredis.sats"
+staload "./../SATS/hiredis_ML.sats"
+//
+staload _(*anon*) = "./../DATS/hiredis.dats"
+//
 (* ****** ****** *)
 
 val () =

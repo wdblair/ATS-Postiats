@@ -33,24 +33,21 @@
 //
 (* ****** ****** *)
 
-staload
-SYN = "./pats_syntax.sats"
-typedef d0eclist = $SYN.d0eclist
+staload SYN = "./pats_syntax.sats"
 
 (* ****** ****** *)
 
-fun depgen_eval (d0cs: d0eclist): List_vt (string)
+fun depgen_eval (d0cs: $SYN.d0eclist): List_vt (string)
 
 (* ****** ****** *)
 
-fun fprint_target (out: FILEref, basename: string): void
+fun fprint_target (out: FILEref, give: string): void
 
 (* ****** ****** *)
 
 fun fprint_entry
-(
-  out: FILEref, basename: string, ps: List_vt (string)
-) : void // end of [fprint_entry]
+  (out: FILEref, given: string, ps: List_vt (string)): void
+// end of [fprint_entry]
 
 (* ****** ****** *)
 

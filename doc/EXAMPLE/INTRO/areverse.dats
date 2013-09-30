@@ -9,8 +9,8 @@
 
 (* ****** ****** *)
 //
-#include
-"share/atspre_staload_tmpdef.hats"
+#include "share/atspre_define.hats"
+#include "share/atspre_staload.hats"
 //
 (* ****** ****** *)
 
@@ -41,8 +41,12 @@ staload UN = "prelude/SATS/unsafe.sats"
 //
 staload STDLIB = "libc/SATS/stdlib.sats"
 //
-staload RG = "atshwxi/testing/SATS/randgen.sats"
-staload _(*anon*) = "atshwxi/testing/DATS/randgen.dats"
+(* ****** ****** *)
+//
+staload
+RG = "{$LIBATSHWXI}/testing/SATS/randgen.sats"
+staload
+_(*RG*) = "{$LIBATSHWXI}/testing/DATS/randgen.dats"
 //
 (* ****** ****** *)
 %{^
@@ -58,7 +62,8 @@ srand48_with_time ()
   srand48(time(0)) ; return ;
 }
 %}
-extern fun srand48_with_time (): void = "ext#"
+extern
+fun srand48_with_time (): void = "ext#"
 //
 (* ****** ****** *)
 
@@ -66,15 +71,16 @@ typedef T = double
 
 (* ****** ****** *)
 
-#define N 10
-implement $RG.randgen_val<T> () = $STDLIB.drand48()
+implement
+$RG.randgen_val<T> () = $STDLIB.drand48()
 
 (* ****** ****** *)
 
 implement
-main (
-  argc, argv
-) = let
+main0 () =
+{
+//
+#define N 10
 //
 val asz = g1i2u (N)
 //
@@ -96,9 +102,7 @@ val () = gprint_newline ()
 //
 val () = arrayptr_free (A)
 //
-in
-  0(*normalexit*)
-end // end of [main]
+} (* end of [main] *)
 
 (* ****** ****** *)
 

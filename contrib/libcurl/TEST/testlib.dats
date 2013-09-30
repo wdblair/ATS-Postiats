@@ -7,16 +7,16 @@
 
 (* ****** ****** *)
 //
-#include
-"share/atspre_staload_tmpdef.hats"
+#include "share/atspre_define.hats"
+#include "share/atspre_staload.hats"
 //
 (* ****** ****** *)
 
-#define ATS_DYNLOADFLAG 0
+#define ATS_DYNLOADFLAG 0 // no dynloading at run-time
 
 (* ****** ****** *)
 
-staload "libcurl/SATS/curl.sats"
+staload "./../SATS/curl.sats"
 
 (* ****** ****** *)
 

@@ -1,5 +1,5 @@
 (*
-** for testing [libats/qlist]
+** for testing [libats/stkarray]
 *)
 
 (* ****** ****** *)
@@ -11,7 +11,7 @@
 (* ****** ****** *)
 //
 #include
-"share/atspre_staload_tmpdef.hats"
+"share/atspre_staload.hats"
 //
 (* ****** ****** *)
 
@@ -37,8 +37,8 @@ val-~None_vt() = stkarray_takeout_opt (stk)
 //
 val () = assertloc (stkarray_get_size (stk) = 0)
 //
-val () = stkarray_insert (stk, 1)
-val () = stkarray_insert (stk, 2)
+val-~None_vt() = stkarray_insert_opt (stk, 1)
+val-~None_vt() = stkarray_insert_opt (stk, 2)
 //
 val () = fprintln! (stdout_ref, "stk = ", stk)
 //

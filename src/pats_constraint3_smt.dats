@@ -83,6 +83,7 @@ val log_smt = false
 (* ****** ****** *)
 
 local
+
   staload LM = "libats/SATS/linmap_avltree.sats"
   staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
   
@@ -188,7 +189,7 @@ in
    
   implement smtenv_make_substitution (env, sub, s2v) = 
     env.variables.substitutes := list_vt_cons(@(sub, s2v), env.variables.substitutes)
-    
+
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")
     val _ = $SMT.push (env.smt)
@@ -223,7 +224,8 @@ in
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val _ = if log_smt then println! ("Variables: ", $LM.linmap_size(env.variables.static))
+    val _ = if log_smt then 
+        println! ("Variables: ", $LM.linmap_size(env.variables.static))
     //
     val label = if is_int then "Int" else "Bool"
     val _ = if log_smt then println! ("(declare-fun k!", id, " () ", label, ")")
@@ -298,7 +300,7 @@ in
               val s3ub = s3ubexp_cst (s2c)
            in 
               formula_from_substitution (env, s3ub)
-           end        
+           end
         end
       )
       | S2Eeqeq (l, r) => let

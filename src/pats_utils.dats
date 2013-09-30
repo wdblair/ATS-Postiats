@@ -42,6 +42,45 @@ staload "./pats_utils.sats"
 
 (* ****** ****** *)
 
+%{^
+//
+// HX-2011-04-18:
+// there is no need for marking these variables as
+// GC roots because the values stored in them cannot be GCed
+//
+static char *patsopt_PATSHOME = (char*)0 ;
+static char *patsopt_PATSHOMERELOC = (char*)0 ;
+extern char *getenv (const char *name) ; // [stdlib.h]
+//
+ATSextfun()
+ats_ptr_type
+patsopt_PATSHOME_get () {
+  return patsopt_PATSHOME ; // optional string
+} // end of [patsopt_PATSHOME_get]
+ATSextfun()
+ats_ptr_type
+patsopt_PATSHOMERELOC_get () {
+  return patsopt_PATSHOMERELOC ; // optional string
+} // end of [patsopt_PATSHOMERELOC_get]
+//
+ATSextfun()
+ats_void_type
+patsopt_PATSHOME_set () {
+  patsopt_PATSHOME = getenv ("PATSHOME") ; return ;
+  if (!patsopt_PATSHOME) patsopt_PATSHOME = getenv ("ATSHOME") ;
+} // end of [patsopt_PATSHOME_set]
+ATSextfun()
+ats_void_type
+patsopt_PATSHOMERELOC_set () {
+  patsopt_PATSHOMERELOC = getenv ("PATSHOMERELOC") ;
+  if (!patsopt_PATSHOMERELOC) patsopt_PATSHOMERELOC = getenv ("ATSHOMERELOC") ;
+  return ;
+} // end of [patsopt_PATSHOMERELOC_set]
+//
+%} // end of [%{^]
+
+(* ****** ****** *)
+
 implement
 eqref_type
   {a} (x1, x2) = let
@@ -387,6 +426,22 @@ end // end of [lstord_get_dups]
 implement lstord2list (xs) = xs
 
 end // end of [local]
+
+(* ****** ****** *)
+
+implement
+dirpath_append
+  (dir, path, sep) = let
+//
+val p0 = $UN.cast2ptr (path)
+val c0 = $UN.ptr0_get<char> (p0)
+//
+in
+  if c0 = sep
+    then sprintf ("%s%s", @(dir, path))
+    else sprintf("%s%c%s", @(dir, sep, path))
+  // end of [if]
+end // end of [dirpath_append]
 
 (* ****** ****** *)
 

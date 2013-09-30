@@ -63,6 +63,14 @@ val false_bool : bool (false) = "mac#atsbool_false" // = 0
 prfun false_elim {X:prop | false} (): X
 //
 (* ****** ****** *)
+//
+praxi
+lemma_subcls_reflexive {c:cls} (): [c <= c] void
+praxi
+lemma_subcls_transitive
+  {c1,c2,c3:cls | c1 <= c2; c2 <= c3} (): [c1 <= c3] void
+//
+(* ****** ****** *)
 
 dataprop
 EQINT (int, int) = {x:int} EQINT (x, x)
@@ -458,7 +466,7 @@ fun main_void_0
   ((*void*)): void = "ext#mainats_void_0"
 fun main_argc_argv_0
   {n:int | n >= 1}
-  (argc: int n, argv: !argv n): void = "ext#mainats_argc_argv_0"
+  (argc: int n, argv: !argv(n)): void = "ext#mainats_argc_argv_0"
 overload main0 with main_void_0
 overload main0 with main_argc_argv_0
 //
@@ -470,7 +478,7 @@ fun main_void_int
   ((*void*)): int = "ext#mainats_void_int"
 fun main_argc_argv_int
   {n:int | n >= 1}
-  (argc: int n, argv: !argv n): int = "ext#mainats_argc_argv_int"
+  (argc: int n, argv: !argv(n)): int = "ext#mainats_argc_argv_int"
 fun main_argc_argv_envp_int
   {n:int | n >= 1}
   (argc: int n, argv: !argv n, envp: ptr): int = "ext#mainats_argc_argv_envp_int"

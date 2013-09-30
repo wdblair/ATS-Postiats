@@ -126,7 +126,7 @@ and synlte_s2hnf_s2explst
   | list_nil () => false
 // end of [synlte_s2hnf_s2explst]
 
-in // in of [local]
+in (* in of [local] *)
 
 fun s2exp_synlt (
   s2e1: s2exp, s2e2: s2exp
@@ -220,7 +220,7 @@ case+ s2es1 of
 | list_nil () => s2exp_bool (false)
 end // end of [auxlst]
 
-in // in of [local]
+in (* in of [local] *)
 
 implement s2exp_metdec_reduce (met, met_bound) = (
   auxlst (met, met_bound)
@@ -344,8 +344,8 @@ in // in of [local]
     end // end of [val]
   //
   (*
-    val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
-    val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
+  val () = println! ("formula_make_s2cst_s2explst: s2c = ", s2c)
+  val () = println! ("formula_make_s2cst_s2explst: s2es = ", s2es)
   *)
   in
     case+ opt of
@@ -366,6 +366,8 @@ constraint3_initialize () = let
   prval vbox (pf) = pf_the_s2cfunmap in
   $effmask_ref (constraint3_initialize_map (the_s2cfunmap))
 end // end of [constraint3_initialize]
+
+(* ****** ****** *)
 
 end // end of [local]
 

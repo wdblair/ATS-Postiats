@@ -47,6 +47,10 @@ staload "./pats_stacst2.sats"
 
 (* ****** ****** *)
 
+staload "./pats_staexp2_util.sats"
+
+(* ****** ****** *)
+
 staload "./pats_constraint3.sats"
 
 (* ****** ****** *)
@@ -121,6 +125,11 @@ val () = ins (map, the_gt_addr_addr, f_gt_int_int)
 val () = ins (map, the_gte_addr_addr, f_gte_int_int)
 val () = ins (map, the_eq_addr_addr, f_eq_int_int)
 val () = ins (map, the_neq_addr_addr, f_neq_int_int)
+//
+val () = ins (map, the_lte_cls_cls, f_lte_cls_cls)
+(*
+val () = ins (map, the_gte_cls_cls, f_gte_cls_cls)
+*)
 //
 in
   (*nothing*)

@@ -3,19 +3,23 @@
 //
 (* ****** ****** *)
 //
-#include
-"share/atspre_staload_tmpdef.hats"
+// Author: Hongwei Xi
+// Authoremail: gmhwxiATgmailDOTcom
+//
+(* ****** ****** *)
+//
+#include "share/atspre_staload.hats"
 //
 (* ****** ****** *)
 
-staload "hiredis/SATS/hiredis.sats"
-staload _(*anon*) = "hiredis/DATS/hiredis.dats"
+staload "./../SATS/hiredis.sats"
+staload _(*anon*) = "./../DATS/hiredis.dats"
 
 (* ****** ****** *)
 
 val () =
 {
-val () = println! ("The version of [hiredis]: ", hiredis_version ())
+  val () = println! ("The version of [hiredis]: ", hiredis_version ())
 } (* end of [val] *)
 
 (* ****** ****** *)

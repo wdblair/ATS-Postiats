@@ -126,9 +126,13 @@ dynload "pats_global.dats"
 dynload "pats_basics.dats"
 //
 dynload "pats_stamp.dats"
+//
 dynload "pats_symbol.dats"
+//
 dynload "pats_filename.dats"
+//
 dynload "pats_location.dats"
+//
 dynload "pats_errmsg.dats"
 //
 (* ****** ****** *)
@@ -175,6 +179,8 @@ dynload "pats_trans1_env.dats"
 //
 dynload "pats_e1xpval.dats"
 dynload "pats_e1xpval_error.dats"
+//
+dynload "pats_filename_reloc.dats"
 //
 dynload "pats_trans1_error.dats"
 dynload "pats_trans1_e0xp.dats"
@@ -345,6 +351,17 @@ dynload "pats_comarg.dats"
 //
 (* ****** ****** *)
 
+%{^
+//
+extern void patsopt_PATSHOME_set () ;
+extern char *patsopt_PATSHOME_get () ;
+extern void patsopt_PATSHOMERELOC_set () ;
+extern char *patsopt_PATSHOMERELOC_get () ;
+//
+%} // end of [%{^]
+
+(* ****** ****** *)
+
 fn patsopt_usage
 (
   out: FILEref, arg0: comarg
@@ -377,9 +394,12 @@ end // end of [patsopt_usage]
 
 (* ****** ****** *)
 //
-#define PATS_MAJOR_VERSION 1
+(*
+HX: VERSION-0.0.1 released on September 2, 2013
+*)
+#define PATS_MAJOR_VERSION 0
 #define PATS_MINOR_VERSION 0
-#define PATS_MICRO_VERSION 0
+#define PATS_MICRO_VERSION 2
 (*
 //
 // HX-2011-04-27: this is supported in Postiats:
@@ -462,7 +482,7 @@ typedef
 cmdstate = @{
   comarg0= comarg
 //
-, ATSHOME= string
+, PATSHOME= string
 //
 , waitkind= waitkind
 // prelude-loading is done or not
@@ -555,14 +575,14 @@ end // end of [local]
 (* ****** ****** *)
 
 fn fixity_load
-  (ATSHOME: string): void = let
+  (PATSHOME: string): void = let
 //
-  val basename = "prelude/fixity.ats"
+  val given = "prelude/fixity.ats"
   val fullname =
-    $FIL.filename_append (ATSHOME, basename)
+    $FIL.filename_append (PATSHOME, given)
   val fullname = string_of_strptr (fullname)
   val filename =
-    $FIL.filename_make (basename, fullname)
+    $FIL.filename_make (given, given, fullname)
 //
   val (pffil | ()) = 
     $FIL.the_filenamelst_push (filename)
@@ -589,19 +609,21 @@ end // end of [fixity_load]
 fun
 pervasive_load
 (
-  ATSHOME: string, basename: string
-) : void =
-{
+  PATSHOME: string, given: string
+) : void = {
+//
 (*
-val (
-) = println!
-  ("pervasive_load: basename = ", basename)
+val () = (
+  println! ("pervasive_load: given = ", given)
+) (* end of [val] *)
 *)
+//
 val fullname =
-  $FIL.filename_append (ATSHOME, basename)
+  $FIL.filename_append (PATSHOME, given)
 val fullname = string_of_strptr (fullname)
+//
 val filename =
-  $FIL.filename_make (basename, fullname)
+  $FIL.filename_make (given, given, fullname)
 //
 val (pfpush | ()) = 
   $FIL.the_filenamelst_push (filename)
@@ -631,83 +653,79 @@ val () = $TRENV1.the_EXTERN_PREFIX_set_none ()
 
 fun prelude_load
 (
-  ATSHOME: string
+  PATSHOME: string
 ) : void = {
-  val () = fixity_load (ATSHOME)
 //
-  val (
-  ) = pervasive_load (ATSHOME, "prelude/basics_pre.sats")
-  val (
-  ) = pervasive_load (ATSHOME, "prelude/basics_sta.sats")
-  val (
-  ) = pervasive_load (ATSHOME, "prelude/basics_dyn.sats")
-  val (
-  ) = pervasive_load (ATSHOME, "prelude/basics_gen.sats")
+val () = fixity_load (PATSHOME)
 //
-  val () = pervasive_load (ATSHOME, "prelude/macrodef.sats")
+val () = pervasive_load (PATSHOME, "prelude/basics_pre.sats")
+val () = pervasive_load (PATSHOME, "prelude/basics_sta.sats")
+val () = pervasive_load (PATSHOME, "prelude/basics_dyn.sats")
+val () = pervasive_load (PATSHOME, "prelude/basics_gen.sats")
 //
-  val () = stacst2_initialize () // internalizing some static consts
-  val () = $CNSTR3.constraint3_initialize () // internalizing some maps
+val () = pervasive_load (PATSHOME, "prelude/macrodef.sats")
 //
-  val (
-  ) = pervasive_load (ATSHOME, "prelude/SATS/arith_prf.sats")
+val () = stacst2_initialize () // internalizing some static consts
+val () = $CNSTR3.constraint3_initialize () // internalizing some maps
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/integer.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/arith_prf.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/pointer.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/integer.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/bool.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/char.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/integer_ptr.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/integer_fixed.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/float.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/pointer.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/memory.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/bool.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/char.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/integer_ptr.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/integer_fixed.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/float.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/string.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/strptr.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/memory.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/tuple.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/string.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/strptr.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/reference.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/tuple.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/filebas.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/intrange.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/reference.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/lazy.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/lazy_vt.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/filebas.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/intrange.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/gorder.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/gnumber.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/lazy.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/lazy_vt.sats")
+//
+val () = pervasive_load (PATSHOME, "prelude/SATS/gorder.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/gnumber.sats")
 //
 (*
-  val () = pervasive_load (ATSHOME, "prelude/SATS/unsafe.sats") // manual loading
+val () = pervasive_load (PATSHOME, "prelude/SATS/unsafe.sats") // manual loading
 *)
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/list.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/list_vt.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/list.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/list_vt.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/option.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/option_vt.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/option.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/option_vt.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/array.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/array_prf.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/arrayptr.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/arrayref.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/array.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/array_prf.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/arrayptr.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/arrayref.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/matrix.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/matrixptr.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/matrixref.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/matrix.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/matrixptr.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/matrixref.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/gprint.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/gprint.sats")
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/parray.sats") // null-terminated
+val () = pervasive_load (PATSHOME, "prelude/SATS/parray.sats") // null-terminated
 //
-  val () = pervasive_load (ATSHOME, "prelude/SATS/extern.sats") // interfacing externs
+val () = pervasive_load (PATSHOME, "prelude/SATS/extern.sats") // interfacing externs
 //
 (*
-  val () = pervasive_load (ATSHOME, "prelude/SATS/giterator.sats")
-  val () = pervasive_load (ATSHOME, "prelude/SATS/fcontainer.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/giterator.sats")
+val () = pervasive_load (PATSHOME, "prelude/SATS/fcontainer.sats")
 *)
 //
 } // end of [prelude_load]
@@ -716,66 +734,58 @@ fun prelude_load
 
 fun prelude_load_if
 (
-  ATSHOME: string, flag: &int
+  PATSHOME: string, flag: &int
 ) : void =
   if flag = 0 then let
-    val () = flag := 1 in prelude_load (ATSHOME)
+    val () = flag := 1 in prelude_load (PATSHOME)
   end else () // end of [if]
 // end of [prelude_load_if]
 
 (* ****** ****** *)
-
+//
 extern
 fun do_trans12
-(
-  basename: string, d0cs: d0eclist
-) : d2eclist // end of [do_trans12]
-
+  (given: string, d0cs: d0eclist): d2eclist
 extern
 fun do_trans123
-(
-  basename: string, d0cs: d0eclist
-) : d3eclist // end of [do_trans123]
-
+  (given: string, d0cs: d0eclist): d3eclist
 extern
 fun do_trans1234
-(
-  basename: string, d0cs: d0eclist
-) : hideclist // end of [do_trans1234]
-
+  (given: string, d0cs: d0eclist): hideclist
+//
 extern
 fun do_transfinal
-(
-  state: &cmdstate, basename: string, d0cs: d0eclist
-) : void // end of [do_transfinal]
-
+  (state: &cmdstate, given: string, d0cs: d0eclist): void
+//
 (* ****** ****** *)
 
 implement
-do_trans12 (
-  basename, d0cs
-) = let
+do_trans12
+  (given, d0cs) = let
 //
-  val d1cs =
-    $TRANS1.d0eclist_tr_errck (d0cs)
-  // end of [val]
-  val () = $TRANS1.trans1_finalize ()
+val d1cs =
+  $TRANS1.d0eclist_tr_errck (d0cs)
+// end of [val]
+val () = $TRANS1.trans1_finalize ()
 //
-  val () = if isdebug() then {
-    val () = print "The 1st translation (fixity) of ["
-    val () = print basename
-    val () = print "] is successfully completed!"
-    val () = print_newline ()
-  } // end of [if] // end of [val]
+val (
+) = if isdebug() then
+{
+  val () = println! (
+    "The 1st translation (fixity) of [", given, "] is successfully completed!"
+  ) (* end of [val] *)
+} // end of [if] // end of [val]
 //
-  val d2cs = $TRANS2.d1eclist_tr_errck (d1cs)
+val d2cs = $TRANS2.d1eclist_tr_errck (d1cs)
 //
-  val () = if isdebug() then {
-    val () = print "The 2nd translation (binding) of ["
-    val () = print basename
-    val () = print "] is successfully completed!"
-    val () = print_newline ()
-  } // end of [if] // end of [val]
+val (
+) = if isdebug() then
+{
+  val () = println! (
+    "The 2nd translation (binding) of [", given, "] is successfully completed!"
+  ) (* end of [val] *)
+} // end of [if] // end of [val]
+//
 in
   d2cs
 end // end of [do_trans12]
@@ -783,33 +793,35 @@ end // end of [do_trans12]
 (* ****** ****** *)
 
 implement
-do_trans123 (
-  basename, d0cs
-) = let
+do_trans123
+  (given, d0cs) = let
 //
-  val d2cs = do_trans12 (basename, d0cs)
-  val () = $TRENV3.trans3_env_initialize ()
-  val d3cs = $TRANS3.d2eclist_tr_errck (d2cs)
+val d2cs = do_trans12 (given, d0cs)
+val () = $TRENV3.trans3_env_initialize ()
+val d3cs = $TRANS3.d2eclist_tr_errck (d2cs)
 //
 (*
-  val () = {
-    val () = print "do_trans123: the_s3itmlst =\n"
-    val () = $TRENV3.fprint_the_s3itmlst (stdout_ref)
-    val () = print_newline ()
-  } // end of [val]
+val () = {
+  val () = print "do_trans123: the_s3itmlst =\n"
+  val () = $TRENV3.fprint_the_s3itmlst (stdout_ref)
+  val () = print_newline ()
+} // end of [val]
 *)
 //
-  val () = // constraint solving
-    $CNSTR3.c3nstr_solve (c3t) where {
-    val c3t = $TRENV3.trans3_finget_constraint ()
-  } // end of [val]
+val (
+) = $CNSTR3.c3nstr_solve (c3t) where
+{
+  val c3t = $TRENV3.trans3_finget_constraint ()
+} (* end of [val] *)
 //
-  val () = if isdebug() then {
-    val () = print "The 3rd translation (type-checking) of ["
-    val () = print_string (basename)
-    val () = print "] is successfully completed!"
-    val () = print_newline ()
-  } // end of [if] // end of [val]
+val (
+) = if isdebug() then
+{
+  val () = println! (
+    "The 3rd translation (type-checking) of [", given, "] is successfully completed!"
+  ) (* end of [val] *)
+} // end of [if] // end of [val]
+//
 in
   d3cs
 end // end of [do_trans123]
@@ -817,12 +829,11 @@ end // end of [do_trans123]
 (* ****** ****** *)
 
 implement
-do_trans1234 (
-  basename, d0cs
-) = let
+do_trans1234
+  (given, d0cs) = let
 //
 val d3cs =
-  do_trans123 (basename, d0cs)
+  do_trans123 (given, d0cs)
 // end of [d3cs]
 val hids = $TYER.d3eclist_tyer (d3cs)
 //
@@ -830,12 +841,12 @@ val hids = $TYER.d3eclist_tyer (d3cs)
 val () = fprint_hideclist (stdout_ref, hids)
 *)
 //
-val () =
-if isdebug() then {
-  val () = print "The 4th translation (type/proof-erasing) of ["
-  val () = print_string (basename)
-  val () = print "] is successfully completed!"
-  val () = print_newline ()
+val (
+) = if isdebug() then
+{
+  val () = println! (
+    "The 4th translation (type/proof-erasing) of [", given, "] is successfully completed!"
+  ) (* end of [val] *)
 } // end of [if] // end of [val]
 //
 in
@@ -846,15 +857,16 @@ end // end of [do_trans1234]
 
 implement
 do_transfinal
-  (state, basename, d0cs) = let
+  (state, given, d0cs) = let
 in
 //
 case+ 0 of
-| _ when state.typecheckonly => let
-    val d3cs = do_trans123 (basename, d0cs) in (*nothing*)
-  end // end of [...]
+| _ when
+    state.typecheckonly =>
+    let val d3cs = do_trans123 (given, d0cs) in (*none*) end
+  // end of [...]
 | _ => let
-    val hids = do_trans1234 (basename, d0cs)
+    val hids = do_trans1234 (given, d0cs)
     val out = outchan_get_filr (state.outchan)
     val flag = waitkind_get_stadyn (state.waitkind)
     val () = $CCOMP.ccomp_main (out, flag, state.infil, hids)
@@ -885,10 +897,10 @@ case+ arglst of
   in
     case+ 0 of
     | _ when stadyn >= 0 => {
-        val ATSHOME = state.ATSHOME
+        val PATSHOME = state.PATSHOME
         val () =
           prelude_load_if (
-          ATSHOME, state.preludeflg // loading once
+          PATSHOME, state.preludeflg // loading once
         ) // end of [val]
 //
         val () = state.infil := $FIL.filename_stdin
@@ -932,7 +944,8 @@ in
 //
 case+ arg of
 //
-| _ when isinpwait (state) => let
+| _ when
+    isinpwait (state) => let
 //
 // HX: the [inpwait] state stays unchanged
 //
@@ -946,13 +959,12 @@ case+ arg of
     | COMARGkey
         (2, key) when nif > 0 =>
         process_cmdline2_COMARGkey2 (state, arglst, key)
-    | COMARGkey
-        (_, basename) => let
-        val ATSHOME = state.ATSHOME
+    | COMARGkey (_, given) => let
+        val PATSHOME = state.PATSHOME
         val () = state.ninputfile := state.ninputfile + 1
-        val () = prelude_load_if (ATSHOME, state.preludeflg)
+        val () = prelude_load_if (PATSHOME, state.preludeflg)
 //
-        val d0cs = parse_from_basename_toplevel (stadyn, basename, state.infil)
+        val d0cs = parse_from_givename_toplevel (stadyn, given, state.infil)
 //
         var istrans: bool = true
         val isdepgen = state.depgenflag > 0
@@ -965,35 +977,38 @@ case+ arg of
           val ents = $DEPGEN.depgen_eval (d0cs)
           val filr = outchan_get_filr (state.outchan)
         in
-          $DEPGEN.fprint_entry (filr, basename, ents)
+          $DEPGEN.fprint_entry (filr, given, ents)
         end // end of [if]
         ) (* end of [val] *)
 //
-        val () = (
-        if istrans then do_transfinal (state, basename, d0cs)
-        ) (* end of [val] *)
+        val () =
+          if istrans then do_transfinal (state, given, d0cs)
+        // end of [val]
 //
       in
         process_cmdline (state, arglst)
       end (* end of [_] *)
+    // end of [case]
   end // end of [_ when isinpwait]
 //
-| _ when isoutwait (state) => let
+| _ when
+    isoutwait (state) => let
     val () = state.waitkind := WTKnone ()
 //
-    val COMARGkey (_, basename) = arg
+    val COMARGkey (_, given) = arg
 //
-    val opt = stropt_some (basename)
-    val () = theOutFilename_set (opt)
+    val opt = stropt_some (given)
+    val ((*void*)) = theOutFilename_set (opt)
 //
-    val _new = outchan_make_path (basename)
-    val () = cmdstate_set_outchan (state, _new)
+    val _new = outchan_make_path (given)
+    val ((*void*)) = cmdstate_set_outchan (state, _new)
 //
   in
     process_cmdline (state, arglst)
   end // end of [_ when isoutwait]
 //
-| _ when isdatswait (state) => let
+| _ when
+    isdatswait (state) => let
     val () = state.waitkind := WTKnone ()
     val COMARGkey (_, def) = arg
     val () = process_DATS_def (def)
@@ -1157,34 +1172,35 @@ main (
 //
 val () = println! ("Hello from ATS/Postiats!")
 //
-val () = set () where { extern
-  fun set (): void = "mac#patsopt_ATSHOME_set"
+val (
+) = set () where
+{ 
+  extern fun set (): void = "mac#patsopt_PATSHOME_set"
 } // end of [where] // end of [val]
-val () = set () where { extern
-  fun set (): void = "mac#patsopt_ATSHOMERELOC_set"
+val (
+) = set () where
+{
+  extern fun set (): void = "mac#patsopt_PATSHOMERELOC_set"
 } // end of [where] // end of [val]
 //
-val () = set () where { extern
-  fun set (): void = "mac#patsopt_PATSHOME_set"
-} // end of [where] // end of [val]
-//
-val ATSHOME = let
-  val opt = get () where {
-    extern fun get (): Stropt = "patsopt_PATSHOME_get"
-  } // end of [val]
+val PATSHOME = let
+  val opt = get () where
+  {
+    extern fun get (): Stropt = "mac#patsopt_PATSHOME_get"
+  } // end of [where] // end of [val]
+  val issome = stropt_is_some (opt)
 in
-  if stropt_is_some (opt)
+  if issome
     then stropt_unsome (opt) else let
-    val () = prerr ("The environment variable PATSHOME is undefined")
-    val () = prerr_newline ()
+    val () = prerrln! ("The environment variable PATSHOME is undefined!")
   in
     $ERR.abort ()
   end // end of [if]
-end : string // end of [ATSHOME]
+end : string // end of [PATSHOME]
 //
 // for the run-time and atslib
 //
-val () = $FIL.the_prepathlst_push (ATSHOME)
+val () = $FIL.the_prepathlst_push (PATSHOME)
 //
 val () = $TRENV1.the_trans1_env_initialize ()
 val () = $TRENV2.the_trans2_env_initialize ()
@@ -1195,7 +1211,7 @@ val+~list_vt_cons (arg0, arglst) = arglst
 var
 state = @{
   comarg0= arg0
-, ATSHOME= ATSHOME
+, PATSHOME= PATSHOME
 , waitkind= WTKnone ()
 // load status of prelude files
 , preludeflg= 0
@@ -1216,51 +1232,6 @@ state = @{
 val () = process_cmdline (state, arglst)
 //
 } // end of [main]
-
-(* ****** ****** *)
-
-%{^
-//
-// HX-2011-04-18:
-// there is no need for marking these variables as
-// GC roots as the values stored in them cannot be GCed
-//
-static char *patsopt_ATSHOME = (char*)0 ;
-static char *patsopt_ATSHOMERELOC = (char*)0 ;
-static char *patsopt_PATSHOME = (char*)0 ;
-extern char *getenv (const char *name) ; // [stdlib.h]
-//
-ats_ptr_type
-patsopt_ATSHOME_get () {
-  return patsopt_ATSHOME ; // optional string
-} // end of [patsopt_ATSHOME_get]
-ATSinline()
-ats_void_type
-patsopt_ATSHOME_set () {
-  patsopt_ATSHOME = getenv ("ATSHOME") ; return ;
-} // end of [patsopt_ATSHOME_set]
-//
-ats_ptr_type
-patsopt_ATSHOMERELOC_get () {
-  return patsopt_ATSHOMERELOC ; // optional string
-} // end of [patsopt_ATSHOMERELOC_get]
-ATSinline()
-ats_void_type
-patsopt_ATSHOMERELOC_set () {
-  patsopt_ATSHOMERELOC = getenv ("ATSHOMERELOC") ; return ;
-} // end of [patsopt_ATSHOMERELOC_set]
-//
-ats_ptr_type
-patsopt_PATSHOME_get () {
-  return patsopt_PATSHOME ; // optional string
-} // end of [patsopt_PATSHOME_get]
-ATSinline()
-ats_void_type
-patsopt_PATSHOME_set () {
-  patsopt_PATSHOME = getenv ("PATSHOME") ; return ;
-} // end of [patsopt_PATSHOME_set]
-//
-%} // end of [%{^]
 
 (* ****** ****** *)
 
