@@ -4,10 +4,10 @@ staload "SATS/fifo.sats"
 
 (* ****** ****** *)
 
-fun{} make_ubrr {n:pos} (baud: uint n): uint
+fun{} make_ubrr (baud: uint): uint
 
-fun {m:mcu} init {n:pos} (
-  baud: uint n
+fun {m:mcu} init (
+  baud: uint
 ): void
 
 fun {m:mcu} rx (): char

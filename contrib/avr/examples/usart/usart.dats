@@ -4,10 +4,11 @@
 
 staload "SATS/io.sats"
 staload Serial = "SATS/usart.sats"
+staload "SATS/delay.sats"
 
-staload _ = "prelude/DATS/integer.dats"
+#include "HATS/atspre_staload.hats"
 
-staload _ = "DATS/atmega328p/io.dats"
+staload "DATS/atmega328p/io.dats"
 staload _ = "DATS/atmega328p/usart.dats"
 
 #define ATS_DYNLOADFLAG 0
@@ -16,8 +17,9 @@ stadef mcu = atmega328p
 
 implement main () = 0 where {
   val () = $Serial.init<mcu>(9600u)
+//  
   val () = while(true) {
-    val c = $Serial.rx<mcu>()
-    val _ = $Serial.tx<mcu>(c)
+    val c = $Serial.rx<mcu> ()
+    val _ = $Serial.tx<mcu> (c)
   }
 }

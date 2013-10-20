@@ -17,17 +17,17 @@
 #define _SFR_ADDR_IO16(io_addr) _MMIO_ADDR_WORD((io_addr) + __SFR_OFFSET)
 
 #define loop_until_bit_is_set_8bit(reg, bit)                  \
-  do {} while(_MMIO_BYTE(reg) & _BV(bit))
+  do {} while(!((*(volatile uint8_t *)reg) & _BV(bit)))
 
-#define avr_libats_setval_8bit(reg, val) (_MMIO_BYTE(reg) = val)
+#define avr_libats_setval_8bit(reg, val) ((*(volatile uint8_t *)reg) = (uint8_t)val)
 
 #define avr_libats_setval_16bit(high, low, value)               \
   do {                                                          \
-      _MMIO_BYTE(high) = (uint8_t)((value >> 8) & 0xff);       \
-      _MMIO_BYTE(low) = (uint8_t)(value & 0xff);               \
+    *(volatile uint8_t *)high = (uint8_t)((value >> 8) & 0xff);    \
+    *(volatile uint8_t *)low = (uint8_t)(value & 0xff);            \
   } while(0)
 
-#define avr_libats_value_8bit(reg) (_MMIO_BYTE(reg))
+#define avr_libats_value_8bit(reg) (*(volatile uint8_t*)reg)
 
 #define avr_libats_setbits0_8bit(reg, b0) (*(volatile uint8_t*)reg |= (_BV(b0)))
 

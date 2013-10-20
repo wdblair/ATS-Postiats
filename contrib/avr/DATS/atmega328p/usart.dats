@@ -2,7 +2,6 @@ staload "SATS/io.sats"
 staload "SATS/usart.sats"
 
 staload "DATS/atmega328p/io.dats"
-staload _ = "DATS/usart.dats"
 
 stadef mcu = atmega328p
 
@@ -13,11 +12,12 @@ extern
 castfn uint8_of_char (_: char): [n:nat | n < 256] int n
 
 implement init<mcu>(baud) = {
-  val ubrr = ubrr_of_baud(baud)
+  val ubrr = F_CPU / (16ul * g0uint2uint_uint_ulint(baud))
+  val ubrr = g0uint2uint_ulint_uint(ubrr)
   val () = setval(UBRR0H<mcu>(), UBRR0L<mcu>(), ubrr)
   //Mode is Asynchronous 8-N-1
-  val () = setbits (UCSR0C<mcu>(), UCSZ01, UCSZ00)
-  val () = setbits (UCSR0B<mcu>(), RXEN0, TXEN0)
+  val () = clear_and_setbits (UCSR0C<mcu>(), UCSZ01, UCSZ00)
+  val () = clear_and_setbits (UCSR0B<mcu>(), RXEN0, TXEN0)
 }
 
 implement rx<mcu>() = c where {
@@ -30,6 +30,7 @@ implement tx<mcu>(c) = 0 where {
   val () = setval (UDR0<mcu>(), uint8_of_char(c))
 }
 
+////
 implement async_init<mcu> (baud) = {
   val ubrr = make_ubrr (baud)
   val _ = assert (ubrr > 0)

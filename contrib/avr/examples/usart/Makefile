@@ -5,10 +5,10 @@ all: usart
 AVRPATH= $(PATSHOME)/contrib/avr
 
 usart: usart_dats.c
-	avr-gcc -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Os -I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
-	-I $(AVRPATH) -L $(AVRPATH)/lib -L $(AVRPATH)/lib/$(MCU) -o $@ $< -l$(MCU)
+	avr-gcc -D_ATS_CCOMP_RUNTIME_NONE -DF_CPU=$(F_CPU) -mmcu=$(MCU) -Os -I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
+	-I $(AVRPATH) -L $(AVRPATH)/lib -o $@ $<
 	avr-size $@
-	avr-objcopy -O ihex $@ ~/Dropbox/$@.hex
+	sudo avr-objcopy -O ihex $@ /mnt/shared/$@.hex
 
 typecheck: usart.dats
 	patsopt -DATS_MCU=$(MCU) -IATS $(PATSHOME)/contrib/avr --typecheck --dynamic $<
