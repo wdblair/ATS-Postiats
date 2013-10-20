@@ -13,31 +13,31 @@ staload _ = "DATS/atmega328p/usart.dats"
 
 stadef m = atmega328p
 
-#define LEFTMOTOR1 PINB0  
-#define LEFTMOTOR2 PINB1
+#define LEFTFORWARD PINB0
+#define LEFTBACKWARD PINB1
 
-#define RIGHTMOTOR1 PIND6
-#define RIGHTMOTOR2 PIND7
+#define RIGHTFORWARD PIND6
+#define RIGHTBACKWARD PIND7
 
 fun move_forward (): void = begin
-  setbits (PORTB<m>(), LEFTMOTOR1);
-  setbits (PORTD<m>(), RIGHTMOTOR1);
+  setbits (PORTB<m>(), LEFTFORWARD);
+  setbits (PORTD<m>(), RIGHTFORWARD);
   //
-  clearbits (PORTB<m>(), LEFTMOTOR2);
-  clearbits (PORTD<m>(), RIGHTMOTOR2);
+  clearbits (PORTB<m>(), LEFTBACKWARD);
+  clearbits (PORTD<m>(), RIGHTBACKWARD);
 end
   
 fun move_backward (): void = begin
-  clearbits (PORTB<m>(), LEFTMOTOR1);
-  clearbits (PORTD<m>(), RIGHTMOTOR1);
+  clearbits (PORTB<m>(), LEFTFORWARD);
+  clearbits (PORTD<m>(), RIGHTFORWARD);
   //
-  setbits (PORTB<m>(), LEFTMOTOR2);
-  setbits (PORTD<m>(), RIGHTMOTOR2);
+  setbits (PORTB<m>(), LEFTBACKWARD);
+  setbits (PORTD<m>(), RIGHTBACKWARD);
 end
 
 fun stop (): void = begin
-  clearbits (PORTB<m>(), LEFTMOTOR1, LEFTMOTOR2);
-  clearbits (PORTD<m>(), RIGHTMOTOR1, RIGHTMOTOR2);
+  clearbits (PORTB<m>(), LEFTFORWARD, LEFTBACKWARD);
+  clearbits (PORTD<m>(), RIGHTFORWARD, RIGHTBACKWARD);
 end
 
 extern
@@ -83,19 +83,39 @@ implement main0 () = let
     clearbits (DDRD<m>(), DDD2);
     clearbits (PORTD<m>(), PORTD2);
   end
-  //Give it a few seconds
-  val () = _delay_ms (3000.0)
+  // The L298 H-Bridge chip needs the wave form
+  // between 25kHz and 40kHz. Need to use the 16-bit
+  // Timer Counter 1 for this task.
   //
-  fun loop(): void = let
-    var buf = @[char][10]('\0')
+  fun loop (): void = let
+    val cmd = $Serial.rx<m> ()
+    val () = (case+ cmd of
+      | '1' => {
+        val () = flipbits (PORTB<m> (), PORTB0)
+      }
+      | '2' => {
+        val () = flipbits (PORTB<m> (), PORTB1)
+      }
+      | '3' => {
+        val () = flipbits (PORTD<m> (), PORTD6)
+      }
+      | '4' => {
+        val () = flipbits (PORTD<m> (), PORTD7)
+      }
+      | _  => ()
+      ): void
+    (*
+    // Measuring the distance in front of the robot
+    var buf = @[char][10] ('\0')
     val dist = measure_distance<> ()
     val _ = ltoa (ulint_lint(dist), buf, 10)
-    val () = print_buf (buf, 10)
-    val () = buf.[0] := '\n'
-    val () = buf.[1] := '\r'
-    val () = buf.[2] := '\0'
-    val () = print_buf (buf, 10)
-    val () = _delay_ms(2000.0)
+      val () = print_buf (buf, 10)
+      val () = buf.[0] := '\n'
+      val () = buf.[1] := '\r'
+      val () = buf.[2] := '\0'
+      val () = print_buf (buf, 10)
+      val () = _delay_ms (1000.0)
+    *)
   in
     loop ()
   end
@@ -127,6 +147,8 @@ typedef volatile uint8_t * register_t;
 /* 
    Measure the width of a pulse. 
    adapted from the same named Arduino function
+
+   TODO: try to implement this using a timer instead
 */
 unsigned long pulse_in (register_t port, int i, int state, unsigned long timeout) {
   uint8_t bit  = _BV(i);
@@ -155,8 +177,7 @@ unsigned long pulse_in (register_t port, int i, int state, unsigned long timeout
     width++;
   }
 
-  //There are some magic values added about how long the loops are
+  //There are some magic values added to account for how long the loops are
   return cycles_to_ms (width * 21 + 16);
 }
-
 %}
