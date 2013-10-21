@@ -5,8 +5,6 @@
 #include <avr/common.h>
 #include <avr/version.h>
 
-#include "CATS/io_bits.cats"
-
 #define _MMIO_ADDR_BYTE(mem_addr) (volatile uint8_t*)(mem_addr)
 #define _MMIO_ADDR_WORD(mem_addr) (volatile uint16_t*)(mem_addr)
 #define _MMIO_ADDR_DWORD(mem_addr) (volatile uint32_t*)(mem_addr)
@@ -25,5 +23,7 @@
 #define avr_libats_setval_16bit(reg, value) (* _MMIO_ADDR_WORD(reg) = value)
 
 #define avr_libats_value_8bit(reg) (*_MMIO_ADDR_BYTE(reg))
+
+#include "CATS/io_bits.cats"
 
 #endif

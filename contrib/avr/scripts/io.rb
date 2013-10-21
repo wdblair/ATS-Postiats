@@ -48,7 +48,7 @@ FUNCTION
 make_bits_cats = lambda { |file|
   functions.each { |f|
     mac_tmpl =<<MACRO
-#define avr_libats___name__(reg, __labels__) (*(volatile uint8_t*)reg __assign__ __filter__(__bits__))
+#define avr_libats___name__(reg, __labels__) (*_MMIO_ADDR_BYTE(reg) __assign__ __filter__(__bits__))
 MACRO
     
     name = f.to_s
