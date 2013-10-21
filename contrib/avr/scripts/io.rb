@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-#A helper script to generate some repetetive code.
+#A helper script to generate some repetative code.
 
 settings = {
   setbits: {
@@ -75,9 +75,7 @@ MACRO
 
 #Just work with the atmega328p for now.
 def make_pin_sats file
-  reg_tmpl  = "fun {m:mcu} __name__ (): register(m, 8)\n\n"
-
-  #reg_tmpl = 'macdef __name__ = $extval(reg(8), "__name__")'
+  reg_tmpl  = "fun {m:mcu} __name__ (): register(m, __width__)\n\n"
 
   isreg = false
   open("/usr/avr/include/avr/iom328p.h", "r").each_line { |line|
@@ -85,8 +83,8 @@ def make_pin_sats file
     if m = /^#define ([A-Z0-9_]+) (\d)/.match(line)
       #file.puts(pin_tmpl.gsub(/__name__/, m[1]).gsub(/__value__/, "int "+m[2]))
     #registers
-    elsif n = /^#define ([A-Z0-9_]+) _SFR_(MEM|IO)8\((0[xX][0-9a-fA-f]+)\)/.match(line)
-      res = reg_tmpl.gsub(/__name__/, n[1]).gsub(/__address__/, n[3])
+    elsif n = /^#define ([A-Z0-9_]+) _SFR_(MEM|IO)(8|16)\((0[xX][0-9a-fA-f]+)\)/.match(line)
+      res = reg_tmpl.gsub(/__name__/, n[1]).gsub(/__width__/, n[3]).gsub(/__address__/, n[4])
       file.puts(res)
       isreg = true
     #add an extra newline after we hit all of a register's pins.
@@ -98,7 +96,7 @@ def make_pin_sats file
 end
 
 def make_pin_dats file
-  reg_tmpl  = "implement __name__<atmega328p>() = $extval(register(atmega328p, 8), \"_SFR_ADDR___type__8(__address__)\")"
+  reg_tmpl  = "implement __name__<atmega328p>() = $extval(register(atmega328p, __width__), \"_SFR_ADDR___type____width__(__address__)\")"
   pin_tmpl = 'macdef __name__ = $extval(int __value__, "__value__")'
   
   isreg = false
@@ -107,8 +105,8 @@ def make_pin_dats file
     if m = /^#define ([A-Z0-9_]+) (\d)/.match(line)
       file.puts(pin_tmpl.gsub(/__name__/, m[1]).gsub(/__value__/, m[2]))
     #registers
-    elsif n = /^#define ([A-Z0-9_]+) _SFR_(MEM|IO)8\((0[xX][0-9a-fA-f]+)\)/.match(line)
-      res = reg_tmpl.gsub(/__name__/, n[1]).gsub(/__type__/, n[2]).gsub(/__address__/, n[3])
+    elsif n = /^#define ([A-Z0-9_]+) _SFR_(MEM|IO)(8|16)\((0[xX][0-9a-fA-f]+)\)/.match(line)
+      res = reg_tmpl.gsub(/__name__/, n[1]).gsub(/__type__/, n[2]).gsub(/__width__/, n[3]).gsub(/__address__/, n[4])
       file.puts(res)
       isreg = true
     #add an extra newline after we hit all of a register's pins.
@@ -120,11 +118,11 @@ def make_pin_dats file
   
 end
 
-open("io.sats", "w+") { |s|
+open("io_bits.sats", "w+") { |s|
   make_bits_sats.call(s)
 }
 
-open("io.cats","w+") { |c|
+open("io_bits.cats","w+") { |c|
   make_bits_cats.call(c)
 }
 

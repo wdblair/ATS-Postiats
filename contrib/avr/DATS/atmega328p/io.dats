@@ -145,6 +145,8 @@ macdef EEDR5 = $extval(int 5, "5")
 macdef EEDR6 = $extval(int 6, "6")
 macdef EEDR7 = $extval(int 7, "7")
 
+implement EEAR<atmega328p>() = $extval(register(atmega328p, 16), "_SFR_ADDR_IO16(0x21)")
+
 implement EEARL<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_IO8(0x21)")
 macdef EEAR0 = $extval(int 0, "0")
 macdef EEAR1 = $extval(int 1, "1")
@@ -464,6 +466,8 @@ implement TCCR1C<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_MEM
 macdef FOC1B = $extval(int 6, "6")
 macdef FOC1A = $extval(int 7, "7")
 
+implement TCNT1<atmega328p>() = $extval(register(atmega328p, 16), "_SFR_ADDR_MEM16(0x84)")
+
 implement TCNT1L<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_MEM8(0x84)")
 macdef TCNT1L0 = $extval(int 0, "0")
 macdef TCNT1L1 = $extval(int 1, "1")
@@ -483,6 +487,8 @@ macdef TCNT1H4 = $extval(int 4, "4")
 macdef TCNT1H5 = $extval(int 5, "5")
 macdef TCNT1H6 = $extval(int 6, "6")
 macdef TCNT1H7 = $extval(int 7, "7")
+
+implement ICR1<atmega328p>() = $extval(register(atmega328p, 16), "_SFR_ADDR_MEM16(0x86)")
 
 implement ICR1L<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_MEM8(0x86)")
 macdef ICR1L0 = $extval(int 0, "0")
@@ -504,6 +510,8 @@ macdef ICR1H5 = $extval(int 5, "5")
 macdef ICR1H6 = $extval(int 6, "6")
 macdef ICR1H7 = $extval(int 7, "7")
 
+implement OCR1A<atmega328p>() = $extval(register(atmega328p, 16), "_SFR_ADDR_MEM16(0x88)")
+
 implement OCR1AL<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_MEM8(0x88)")
 macdef OCR1AL0 = $extval(int 0, "0")
 macdef OCR1AL1 = $extval(int 1, "1")
@@ -523,6 +531,8 @@ macdef OCR1AH4 = $extval(int 4, "4")
 macdef OCR1AH5 = $extval(int 5, "5")
 macdef OCR1AH6 = $extval(int 6, "6")
 macdef OCR1AH7 = $extval(int 7, "7")
+
+implement OCR1B<atmega328p>() = $extval(register(atmega328p, 16), "_SFR_ADDR_MEM16(0x8A)")
 
 implement OCR1BL<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_MEM8(0x8A)")
 macdef OCR1BL0 = $extval(int 0, "0")
@@ -687,6 +697,8 @@ macdef UPM00 = $extval(int 4, "4")
 macdef UPM01 = $extval(int 5, "5")
 macdef UMSEL00 = $extval(int 6, "6")
 macdef UMSEL01 = $extval(int 7, "7")
+
+implement UBRR0<atmega328p>() = $extval(register(atmega328p, 16), "_SFR_ADDR_MEM16(0xC4)")
 
 implement UBRR0L<atmega328p>() = $extval(register(atmega328p, 8), "_SFR_ADDR_MEM8(0xC4)")
 macdef UBRR0_0 = $extval(int 0, "0")
