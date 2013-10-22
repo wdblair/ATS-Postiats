@@ -26,7 +26,7 @@ implement main0 () = let
       This is the "typical" frequency specified on the
       L298 H-Bridge Driver
     *)
-    setval (ICR1H<m>(), ICR1L<m>(), TOP);
+    setval (ICR1<m>(), TOP);
     (*
       Set the Compare Pins to Output
     *)
@@ -34,8 +34,8 @@ implement main0 () = let
   end
   //
   fun set_duty (d: uint): void = begin
-    setval (OCR1AH<m>(), OCR1AL<m>(), d);
-    setval (OCR1BH<m>(), OCR1BL<m>(), d);
+    setval (OCR1A<m>(), d);
+    setval (OCR1B<m>(), d);
   end
   //
   fun brighter (i: uint): void =
