@@ -14,7 +14,7 @@ castfn uint8_of_char (_: char): [n:nat | n < 256] int n
 implement init<mcu>(baud) = {
   val ubrr = F_CPU / (16ul * g0uint2uint_uint_ulint(baud))
   val ubrr = g0uint2uint_ulint_uint(ubrr)
-  val () = setval(UBRR0H<mcu>(), UBRR0L<mcu>(), ubrr)
+  val () = setval(UBRR0<mcu>(), ubrr)
   //Mode is Asynchronous 8-N-1
   val () = clear_and_setbits (UCSR0C<mcu>(), UCSZ01, UCSZ00)
   val () = clear_and_setbits (UCSR0B<mcu>(), RXEN0, TXEN0)

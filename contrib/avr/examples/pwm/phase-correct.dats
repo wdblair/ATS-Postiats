@@ -7,38 +7,34 @@ staload "DATS/atmega328p/io.dats"
 
 stadef m: mcu = atmega328p
 
-(*
- 25kHz = f_cpu / (2 * TOP)
-*)
-#define TOP 319u
+#define TOP 255
 
 implement main0 () = let
   val () = begin
     (*
       Phase Correct PWM using no prescaler
       
-      output waveform on both PB1 and PB2
+      output waveform on both PD5 and PD6
     *)
-    setbits (TCCR1A<m>(), WGM11, COM1A1, COM1B1);
-    setbits (TCCR1B<m>(), CS10, WGM13);
+    setbits (TCCR0A<m>(), WGM00, COM0A1, COM0B1);
+    setbits (TCCR0B<m>(), CS00);
     (*
       We want a 25kHz frequency on the wave form.
       This is the "typical" frequency specified on the
       L298 H-Bridge Driver
     *)
-    setval (ICR1<m>(), TOP);
     (*
       Set the Compare Pins to Output
     *)
-    setbits (DDRB<m>(), DDB1, DDB2);
+    setbits (DDRD<m>(), DDD5, DDD6);
   end
   //
-  fun set_duty (d: uint): void = begin
-    setval (OCR1A<m>(), d);
-    setval (OCR1B<m>(), d);
+  fun set_duty (d: natLt(256)): void = begin
+    setval (OCR0A<m>(), d);
+    setval (OCR0B<m>(), d);
   end
   //
-  fun brighter (i: uint): void =
+  fun brighter (i: natLt(256)): void =
     if i = TOP then
       dimmer (i)
     else let
@@ -47,14 +43,14 @@ implement main0 () = let
     in
       brighter (succ (i))
     end
-  and dimmer (i: uint): void = 
-    if i = 0u then
-      brighter (0u)
+  and dimmer (i: natLt(256)): void = 
+    if i = 0 then
+      brighter (0)
     else let
       val () = set_duty (i)
-      val () = _delay_ms (20.0)
+      val () = _delay_ms (10.0)
     in
       dimmer (pred (i))
     end
   //
-in brighter (0u) end
+in brighter (0) end
