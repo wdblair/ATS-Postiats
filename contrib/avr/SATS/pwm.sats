@@ -1,14 +1,10 @@
 staload "SATS/io.sats"
+staload "SATS/timer.sats"
 
 sortdef pwm_mode = tkind
 
 stacst fast : pwm_mode
 stacst phase_correct : pwm_mode
-
-sortdef timer = tkind
-
-stacst t0 : timer
-stacst t2 : timer
 
 sortdef pwm_channel = tkind 
 

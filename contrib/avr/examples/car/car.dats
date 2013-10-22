@@ -1,5 +1,6 @@
 staload "SATS/main.sats"
 staload "SATS/io.sats"
+staload "SATS/timer.sats"
 staload "SATS/pwm.sats"
 staload "SATS/delay.sats"
 
@@ -50,16 +51,16 @@ in loop(buf, 0) end
 extern castfn ulint_lint (_: ulint): lint
 
 fun left_forward (speed: natLt(256)): void =
-  pwm_set_duty<m><t0><a> (speed)
+  pwm_set_duty<m><timer0><a> (speed)
   
 fun left_backward (speed: natLt(256)): void =
-  pwm_set_duty<m><t0><b> (speed)
+  pwm_set_duty<m><timer0><b> (speed)
       //
 fun right_forward (speed: natLt(256)): void = 
-  pwm_set_duty<m><t2><a> (speed)        
+  pwm_set_duty<m><timer2><a> (speed)        
 
 fun right_backward (speed: natLt(256)): void = 
-  pwm_set_duty<m><t2><b> (speed)
+  pwm_set_duty<m><timer2><b> (speed)
 
 (* Halt all motion *)
 fun stop (): void = begin
@@ -78,8 +79,8 @@ implement main0 () = let
     with no clock prescaler (default)
   *)
   val () = begin
-    pwm_start<m><phase_correct><t0> ();
-    pwm_start<m><phase_correct><t2> ();
+    pwm_start<m><phase_correct><timer0> ();
+    pwm_start<m><phase_correct><timer2> ();
   end
   //Set input for our sonar
   val () = begin
