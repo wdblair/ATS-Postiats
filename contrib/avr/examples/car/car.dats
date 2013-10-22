@@ -6,7 +6,7 @@ staload "SATS/delay.sats"
 staload Serial = "SATS/usart.sats"
 
 staload "DATS/atmega328p/io.dats"
-staload "DATS/atmega328p/pwm.dats"
+staload _ = "DATS/atmega328p/pwm.dats"
 staload _ = "DATS/atmega328p/usart.dats"
 
 #include "HATS/atspre_staload.hats"
