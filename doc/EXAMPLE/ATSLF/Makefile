@@ -18,7 +18,7 @@ ATSDOC=$(ATSHOMEQ)/bin/atsdoc
 
 GCC=gcc
 PATSHOMEQ="$(PATSHOME)"
-PATSOPT=$(PATSHOMEQ)/bin/patsopt-z3
+PATSOPT=$(PATSHOMEQ)/bin/patsopt
 
 ######
 

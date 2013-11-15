@@ -45,6 +45,7 @@ SET (
     pats_symbol.dats
     pats_filename.sats
     pats_filename.dats
+    pats_filename_reloc.dats
     pats_location.sats
     pats_location.dats
     pats_errmsg.sats
