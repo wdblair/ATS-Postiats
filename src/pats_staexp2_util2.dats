@@ -169,13 +169,6 @@ overload s2exp_hnfize_flag with s2exp_hnfize_flag_full
 extern
 fun s2exp_hnfize_flag_smt (s2e: s2exp, flag: &int): s2exp
 
-extern
-
-fun s2exp_hnfize_flag_full (
-  s2e: s2exp, flag: &int
-): s2exp
-
-overload s2exp_hnfize_flag with s2exp_hnfize_flag_full
 
 extern
 fun s2explst_hnfize_flag (s2es: s2explst, flag: &int): s2explst

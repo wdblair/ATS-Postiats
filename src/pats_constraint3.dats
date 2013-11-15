@@ -327,7 +327,12 @@ local
 stadef env = smtenv
 typedef tfun = (&env, s2explst) -<fun1> formula
 
-assume s2cfunmap = s2cstmap (tfun)
+assume 
+s2cfunmap = s2cstmap (tfun)
+var the_s2cfunmap: s2cfunmap = s2cstmap_nil ()
+val (pf_the_s2cfunmap | ()) =
+  vbox_make_view_ptr {s2cfunmap} (view@ (the_s2cfunmap) | &the_s2cfunmap)
+// end of [val]
 
 in // in of [local]
 
