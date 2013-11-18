@@ -86,9 +86,6 @@ local
   staload LM = "libats/SATS/linmap_avltree.sats"
   staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
   
-  staload FM = "libats/SATS/funmap_avltree.sats"
-  staload _(*anon*) = "libats/DATS/funmap_avltree.dats"
-  
   typedef substitution = @(s3ubexp, s2var)
   
   fn cmp (
@@ -286,7 +283,7 @@ in
             s2cstref_equ_cst (the_false_bool, s2c) =>
               $SMT.make_false (env.smt)
         | _ => let
-          val srt = s2cst_get_srt (s2c)
+          val srt   = s2cst_get_srt (s2c)
           val stamp = s2cst_get_stamp (s2c)
           val id    = stamp_get_int (stamp)
         in
@@ -370,12 +367,10 @@ in
     $SMT.assert (env.smt, nprop)
   end
   
-  (* ****** ******  *)
-  
-  implement smtenv_check (env) = let
-    val _ = if log_smt then println!("(check-sat)")
+  implement smtenv_formula_is_valid (env, wff) = let
+    (* TODO: log this in SMT-Lib 2 format *)
   in
-    $SMT.check (env.smt)
+    $SMT.is_valid (env.smt, wff)
   end
   
   (* ****** ******  *)

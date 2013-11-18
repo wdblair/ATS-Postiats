@@ -91,60 +91,60 @@ end
 implement make_fresh_constant (solve, sort) =
     Z3_mk_fresh_const (solve.ctx, "postiats", sort)
 
-implement make_true (solve) = Z3_mk_true(solve.ctx)
+implement make_true (solve) = Z3_mk_true (solve.ctx)
 
-implement make_false (solve) = Z3_mk_false(solve.ctx)
+implement make_false (solve) = Z3_mk_false (solve.ctx)
 
 implement make_not (solve, phi) = let
-  val psi = Z3_mk_not(solve.ctx, phi)
-  val _ = Z3_dec_ref(solve.ctx, phi)
+  val psi = Z3_mk_not (solve.ctx, phi)
+  val _ = Z3_dec_ref (solve.ctx, phi)
 in
   psi
 end
 
 implement make_ite (solve, cond, t, f) = let
-  val ite = Z3_mk_ite(solve.ctx, cond, t, f)
+  val ite = Z3_mk_ite (solve.ctx, cond, t, f)
   val () = begin
-    Z3_dec_ref(solve.ctx, cond);
-    Z3_dec_ref(solve.ctx, t);
-    Z3_dec_ref(solve.ctx, f);
+    Z3_dec_ref (solve.ctx, cond);
+    Z3_dec_ref (solve.ctx, t);
+    Z3_dec_ref (solve.ctx, f);
   end
 in
   ite
 end
 
 implement make_or2 (solve, l, r) = let
-  val phi = Z3_mk_or2(solve.ctx, l, r)
+  val phi = Z3_mk_or2 (solve.ctx, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
   end
 in
   phi
 end
 
 implement make_and2 (solve, l, r) = let
-  val phi = Z3_mk_and2(solve.ctx, l, r)
+  val phi = Z3_mk_and2 (solve.ctx, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
   end
 in
   phi
 end
 
 implement make_eq (solve, l, r) = let
-  val phi = Z3_mk_eq(solve.ctx, l, r)
+  val phi = Z3_mk_eq (solve.ctx, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
   end
 in
   phi
 end
 
 implement make_numeral_int (solve, num, srt) =
-  Z3_mk_int(solve.ctx, num, srt)
+  Z3_mk_int (solve.ctx, num, srt)
   
 implement make_numeral_intinf (solve, num, srt) = let
   val str = intinf_get_string (num)
@@ -160,7 +160,7 @@ end
 implement make_negate (solve, num) = let
   val neg = Z3_mk_unary_minus (solve.ctx, num)
   val () = begin
-    Z3_dec_ref(solve.ctx, num)
+    Z3_dec_ref (solve.ctx, num)
   end
 in
   neg
@@ -169,8 +169,8 @@ end
 implement make_lt (solve, l, r) = let
   val phi = Z3_mk_lt (solve.ctx, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
   end
 in
   phi
@@ -263,13 +263,19 @@ end
 macdef Z3_FALSE = $extval (Z3_lbool, "Z3_L_FALSE")
 macdef Z3_TRUE  = $extval (Z3_lbool, "Z3_L_TRUE")
 
-implement check (solve) = let
-  val res = Z3_solver_check (solve.ctx, solve.slv)
+implement is_valid (solve, formula) = let
+  val () = push (solve)
+  
+  val neg = make_not (solve, formula)
+  val () = assert (solve, neg)
+  val sat = Z3_solver_check (solve.ctx, solve.slv)
+  
+  val () = pop (solve)
 in
-  if res =  Z3_FALSE then
-    ~1
+  if sat = Z3_FALSE then
+    true
   else
-    0
+    false
 end
 
 (* ****** ****** *)

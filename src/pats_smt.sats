@@ -166,9 +166,7 @@ fun make_eq (_: !solver, _: formula, _: formula): formula = "make_eq"
 
 fun assert (_: !solver, _: formula): void = "smt_assert"
 
-sortdef status = {a: int | a >= ~1 ; a <= 1}
-
-fun check (_: !solver): [s: status] int s = "smt_check"
+fun is_valid (_: !solver, prop: formula): bool = "smt_is_valid"
 
 (* ****** ****** *)
 

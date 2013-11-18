@@ -332,13 +332,13 @@ c3nstr_solve_prop
   *)
   val prop = formula_make (env, s2p)
   //
-  val (pushed | ()) = smtenv_push (env)
-  val _ = smtenv_assert_formula (env, prop)
-  val res = smtenv_check (env)
-  val _ = smtenv_pop (pushed | env)
+  val valid = smtenv_formula_is_valid (env, prop)
   //
 in
-  res
+  if valid then
+    ~1 (* Solved *)
+  else
+     0 (* Unsolved *)
 end // end of [c3nstr_solve_prop]
 
 (* ****** ****** *)

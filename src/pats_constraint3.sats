@@ -102,9 +102,10 @@ fun smtenv_pop  (pf: smtenv_push_v | env: &smtenv): void
 fun smtenv_add_svar (env: &smtenv, s2v: s2var): void
 fun smtenv_get_var_exn (env: &smtenv, s2v: s2var): formula
 fun smtenv_assert_sbexp (env: &smtenv, s2e: s2exp): void
-fun smtenv_assert_formula (env: &smtenv, fm: formula): void
 
-fun smtenv_check (env: &smtenv): int
+fun smtenv_formula_is_valid (env: &smtenv, fm: formula): bool
+
+fun smtenv_assert_formula (env: &smtenv, fm: formula): void
 
 fun formula_cst (s2c: s2cst): formula
 
