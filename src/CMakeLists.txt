@@ -271,11 +271,14 @@ IF( SMT_INCLUDE STREQUAL "none")
 ELSEIF( SMT_INCLUDE STREQUAL "z3")
       SET(SMT_LIB z3)
       LIST(APPEND SOURCES pats_smt_z3.dats)
-      CONFIGURE_FILE(pats_constraint3_solve_smt_z3.hats ${CMAKE_SOURCE_DIR}/pats_constraint3_solve_smt.hats)
 ELSEIF( SMT_INCLUDE STREQUAL "yices")
       SET(SMT_LIB yices)
       LIST(APPEND SOURCES pats_smt_yices.dats)
-      CONFIGURE_FILE(pats_constraint3_solve_smt_yices.hats ${CMAKE_SOURCE_DIR}/pats_constraint3_solve_smt.hats)
+      CONFIGURE_FILE(pats_constraint3_solve_smt_yices.hats
+      ${CMAKE_SOURCE_DIR}/pats_constraint3_solve_smt.hats)
+ELSEIF( SMT_INCLUDE STREQUAL "cvc4")
+      SET(SMTLIB cvc4bindings_c_compat)
+      LIST(APPEND SOURCES pats_smt_cvc4.dats)
 ENDIF(SMT_INCLUDE STREQUAL "none")
 
 ATS_COMPILE (
