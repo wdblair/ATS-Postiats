@@ -232,12 +232,12 @@ in
       if found then let
         prval () = opt_unsome {formula} (res)
       in
-        $SMT.formula_free(env.smt, res)
+        $SMT.formula_free (env.smt, res)
       end
       else {
         prval () = opt_unnone {formula} (res)
       }
-    val () = $SMT.sort_free(env.smt, smt_type)
+    val () = $SMT.sort_free (env.smt, smt_type)
   }
   
   implement smtenv_get_var_exn (env, s2v) = let
@@ -251,8 +251,8 @@ in
       prval (free, pf) = __assert () where {
         extern praxi __assert (): (formula @ l -<prf> void, formula @ l)
       }
-      val variable = $SMT.formula_dup(env.smt, !ptr)
-      prval () = free(pf)
+      val variable = $SMT.formula_dup (env.smt, !ptr)
+      prval () = free (pf)
     in
       variable
     end
