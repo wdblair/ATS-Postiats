@@ -49,71 +49,26 @@ staload "./pats_smt.sats"
 
 (* ****** ****** *)
 
-datatype s3ubexp =
-  | S3UBsizeof of (s2zexp)
-  | S3UBcst of (s2cst)
-  | S3UBapp of (s2cst, s2explst)
-  
-fun s3ubexp_get_srt (_: s3ubexp): s2rt
+abstype constraint_solver_type
+typedef constraint_solver = constraint_solver_type
 
-fun s3ubexp_syneq (_: s3ubexp, _: s3ubexp): bool
+absviewtype formula_viewtype
+viewtypedef formula = formula_viewtype
 
-fun s3ubexp_sizeof (_: s2zexp): s3ubexp
-fun s3ubexp_cst (_: s2cst): s3ubexp
-fun s3ubexp_app (_: s2cst, _: s2explst): s3ubexp
+fun make_constraint_solver (): constraint_solver
 
-(* ****** ****** *)
+absview scope_v
 
-(*
-  smtenv  is similar  to s2vbcfenv,  but it  doesn't explicitely  keep
-  track  of  any propositions.
-*)
-absviewt@ype smtenv_viewtype = @{
-  smt= ptr,
-  variables= @{
-    static= ptr,
-    sizeof= ptr,
-    substitutes= ptr
-  },
-  sorts= @{
-    integer= ptr,
-    boolean= ptr
-  },
-  err= int
-}
+fun constraint_solver_push (solver: constraint_solver): (scope_v | void)
+fun constraint_solver_pop  (pf: scope_v | env: constraint_solver): void
 
-(* ****** ****** *)
+fun constraint_solver (env: constraint_solver, s2v: s2var): void
 
-viewtypedef smtenv = smtenv_viewtype
+fun constraint_solver_assert_sbexp (
+  env: constraint_solver, s2e: s2exp
+): void
 
-fun smtenv_nil (env: &smtenv? >> smtenv): void
-fun smtenv_free (env: &smtenv >> smtenv?): void
-
-absview smtenv_push_v
-
-fun formula_from_substitution (env: &smtenv, sub: s3ubexp): formula
-
-fun smtenv_find_substitution (env: &smtenv, sub: s3ubexp): Option(s2var)
-fun smtenv_make_substitution (env: &smtenv, sub: s3ubexp, s2v: s2var): void
-
-fun smtenv_push (env: &smtenv): (smtenv_push_v | void)
-fun smtenv_pop  (pf: smtenv_push_v | env: &smtenv): void
-
-fun smtenv_add_svar (env: &smtenv, s2v: s2var): void
-fun smtenv_get_var_exn (env: &smtenv, s2v: s2var): formula
-fun smtenv_assert_sbexp (env: &smtenv, s2e: s2exp): void
-
-fun smtenv_formula_is_valid (env: &smtenv, fm: formula): bool
-
-fun smtenv_assert_formula (env: &smtenv, fm: formula): void
-
-fun formula_cst (s2c: s2cst): formula
-
-(* ****** ****** *)
-
-fun s2exp_metdec_reduce (
-  met: s2explst, met_bound: s2explst
-): s2exp
+fun constraint_solver_is_valid (env: constraint_solver, exp: s2exp): bool
 
 (* ****** ****** *)
 
@@ -124,121 +79,113 @@ fun s2exp_metdec_reduce (
 (* ****** ****** *)
 
 fun f_identity (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_neg_bool (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_add_bool_bool (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_mul_bool_bool (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_eq_bool_bool (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_neq_bool_bool (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_neg_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_add_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_sub_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_mul_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_ndiv_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_idiv_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_lt_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_lte_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_gt_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_gte_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_eq_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_neq_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_abs_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_sgn_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_max_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_min_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 fun f_ifint_bool_int_int (
-  env: &smtenv, s2es: s2explst
+  env: constraint_solver, s2es: s2explst
 ) : formula
 
 (* ****** ****** *)
 
-fun s2exp_make_h3ypo (env: &smtenv, h3p: h3ypo): s2exp
+fun s2exp_make_h3ypo (env: constraint_solver, h3p: h3ypo): s2exp
 //
-fun formula_make (env: &smtenv, s2e: s2exp): formula
+fun make_true (env: constraint_solver): formula
 //
-fun make_true (env: &smtenv): formula
+fun s2exp_make_h3ypo (env: constraint_solver, h3p: h3ypo): s2exp
 //
-fun s2exp_make_h3ypo (env: &smtenv, h3p: h3ypo): s2exp
-//
-fun formula_make (env: &smtenv, s2e: s2exp): formula
+fun formula_make (env: constraint_solver, s2e: s2exp): formula
 //
 // HX: these are auxiliary functions
 //
 fun formula_make_s2cst_s2explst
 (
-  env: &smtenv, s2c: s2cst, s2es: s2explst
+  env: constraint_solver, s2c: s2cst, s2es: s2explst
 ) : formula // end of [s3exp_make_s2cst_s2explst]
-
-(* ****** ****** *)
-
-#define TAUTOLOGY (1)
-#define UNDECIDED (0)
-#define CONTRADICTION (~1)
 
 (* ****** ****** *)
 

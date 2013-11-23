@@ -233,7 +233,7 @@ end // end of [local]
 local
 
 fun auxeq (
-  env: &smtenv, s2e1: s2exp, s2e2: s2exp
+  s2e1: s2exp, s2e2: s2exp
 ) : s2exp = let
   val s2t1 = s2e1.s2exp_srt
 (*
@@ -255,7 +255,7 @@ end // end of [auxeq]
 
 fun auxbind (
   loc0: location
-, env: &smtenv, s2v1: s2var, s2e2: s2exp
+, s2v1: s2var, s2e2: s2exp
 ) : s2exp = let
 (*
   val () = begin
@@ -264,7 +264,7 @@ fun auxbind (
   end // end of [val]
 *)
   val s2e1 = s2exp_var (s2v1)
-  val s2be = auxeq (env, s2e1, s2e2)
+  val s2be = auxeq (s2e1, s2e2)
   val s2f2 = s2exp2hnf (s2e2)
   val () = trans3_env_hypadd_bind (loc0, s2v1, s2f2)
 in
@@ -278,13 +278,17 @@ s2exp_make_h3ypo
   (env, h3p) = (
   case+ h3p.h3ypo_node of
   | H3YPOprop s2p => s2p
-  | H3YPObind (s2v1, s2e2) => auxbind (h3p.h3ypo_loc, env, s2v1, s2e2)
-  | H3YPOeqeq (s2e1, s2e2) => auxeq (env, s2e1, s2e2)
+  | H3YPObind (s2v1, s2e2) => auxbind (h3p.h3ypo_loc, s2v1, s2e2)
+  | H3YPOeqeq (s2e1, s2e2) => auxeq (s2e1, s2e2)
 ) // end of [s2exp_make_h3ypo]
 
 end // end of [local]
 
 (* ****** ****** *)
+
+(*
+  I'm not sure if these are needed anymore...
+*)
 
 implement s3ubexp_get_srt (s3be) =
   case+ s3be of
@@ -325,7 +329,7 @@ implement s3ubexp_app (func, args) = S3UBapp (func, args)
 local
 
 stadef env = smtenv
-typedef tfun = (&env, s2explst) -<fun1> formula
+typedef tfun = (constraint_solver, s2explst) -<fun1> formula
 
 assume 
 s2cfunmap = s2cstmap (tfun)
@@ -351,6 +355,10 @@ in // in of [local]
     case+ opt of
       | ~Some_vt f => f (env, s2es)
       | ~None_vt _ => let
+        (* 
+          We're  really just  doing a  substitution here  in order  to
+          avoid uninterpreted functions in the constraint.
+        *)
         val function = s2c
         val args = s2es
         val app  = s3ubexp_app (function, args)

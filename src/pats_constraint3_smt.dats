@@ -220,7 +220,7 @@ in
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val _ = if log_smt then println! ("Variables: ", $LM.linmap_size(env.variables.static))
+    val _ = if log_smt then println! ("Variables: ", $LM.linmap_size (env.variables.static))
     //
     val label = if is_int then "Int" else "Bool"
     val _ = if log_smt then println! ("(declare-fun k!", id, " () ", label, ")")
