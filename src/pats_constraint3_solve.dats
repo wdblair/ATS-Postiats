@@ -99,34 +99,34 @@ c3nstr_solve_errmsg (c3t: c3nstr, unsolved: uint): int
 
 extern fun
 c3nstr_solve_main (
-  env: &smtenv, c3t: c3nstr, unsolved: &uint, err: &int
+  env: c3nstr_solver, c3t: c3nstr, unsolved: &uint, err: &int
 ) : int(*status*)
 // end of [c3nstr_solve_main]
 
 extern fun
 c3nstr_solve_prop (
-  loc0: location, env: &smtenv, s2p: s2exp, err: &int
+  loc0: location, env: c3nstr_solver, s2p: s2exp, err: &int
 ) : int(*status*)
 // end of [c3nstr_solve_prop]
 
 extern fun
 c3nstr_solve_itmlst (
   loc0: location
-, env: &smtenv
+, env: c3nstr_solver
 , s3is: s3itmlst, unsolved: &uint, err: &int
 ) : int(*status*) // end of [c3nstr_solve_itmlst]
 
 extern fun
 c3nstr_solve_itmlst_cnstr (
   loc0: location
-, env: &smtenv
+, env: c3nstr_solver
 , s3is: s3itmlst, c3t: c3nstr, unsolved: &uint, err: &int
 ) : int(*status*) // end of [c3nstr_solve_itmlst_cnstr]
 
 extern fun
 c3nstr_solve_itmlst_disj (
   loc0: location
-, env: &smtenv
+, env: c3nstr_solver
 , s3is: s3itmlst, s3iss: s3itmlstlst, unsolved: &uint, err: &int
 ) : int(*status*) // end of [c3nstr_solve_itmlst_disj]
 
@@ -323,16 +323,15 @@ end // end of [c3nstr_solve_main]
 
 implement
 c3nstr_solve_prop
-  (loc0, env, s2p, err) = let
+  (loc0, env, prop, err) = let
   (*
   val () = begin
     print "c3nstr_solve_prop: s2p = ";
     pprint_s2exp (s2p); print_newline ();
   end // end of [val]
   *)
-  val prop = formula_make (env, s2p)
   //
-  val valid = smtenv_formula_is_valid (env, prop)
+  val valid = c3nstr_solver_is_valid (env, prop)
   //
 in
   if valid then
@@ -360,7 +359,7 @@ case+ s3is of
 | list_cons (s3i, s3is) => (
   case+ s3i of
   | S3ITMsvar (s2v) => let
-      val () = smtenv_add_svar (env, s2v)
+      val () = c3nstr_solver_add_svar (env, s2v)
     in
       c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
     end // end of [S3ITMsvar]
@@ -380,7 +379,7 @@ case+ s3is of
           in
             // nothing
           end // end of [S3Eerr]
-        | _ => smtenv_assert_sbexp (env, prop)
+        | _ => c3nstr_solver_assert_sbexp (env, prop)
       ) : void // end of [val]
     in
       c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
@@ -411,13 +410,13 @@ c3nstr_solve_itmlst_cnstr
 (
   loc0, env, s3is, c3t, unsolved, err
 ) = let
-  val (pf1 | ()) = smtenv_push (env)
+  val (pf1 | ()) = c3nstr_solver_push (env)
   val (pf2 | ()) = the_s2varbindmap_push ()
-  val ans1 =
+  val ans1 = 
     c3nstr_solve_main (env, c3t, unsolved, err)
   // end of [val]
   val () = the_s2varbindmap_pop (pf2 | (*none*))
-  val () = smtenv_pop (pf1 | env)
+  val () = c3nstr_solver_pop (pf1 | env)
   val ans2 =
     c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
   // end of [val]
@@ -440,12 +439,12 @@ in
 //
 case+ s3iss of
 | list_cons (s3is, s3iss) => let
-    val (pf1 | ()) = smtenv_push (env)
+    val (pf1 | ()) = c3nstr_solver_push (env)
     val (pf2 | ()) = the_s2varbindmap_push ()
     val s3is1 = list_append (s3is, s3is0)
     val ans = c3nstr_solve_itmlst (loc0, env, s3is1, unsolved, err)
     val () = the_s2varbindmap_pop (pf2 | (*none*))
-    val () = smtenv_pop (pf1 |env)
+    val () = c3nstr_solver_pop (pf1 |env)
   in
     c3nstr_solve_itmlst_disj (loc0, env, s3is0, s3iss, unsolved, err)
   end // end of [list_cons]
@@ -462,15 +461,13 @@ c3nstr_solve (c3t) = let
     print "c3nstr_solve: c3t = "; print_c3nstr(c3t); print_newline ()
   end // end of [val]
 *)
-  var env : smtenv
-  val _ = smtenv_nil(env)
+  val solv = make_c3nstr_solver ()
 //
 // HX-2010-09-09: this is needed for solving top-level constraints!!!
   val () = the_s2varbindmap_freetop ()
 //
   var unsolved: uint = 0u and err: int = 0
-  val _(*status*) = c3nstr_solve_main (env, c3t, unsolved, err)
-  val () = smtenv_free (env)
+  val _(*status*) = c3nstr_solve_main (solv, c3t, unsolved, err)
 in
 //
 case+ 0 of
