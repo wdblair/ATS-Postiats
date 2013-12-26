@@ -50,6 +50,10 @@ typedef Z3_string = string
 
 (* ****** ****** *)
 
+typedef Z3_lbool = int
+
+(* ****** ****** *)
+
 absvtype
 Z3_config_vtype (l:addr) = ptr
 stadef Z3_config = Z3_config_vtype

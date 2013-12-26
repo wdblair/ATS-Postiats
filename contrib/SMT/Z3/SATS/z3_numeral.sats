@@ -49,14 +49,14 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 fun Z3_mk_int
 (
   ctx: !Z3_context, numeral: int, ty: !Z3_sort
-) : Z3_ast = "mac#%" // end of [Z3_mk_int]
+) : Z3_ast = "mac#atscntrb_Z3_mk_int" // end of [Z3_mk_int]
 
 (* ****** ****** *)
 
 fun Z3_mk_numeral
 (
   ctx: !Z3_context, numeral: Z3_string, ty: !Z3_sort
-) : Z3_ast = "mac#%" // end of [Z3_mk_numeral]
+) : Z3_ast = "mac#atscntrb_Z3_mk_numeral" // end of [Z3_mk_numeral]
 
 (* ****** ****** *)
 

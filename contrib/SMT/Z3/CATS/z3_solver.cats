@@ -27,25 +27,62 @@
 
 /* ****** ****** */
 
-#ifndef Z3_Z3_CONSTAPP_CATS
-#define Z3_Z3_CONSTAPP_CATS
+#ifndef Z3_Z3_SOLVER_CATS
+#define Z3_Z3_SOLVER_CATS
 
 /* ****** ****** */
 
-Z3_DECLARE_MK_AST(Z3_mk_const, Z3_symbol sym, Z3_sort ty) {
-  Z3_BODY_MK_AST(Z3_mk_const, sym, ty)
+ATSinline()
+Z3_tactic
+atscntrb_Z3_mk_tactic(Z3_context ctx, Z3_string name) {
+  Z3_tactic s = Z3_mk_tactic(ctx, name);
+  Z3_error_code e = Z3_get_error_code(ctx);
+  if (e != Z3_OK) {
+    fprintf(stderr, "Z3 Error:%s\n", Z3_get_error_msg_ex(ctx, e));
+    exit(1);
+  }
+  Z3_tactic_inc_ref(ctx, s);
+  return s;
 }
 
+#define atscntrb_Z3_tactic_dec_ref Z3_tactic_dec_ref
+
 /* ****** ****** */
 
-Z3_DECLARE_MK_AST(Z3_mk_fresh_const, Z3_string prefix, Z3_sort ty) {
-  Z3_BODY_MK_AST(Z3_mk_fresh_const, prefix, ty)
+ATSinline()
+Z3_solver
+atscntrb_Z3_mk_solver_from_tactic(Z3_context ctx, Z3_tactic t) {
+  Z3_solver s = Z3_mk_solver_from_tactic(ctx, t);
+  Z3_error_code e = Z3_get_error_code(ctx);
+  if (e != Z3_OK) {
+    fprintf(stderr, "Z3 Error: %s\n", Z3_get_error_msg_ex(ctx, e));
+    exit(1);
+  }
+  Z3_solver_inc_ref(ctx, s);
+  return s;
 }
 
+ATSinline()
+Z3_solver
+atscntrb_Z3_mk_solver(Z3_context ctx) {
+  Z3_solver s = Z3_mk_solver(ctx);
+  Z3_error_code e = Z3_get_error_code(ctx);
+  if (e != Z3_OK) {
+    fprintf(stderr, "Z3 Error: %s\n", Z3_get_error_msg_ex(ctx, e));
+    exit(1);
+  }
+  Z3_solver_inc_ref(ctx, s);
+  return s;
+}
+
+#define atscntrb_Z3_solver_assert Z3_solver_assert
+#define atscntrb_Z3_solver_check Z3_solver_check
+#define atscntrb_Z3_solver_dec_ref Z3_solver_dec_ref
+
 /* ****** ****** */
 
-#endif // end of [Z3_Z3_CONSTAPP_CATS]
+#define atscntrb_Z3_get_num_scopes Z3_get_num_scopes
 
 /* ****** ****** */
 
-/* end of [z3_constapp.cats] */
+#endif

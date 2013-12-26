@@ -46,46 +46,12 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 //
 (* ****** ****** *)
 
-fun Z3_stats_to_string
-  (ctx: !Z3_context, s: !Z3_stats): string = "mac#%"
+fun Z3_mk_numeral
+  (ctx: !Z3_context, numeral: Z3_string, ty: !Z3_sort): Z3_ast = "mac#atscntrb_Z3_mk_numeral"
 
-(* ****** ****** *)
-//
-fun Z3_stats_inc_ref
-  (s: !Z3_stats): Z3_stats = "mac#%"
-//
-fun Z3_stats_dec_ref (s: Z3_stats): void = "mac#%"
-//
+fun Z3_mk_int 
+  (ctx: !Z3_context, numeral: int, ty: !Z3_sort): Z3_ast = "mac#atscntrb_Z3_mk_int"
+  
 (* ****** ****** *)
 
-fun Z3_stats_size (s: !Z3_stats): uint = "mac#%"
-
-(* ****** ****** *)
-
-fun Z3_stats_get_key
-  (ctx: !Z3_context, s: !Z3_stats, idx: uint): string = "mac#%"
-// end of [Z3_stats_get_key]
-
-(* ****** ****** *)
-
-fun Z3_stats_is_uint
-  (ctx: !Z3_context, s: !Z3_stats, idx: uint): bool = "mac#%"
-// end of [Z3_stats_is_uint]
-
-fun Z3_stats_get_uint_value
-  (ctx: !Z3_context, s: !Z3_stats, idx: uint): uint = "mac#%"
-// end of [Z3_stats_get_uint_value]
-
-(* ****** ****** *)
-
-fun Z3_stats_is_double
-  (ctx: !Z3_context, s: !Z3_stats, idx: uint): bool = "mac#%"
-// end of [Z3_stats_is_double]
-
-fun Z3_stats_get_double_value
-  (ctx: !Z3_context, s: !Z3_stats, idx: uint): double = "mac#%"
-// end of [Z3_stats_get_double_value]
-
-(* ****** ****** *)
-
-(* end of [z3_stats.sats] *)
+(* end of [z3_numeral.sats] *)

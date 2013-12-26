@@ -126,4 +126,18 @@ end // end of [parse_option]
 
 (* ****** ****** *)
 
+implement parse_c3nstropt_from_stdin () = let
+  val inp = stdin_ref
+  val cs = 
+    fileref_get_file_string (inp)
+  val cs2 = $UN.strptr2string (cs)
+  val js =
+    jsonval_ofstring (cs2)
+  val () = strptr_free (cs)
+in
+  parse_c3nstropt (js)
+end // end of [parse_c3nstropt_from_stdin]
+
+(* ****** ****** *)
+
 (* end of [parsing.dats] *)

@@ -1344,8 +1344,8 @@ main (
   argc, argv
 ) = () where {
 //
-val () =
-println! ("Hello from ATS2(ATS/Postiats)!")
+val () = if isdebug () then
+  println! ("Hello from ATS2(ATS/Postiats)!")
 (*
 val ((*void*)) = patsopt_version (stdout_ref)
 *)

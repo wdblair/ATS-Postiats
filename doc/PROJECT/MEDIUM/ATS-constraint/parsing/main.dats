@@ -52,7 +52,7 @@ val tkr = json_tokener_new_ex (D)
 val () = assertloc (json_tokener2ptr (tkr) > 0)
 //
 val cs =
-  fileref_get_file_string (inp0
+  fileref_get_file_string (inp)
 //
 val jso = let
 //

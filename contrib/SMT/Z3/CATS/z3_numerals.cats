@@ -27,25 +27,19 @@
 
 /* ****** ****** */
 
-#ifndef Z3_Z3_CONSTAPP_CATS
-#define Z3_Z3_CONSTAPP_CATS
+#ifndef Z3_Z3_NUMERALS_CATS
+#define Z3_Z3_NUMERALS_CATS
 
 /* ****** ****** */
 
-Z3_DECLARE_MK_AST(Z3_mk_const, Z3_symbol sym, Z3_sort ty) {
-  Z3_BODY_MK_AST(Z3_mk_const, sym, ty)
+Z3_DECLARE_MK_AST(Z3_mk_numeral, const char * numeral, Z3_sort ty) {
+  Z3_BODY_MK_AST(Z3_mk_numeral, numeral, ty)
+}
+
+Z3_DECLARE_MK_AST(Z3_mk_int, int numeral, Z3_sort ty) {
+  Z3_BODY_MK_AST(Z3_mk_int, numeral, ty)
 }
 
 /* ****** ****** */
 
-Z3_DECLARE_MK_AST(Z3_mk_fresh_const, Z3_string prefix, Z3_sort ty) {
-  Z3_BODY_MK_AST(Z3_mk_fresh_const, prefix, ty)
-}
-
-/* ****** ****** */
-
-#endif // end of [Z3_Z3_CONSTAPP_CATS]
-
-/* ****** ****** */
-
-/* end of [z3_constapp.cats] */
+#endif
