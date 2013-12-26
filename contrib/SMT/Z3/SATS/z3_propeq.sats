@@ -50,13 +50,13 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 Z3_ast Z3_mk_true (__in Z3_context c)
 Create an AST node representing true.
 *)
-fun Z3_mk_true (ctx: !Z3_context): Z3_ast = "mac#atscntrb_Z3_mk_true"
+fun Z3_mk_true (ctx: !Z3_context): Z3_ast = "mac#%"
  
 (*
 Z3_ast Z3_mk_false (__in Z3_context c)
 Create an AST node representing false.
 *)
-fun Z3_mk_false (ctx: !Z3_context): Z3_ast = "mac#atscntrb_Z3_mk_false"
+fun Z3_mk_false (ctx: !Z3_context): Z3_ast = "mac#%"
 
 (* ****** ****** *)
 
@@ -67,28 +67,28 @@ Create an AST node representing l = r.
 fun Z3_mk_eq
 (
   ctx: !Z3_context, left: !Z3_ast, right: !Z3_ast
-) : Z3_ast = "mac#atscntrb_Z3_mk_eq" // end of [Z3_mk_eq]
+) : Z3_ast = "mac#%" // end of [Z3_mk_eq]
 
 (* ****** ****** *)
 
 fun Z3_mk_not
-  (ctx: !Z3_context, a: !Z3_ast): Z3_ast = "mac#atscntrb_Z3_mk_not"
+  (ctx: !Z3_context, a: !Z3_ast): Z3_ast = "mac#%"
 // end of [Z3_mk_not]
   
 (* ****** ****** *)
 
 fun Z3_mk_or2
-  (ctx: !Z3_context, a1: !Z3_ast, a2: !Z3_ast): Z3_ast = "mac#atscntrb_Z3_mk_or2"
+  (ctx: !Z3_context, a1: !Z3_ast, a2: !Z3_ast): Z3_ast = "mac#%"
 // end of [Z3_mk_or2]
 
 fun Z3_mk_and2
-  (ctx: !Z3_context, a1: !Z3_ast, a2: !Z3_ast): Z3_ast = "mac#atscntrb_Z3_mk_and2"
+  (ctx: !Z3_context, a1: !Z3_ast, a2: !Z3_ast): Z3_ast = "mac#%"
 // end of [Z3_mk_and2]
 
 (* ****** ****** *)
 
 fun Z3_mk_ite
-  (ctx: !Z3_context, cond: !Z3_ast, t: !Z3_ast, f: !Z3_ast): Z3_ast = "mac#atscntrb_Z3_mk_ite"
+  (ctx: !Z3_context, cond: !Z3_ast, t: !Z3_ast, f: !Z3_ast): Z3_ast = "mac#%"
 // end of [Z3_mk_ite]
 
 (* ****** ****** *)

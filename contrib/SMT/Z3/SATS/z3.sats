@@ -45,9 +45,9 @@
 
 (* ****** ****** *)
 
-// #define ATS_PACKNAME "ATSCNTRB.Z3"
+#define ATS_PACKNAME "ATSCNTRB.Z3"
 #define ATS_STALOADFLAG 0 // no static loading at run-time
-// #define ATS_EXTERN_PREFIX "atscntrb_" // prefix for external names
+#define ATS_EXTERN_PREFIX "atscntrb_" // prefix for external names
 
 (* ****** ****** *)
 
@@ -61,13 +61,13 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 Z3_config Z3_mk_config ()
 Create a configuration.
 *)
-fun Z3_mk_config (): Z3_config = "mac#"
+fun Z3_mk_config (): Z3_config = "mac#%"
 
 (* 
 void Z3_del_config (__in Z3_config c)
 Delete the given configuration object.
 *)
-fun Z3_del_config (cfg: Z3_config): void = "mac#"
+fun Z3_del_config (cfg: Z3_config): void = "mac#%"
 
 (*
 void Z3_set_param_value
@@ -103,7 +103,7 @@ is similar to the one used in BDD (binary decision diagrams) packages such
 as CUDD.
 *)
 
-fun Z3_mk_context_rc (cfg: !Z3_config): Z3_context = "mac#"
+fun Z3_mk_context_rc (cfg: !Z3_config): Z3_context = "mac#%"
 
 (* ****** ****** *)
 
@@ -112,7 +112,7 @@ void
 Z3_del_context (__in Z3_context c)
 Delete the given logical context.
 *)
-fun Z3_del_context (ctx: Z3_context): void = "mac#"
+fun Z3_del_context (ctx: Z3_context): void = "mac#%"
  
 (* ****** ****** *)
 
@@ -123,7 +123,7 @@ have been created using Z3_mk_context_rc. This function is a NOOP if c
 was created using Z3_mk_context.
 *)
 fun Z3_inc_ref{l:addr}
-  (ctx: !Z3_context, a: !Z3_ast l): Z3_ast (l) = "mac#atscntrb_Z3_inc_ref"
+  (ctx: !Z3_context, a: !Z3_ast l): Z3_ast (l) = "mac#%"
 // end of [Z3_inc_ref]
  
 (*
@@ -133,7 +133,7 @@ Decrement the reference counter of the given AST. The context c should
 have been created using Z3_mk_context_rc. This function is a NOOP if c
 was created using Z3_mk_context.
 *)
-fun Z3_dec_ref (ctx: !Z3_context, a: Z3_ast): void = "mac#"
+fun Z3_dec_ref (ctx: !Z3_context, a: Z3_ast): void = "mac#%"
 
 (* ****** ****** *)
  

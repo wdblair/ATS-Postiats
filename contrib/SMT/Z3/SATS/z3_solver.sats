@@ -52,7 +52,7 @@ Create a new (incremental) solver. This solver also uses a set of builtin
 tactics for handling the first check-sat command, and check-sat commands
 that take more than a given number of milliseconds to be solved.
 *)
-fun Z3_mk_solver (ctx: !Z3_context): Z3_solver = "mac#atscntrb_Z3_mk_solver"
+fun Z3_mk_solver (ctx: !Z3_context): Z3_solver = "mac#%"
 
 (* ****** ****** *)
 

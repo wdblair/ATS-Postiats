@@ -52,7 +52,7 @@ Z3_mk_int_symbol (__in Z3_context c, __in int i)
 Create a Z3 symbol using an integer.
 *)
 fun Z3_mk_int_symbol
-  (ctx: !Z3_context, i: int): Z3_symbol = "mac#atscntrb_Z3_mk_int_symbol"
+  (ctx: !Z3_context, i: int): Z3_symbol = "mac#%"
 // end of [Z3_mk_int_symbol]
    
 (*
@@ -61,7 +61,7 @@ Z3_mk_string_symbol (__in Z3_context c, __in Z3_string s)
 Create a Z3 symbol using a C string.
 *)
 fun Z3_mk_string_symbol
-  (ctx: !Z3_context, str: Z3_string): Z3_symbol = "mac#atscntrb_Z3_mk_string_symbol"
+  (ctx: !Z3_context, str: Z3_string): Z3_symbol = "mac#%"
 // end of [Z3_mk_string_symbol]
 
 (* ****** ****** *)

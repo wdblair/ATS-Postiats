@@ -64,6 +64,10 @@ atscntrb_Z3_inc_ref
 
 /* ****** ****** */
 
+#define atscntrb_Z3_dec_ref Z3_dec_ref
+
+/* ****** ****** */
+
 #define Z3_DECLARE_MK_AST(function, ...)                    \
   ATSinline()                                               \
   Z3_ast                                                    \

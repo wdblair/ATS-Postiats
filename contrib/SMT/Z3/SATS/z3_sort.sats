@@ -48,19 +48,19 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 
 fun Z3_mk_bool_sort (
   ctx: !Z3_context
-): Z3_sort = "mac#atscntrb_Z3_mk_bool_sort"
+): Z3_sort = "mac#%"
 
 fun Z3_mk_int_sort (
   ctx: !Z3_context
-): Z3_sort = "mac#atscntrb_Z3_mk_int_sort"
+): Z3_sort = "mac#%"
 
 fun Z3_sort_inc_ref (
   ctx: !Z3_context, srt: !Z3_sort
-): Z3_sort = "mac#atscntrb_Z3_sort_dup"
+): Z3_sort = "mac#%"
 
 fun Z3_sort_dec_ref (
   ctx: !Z3_context, srt: Z3_sort
-): void = "mac#atscntrb_Z3_sort_dec_ref"
+): void = "mac#%"
 
 (* ****** ****** *)
 
