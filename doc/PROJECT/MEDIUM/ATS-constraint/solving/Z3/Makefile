@@ -63,9 +63,13 @@ all:: solve-z3
 ../../parsing/parsing.o:
 	make -C ../../parsing parsing.o
 
+../solver.o:
+	make -C ../ solver.o
+
 solve-z3: main.dats \
 	../../constraint.o \
-	../../parsing/parsing.o
+	../../parsing/parsing.o \
+	../solver.o
 	$(PATSCC2) $(CFLAGS)  $^ -o $@ $(DATSMEMALLOC) $(LDFLAGS)
 
 ######

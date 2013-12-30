@@ -14,6 +14,7 @@ staload "solving/solver.sats"
 
 dynload "../../dynloadall.dats"
 dynload "../../parsing/dynloadall.dats"
+dynload "../dynloadall.dats"
 
 (* ****** ****** *)
 
