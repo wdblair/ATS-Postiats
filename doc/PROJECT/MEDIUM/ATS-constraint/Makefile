@@ -39,6 +39,10 @@ MYTARGET=MYTARGET
 include $(PATSHOME)/share/atsmake-post.mk
 
 ######
+#
+DATSMEMALLOC=-DATS_MEMALLOC_GCBDW
+#
+######
 
 OBJECTS :=
 OBJECTS += $(MYTARGET_SATS_O)

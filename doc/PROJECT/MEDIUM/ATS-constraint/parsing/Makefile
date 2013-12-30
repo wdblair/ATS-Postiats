@@ -52,6 +52,10 @@ SOURCES_DATS += \
 MYTARGET=MYTARGET
 
 ######
+#
+DATSMEMALLOC=-DATS_MEMALLOC_GCBDW
+#
+######
 
 include $(PATSHOME)/share/atsmake-post.mk
 

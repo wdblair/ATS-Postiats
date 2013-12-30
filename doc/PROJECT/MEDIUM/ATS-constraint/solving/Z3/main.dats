@@ -16,3 +16,5 @@ dynload "../../dynloadall.dats"
 dynload "../../parsing/dynloadall.dats"
 
 (* ****** ****** *)
+
+implement main0 () = ()
