@@ -344,6 +344,64 @@ overload .stamp with s2cst_get_stamp
 overload .stamp with s2var_get_stamp
 overload .stamp with s2Var_get_stamp
 //
+
+(* ****** ****** *)
+
+datatype
+tyreckind =
+  | TYRECKINDbox (* boxed *)
+  | TYRECKINDbox_lin (* boxed *)
+  | TYRECKINDflt0 (* flat *)
+  | TYRECKINDflt1 of stamp (* flat *)
+  | TYRECKINDflt_ext of string  (* flat *)
+// end of [tyreckind]
+
+fun tyreckind_is_box (knd: tyreckind): bool
+fun tyreckind_is_boxlin (knd: tyreckind): bool
+fun tyreckind_is_boxed (knd: tyreckind): bool
+
+fun tyreckind_is_flted (knd: tyreckind): bool
+fun tyreckind_is_fltext (knd: tyreckind): bool
+fun tyreckind_is_nameless (knd: tyreckind): bool
+
+(* ****** ****** *)
+
+abstype label_type = ptr
+typedef label = label_type
+
+(* ****** ****** *)
+
+datatype s2zexp =
+//
+  | S2ZEprf of () (* proof size *)
+  | S2ZEptr of () (* pointer size *)
+//
+  | S2ZEcst of s2cst
+  | S2ZEvar of s2var
+  | S2ZEVar of s2Var
+//
+  | S2ZEextype of (string (*name*), s2zexplstlst)
+  | S2ZEextkind of (string (*name*), s2zexplstlst)
+//
+  | S2ZEapp of (s2zexp, s2zexplst)
+  | S2ZEtyarr of // array size
+      (s2zexp (*element*), s2explst (*dimension*))
+  | S2ZEtyrec of (tyreckind, labs2zexplst)
+//
+  | S2ZEclo of () // HX: for flat closures
+//
+  | S2ZEbot of () // HX: no available info
+// end of [s2zexp]
+
+and labs2zexp = SZLABELED of (label, s2zexp)
+
+where
+s2zexplst = List (s2zexp)
+and
+s2zexplstlst = List (s2zexplst)
+and
+labs2zexplst = List (labs2zexp)
+
 (* ****** ****** *)
 
 (* end of [constraint.sats] *)

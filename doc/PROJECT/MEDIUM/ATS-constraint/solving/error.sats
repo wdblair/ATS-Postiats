@@ -1,0 +1,1 @@
+fun abort {a:t@ype} (): a

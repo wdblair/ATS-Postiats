@@ -30,7 +30,16 @@ PATSOPT=$(PATSHOMEQ)/bin/patsopt
 PATSCC2=\
   $(PATSCC) \
   -atsccomp "$(CCOPT)" \
-  -IIATS $(PATSHOME) -IIATS $(PATSHOME)/ccomp/runtime
+  -IIATS $(PATSHOME) -IIATS $(PATSHOME)/ccomp/runtime \
+  -IIATS $(PATSHOME)/contrib \
+  -IIATS ../../ 
+
+######
+
+CFLAGS :=
+CFLAGS += -I$(PATSHOMEQ)
+CFLAGS += -I$(PATSHOMEQ)/ccomp/runtime
+CFLAGS += $(shell pkg-config --cflags json-c)
 
 ######
 
@@ -57,7 +66,7 @@ all:: solve-z3
 solve-z3: main.dats \
 	../../constraint.o \
 	../../parsing/parsing.o
-	$(PATSCC2) $^ -o $@ $(DATSMEMALLOC) $(LDFLAGS)
+	$(PATSCC2) $(CFLAGS)  $^ -o $@ $(DATSMEMALLOC) $(LDFLAGS)
 
 ######
 
