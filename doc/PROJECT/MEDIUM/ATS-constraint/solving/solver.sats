@@ -95,10 +95,22 @@ fun c3nstr_solve (c3t: c3nstr): void
 
 (* ****** ****** *)
 
-abstype s2cfunmap
+abstype s2cstmap (a:t@ype) = ptr
+
+fun {a:t@ype}
+s2cstmap_nil (): s2cstmap (a)
+
+fun {a:t@ype} 
+s2cstmap_find (store: s2cstmap (a), key: s2cst): a
+
+fun {a:t@ype}
+s2cstmap_add (store: s2cstmap (a), key: s2cst, itm: a): s2cstmap (a)
+
+(* ****** ****** *)
+
+abstype s2cfunmap = ptr
 
 fun constraint3_initialize (): void
-fun constraint3_initialize_map (map: &s2cfunmap): void
 
 (* ****** ****** *)
 
