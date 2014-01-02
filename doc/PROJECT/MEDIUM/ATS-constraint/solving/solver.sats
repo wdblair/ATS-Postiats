@@ -108,7 +108,7 @@ s2cstmap_add (store: s2cstmap (a), key: s2cst, itm: a): s2cstmap (a)
 
 (* ****** ****** *)
 
-abstype s2cfunmap = ptr
+absvtype s2cfunmap = ptr
 
 fun constraint3_initialize (): void
 
@@ -151,6 +151,10 @@ fun f_sub_int_int (
 ) : formula
 
 fun f_mul_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_div_int_int (
   env: &smtenv, s2es: s2explst
 ) : formula
 
@@ -203,5 +207,9 @@ fun f_min_int_int (
 ) : formula
 
 fun f_ifint_bool_int_int (
+  env: &smtenv, s2es: s2explst
+) : formula
+
+fun f_lte_cls_cls (
   env: &smtenv, s2es: s2explst
 ) : formula

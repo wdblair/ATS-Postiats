@@ -51,6 +51,15 @@ c3nstr_solve_itmlst (
 extern fun
 c3nstr_solve_errmsg (c3t: c3nstr, unsolved: uint): int
 
+implement c3nstr_solve_errmsg (c3t, unsolved) = 0 where {
+  val () =
+    if unsolved > 0u then let
+      val out = stdout_ref
+    in
+      fprintln! (out, "Unsolved constraint: ", c3t)
+    end
+}
+
 implement
 c3nstr_solve_prop
   (loc0, env, s2p, err) = let
