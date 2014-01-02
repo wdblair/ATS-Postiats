@@ -105,7 +105,8 @@ in
   end
   
   implement smtenv_free (env) = let
-   val statics = $LM.linmap_listize<s2var,formula> (env.variables.statics)
+   val map = env.variables.statics
+   val statics = $LM.linmap_listize<s2var,formula> (map)
    //
    viewtypedef binding = @(s2var, formula)
    //
