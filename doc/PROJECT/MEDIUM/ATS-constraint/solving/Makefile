@@ -42,9 +42,11 @@ all:: solver.o
 
 solver.o: \
   solver_sats.o \
+  smt_sats.o    \
   solver_dats.o \
   error_sats.o  \
   error_dats.o  \
+  solver_smt_dats.o \
   dynloadall_dats.o ; ld -r -o $@ $^
 
 ######

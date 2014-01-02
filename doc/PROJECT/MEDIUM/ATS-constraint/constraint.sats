@@ -137,6 +137,8 @@ overload compare with compare_s2var_s2var
 
 fun s2var_make (symbol, stamp): s2var
 
+fun s2var_make_srt (s2rt): s2var
+
 (* ****** ****** *)
 //
 fun s2var_get_name (s2var):<> symbol

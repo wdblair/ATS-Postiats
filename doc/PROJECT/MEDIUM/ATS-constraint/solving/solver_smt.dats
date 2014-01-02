@@ -32,6 +32,13 @@
 //
 (* ****** ****** *)
 
+#include
+"share/atspre_define.hats"
+#include
+"share/atspre_staload.hats"
+
+(* ****** ****** *)
+
 staload UN = "prelude/SATS/unsafe.sats"
 staload _(*anon*) = "prelude/DATS/list_vt.dats"
 
@@ -39,6 +46,7 @@ staload _(*anon*) = "prelude/DATS/list_vt.dats"
 
 staload "constraint.sats"
 staload "solving/error.sats"
+staload "solving/solver.sats"
 staload SMT = "solving/smt.sats"
 
 (* ****** ****** *)
@@ -57,16 +65,16 @@ staload "solving/error.sats"
 val log_smt = false
 
 (* ****** ****** *)
-////
+
+staload LM = "libats/SATS/linmap_avltree.sats"
+staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
+
 local
-  staload LM = "libats/SATS/linmap_avltree.sats"
-  staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
-  
   typedef substitution = @(s3ubexp, s2var)
   
-  fn cmp (
+  fun cmp (
     x1: s2var, x2: s2var
-  ) :<cloref> int = compare_s2var_s2var (x1, x2)
+  ) : int = compare_s2var_s2var (x1, x2)
   
   viewtypedef smtenv_struct = @{
     smt= solver,
@@ -74,8 +82,8 @@ local
       (* 
         Map static variables to their respective SMT formulas
       *)
-      static= $LM.map(s2var, formula),
-      substitutes= List_vt(substitution)
+      statics= $LM.map (s2var, formula),
+      substitutes= List0_vt (substitution)
     },
     sorts = @{
       integer= sort,
@@ -89,36 +97,38 @@ local
 in
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
-    env.variables.static := $LM.linmap_make_nil ();
-    env.variables.substitutes := list_vt_nil();
+    env.variables.statics := $LM.linmap_make_nil{s2var,formula} ();
+    env.variables.substitutes := list_vt_nil ();
     env.sorts.integer := $SMT.make_int_sort (env.smt);
     env.sorts.boolean := $SMT.make_bool_sort (env.smt);
     env.err := 0;
   end
   
   implement smtenv_free (env) = let
-   val static = $LM.linmap_listize_free (env.variables.static)
+   val statics = $LM.linmap_listize<s2var,formula> (env.variables.statics)
    //
    viewtypedef binding = @(s2var, formula)
    //
-   fun release_vars (slv: !solver, vs: List_vt(binding)): void = 
+   fun release_vars (slv: !solver, vs: List_vt(binding)): void =
     case+ vs of 
       | ~list_vt_nil () => ()
-      | ~list_vt_cons (@(_, v), vss) => let
+      | ~list_vt_cons (bind, vss) => let
+        val @(_, v) = bind
         val _ = $SMT.formula_free (slv, v)
       in 
         release_vars (slv, vss)
       end
    //
-   in begin
-      release_vars (env.smt, static);
-      list_vt_free(env.variables.substitutes);
+   in 
+      release_vars (env.smt, statics);
+      list_vt_free (env.variables.substitutes);
       $SMT.sort_free (env.smt, env.sorts.integer);
       $SMT.sort_free (env.smt, env.sorts.boolean);
-      $SMT.delete_solver (env.smt);
-     end
+      $SMT.delete_solver (env.smt)
    end
   
+  (* 
+   
   implement formula_from_substitution (env, s3ub) = let
     val srt = s3ubexp_get_srt (s3ub)
     val opt = smtenv_find_substitution (env, s3ub)
@@ -130,33 +140,46 @@ in
         val _ = smtenv_make_substitution (env, s3ub, s2v)
         val _ = smtenv_add_svar (env, s2v)
        in
-        smtenv_get_var_exn(env, s2v)
+          smtenv_get_var_exn (env, s2v)
        end
   end
   
   implement smtenv_find_substitution (env, sub) = let
     fun find_loop (
-      xs: &List_vt(substitution), needle: s3ubexp
-    ): Option(s2var) =
+      xs: &List0_vt(substitution), needle: s3ubexp
+    ): Option (s2var) =
       case+ xs of
-        | list_vt_cons(@(s3ub, s2v), !xss) =>
+        | @list_vt_cons (sub, xss) => let
+          val @(s3ub, s2v) = sub
+        in
           if s3ubexp_syneq (needle, s3ub) then let
-            val _ = fold@(xs)
+            val _ = fold@ (xs)
            in Some(s2v) end
           else let
-            val opt = find_loop(!xss, needle)
-            val _ = fold@(xs)
+            val opt = find_loop (xss, needle)
+            val _ = fold@ (xs)
           in opt end
-        | list_vt_nil() => let
-          val () = fold@(xs)
+        end
+        | @list_vt_nil () => let
+          val () = fold@ (xs)
         in None() end
     //
   in
-    find_loop(env.variables.substitutes, sub)
+    find_loop (env.variables.substitutes, sub)
   end
+
+  implement smtenv_make_substitution (env, exp, s2v) = {
+    val sub = @(exp, s2v)
+    val () = env.variables.substitutes := 
+      list_vt_cons {substitution} (sub, env.variables.substitutes)
+  }
+  
+  *)
+  
+end
+  
+////
    
-  implement smtenv_make_substitution (env, sub, s2v) =
-    env.variables.substitutes := list_vt_cons(@(sub, s2v), env.variables.substitutes)
     
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")

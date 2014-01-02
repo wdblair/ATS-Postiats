@@ -4,13 +4,7 @@
 *)
 
 staload "constraint.sats"
-
-(*
-  These two types are determined by the underlying SMT
-  solvers.
-*)
-absvt@ype solver = ptr
-absvt@ype formula = ptr
+staload "solving/smt.sats"
 
 datatype s3ubexp =
   | S3UBsizeof of (s2zexp)
