@@ -23,7 +23,6 @@ absviewt@ype smtenv_viewtype = @{
   smt= ptr,
   variables= @{
     statics= ptr,
-    sizeof= ptr,
     substitutes= ptr
   },
   sorts= @{

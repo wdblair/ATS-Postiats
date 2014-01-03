@@ -40,7 +40,6 @@
 (* ****** ****** *)
 
 staload UN = "prelude/SATS/unsafe.sats"
-staload _(*anon*) = "prelude/DATS/list_vt.dats"
 
 (* ****** ****** *)
 
@@ -53,7 +52,6 @@ staload SMT = "solving/smt.sats"
 
 viewtypedef solver = $SMT.solver
 viewtypedef formula = $SMT.formula
-
 viewtypedef sort = $SMT.sort
 
 (* ****** ****** *)
@@ -66,24 +64,31 @@ val log_smt = false
 
 (* ****** ****** *)
 
-staload LM = "libats/SATS/linmap_avltree.sats"
-staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
-
 local
-  typedef substitution = @(s3ubexp, s2var)
+  staload TreeMap = "libats/SATS/linmap_avltree.sats"
+  staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
+
+  staload ListMap = "libats/SATS/linmap_list.sats"
+  staload _(*anon*) = "libats/DATS/linmap_list.dats"
   
   fun cmp (
     x1: s2var, x2: s2var
   ) : int = compare_s2var_s2var (x1, x2)
   
+  implement $TreeMap.compare_key_key<s2var> (k1, k2) = 
+    $effmask_all compare_s2var_s2var (k1, k2)
+  
+  implement $ListMap.equal_key_key<s3ubexp> (s1, s2) =
+    $effmask_all s3ubexp_syneq (s1, s2)
+    
   viewtypedef smtenv_struct = @{
     smt= solver,
     variables= @{
       (* 
         Map static variables to their respective SMT formulas
       *)
-      statics= $LM.map (s2var, formula),
-      substitutes= List0_vt (substitution)
+      statics= $TreeMap.map (s2var, formula),
+      substitutes= $ListMap.map (s3ubexp, s2var)
     },
     sorts = @{
       integer= sort,
@@ -95,22 +100,25 @@ local
   assume smtenv_viewtype = smtenv_struct
   
 in
+
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
-    env.variables.statics := $LM.linmap_make_nil{s2var,formula} ();
-    env.variables.substitutes := list_vt_nil ();
+    env.variables.statics := 
+      $TreeMap.linmap_make_nil {s2var,formula} ();
+    env.variables.substitutes := 
+      $ListMap.linmap_make_nil {s3ubexp, s2var} ();
     env.sorts.integer := $SMT.make_int_sort (env.smt);
     env.sorts.boolean := $SMT.make_bool_sort (env.smt);
     env.err := 0;
   end
-  
+
   implement smtenv_free (env) = let
    val map = env.variables.statics
-   val statics = $LM.linmap_listize<s2var,formula> (map)
+   val statics = $TreeMap.linmap_listize<s2var,formula> (map)
    //
    viewtypedef binding = @(s2var, formula)
    //
-   fun release_vars (slv: !solver, vs: List_vt(binding)): void =
+   fun release_vars (slv: !solver, vs: List_vt (binding)): void =
     case+ vs of 
       | ~list_vt_nil () => ()
       | ~list_vt_cons (bind, vss) => let
@@ -122,14 +130,12 @@ in
    //
    in 
       release_vars (env.smt, statics);
-      list_vt_free (env.variables.substitutes);
+      $ListMap.linmap_free (env.variables.substitutes);
       $SMT.sort_free (env.smt, env.sorts.integer);
       $SMT.sort_free (env.smt, env.sorts.boolean);
       $SMT.delete_solver (env.smt)
    end
-  
-  (* 
-   
+
   implement formula_from_substitution (env, s3ub) = let
     val srt = s3ubexp_get_srt (s3ub)
     val opt = smtenv_find_substitution (env, s3ub)
@@ -146,42 +152,21 @@ in
   end
   
   implement smtenv_find_substitution (env, sub) = let
-    fun find_loop (
-      xs: &List0_vt(substitution), needle: s3ubexp
-    ): Option (s2var) =
-      case+ xs of
-        | @list_vt_cons (sub, xss) => let
-          val @(s3ub, s2v) = sub
-        in
-          if s3ubexp_syneq (needle, s3ub) then let
-            val _ = fold@ (xs)
-           in Some(s2v) end
-          else let
-            val opt = find_loop (xss, needle)
-            val _ = fold@ (xs)
-          in opt end
-        end
-        | @list_vt_nil () => let
-          val () = fold@ (xs)
-        in None() end
-    //
+    val optv = 
+      $ListMap.linmap_search_opt<s3ubexp, s2var> (env.variables.substitutes, sub)
   in
-    find_loop (env.variables.substitutes, sub)
+    case+ optv of
+      | ~Some_vt (s2v) => Some {s2var} (s2v)
+      | ~None_vt () => None {s2var} ()
   end
 
   implement smtenv_make_substitution (env, exp, s2v) = {
-    val sub = @(exp, s2v)
-    val () = env.variables.substitutes := 
-      list_vt_cons {substitution} (sub, env.variables.substitutes)
+    var res : s2var
+    val _ = 
+      $ListMap.linmap_insert (env.variables.substitutes, exp, s2v, res)
+    prval () = opt_clear (res)
   }
   
-  *)
-  
-end
-  
-////
-   
-    
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")
     val _ = $SMT.push (env.smt)
@@ -197,68 +182,63 @@ end
       extern praxi __pop (pf: smtenv_push_v): void
     }
   }
-  
-  implement smtenv_add_svar (env, s2v) = {
+
+  implement smtenv_add_svar (env, s2v) = let
     val type = s2var_get_srt (s2v)
-    var is_int : bool
     val smt_type = (
-      if s2rt_is_int (type) orelse s2rt_is_addr (type)
-        orelse s2rt_is_char (type) then let
-        val _ = is_int := true
-      in
+      if s2rt_is_int (type) orelse s2rt_is_addr (type) then 
          $SMT.make_int_sort (env.smt)
-      end
-      else let 
-        val _ = is_int := false
-      in
+      else
         $SMT.make_bool_sort (env.smt)
-      end
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val _ = if log_smt then println! ("Variables: ", $LM.linmap_size(env.variables.static))
-    //
-    val label = if is_int then "Int" else "Bool"
-    val _ = if log_smt then println! ("(declare-fun k!", id, " () ", label, ")")
+    val () = if log_smt then 
+      println! ("Variables: ", 
+        $TreeMap.linmap_size<s2var, formula> (env.variables.statics)
+    )
     //
     val fresh = $SMT.make_int_constant (env.smt, id, smt_type)
+    val () = $SMT.sort_free(env.smt, smt_type)
     var res: formula?
-    val found = $LM.linmap_insert (env.variables.static, s2v, fresh, cmp, res)
-    val () =
+    val found =
+      $TreeMap.linmap_insert<s2var, formula> (
+        env.variables.statics, s2v, fresh, res
+      )
+  in
       if found then let
         prval () = opt_unsome {formula} (res)
       in
-        $SMT.formula_free(env.smt, res)
+        $SMT.formula_free (env.smt, res)
       end
       else {
         prval () = opt_unnone {formula} (res)
       }
-    val () = $SMT.sort_free(env.smt, smt_type)
-  }
-  
+  end
+
   implement smtenv_get_var_exn (env, s2v) = let
-    val [l:addr] ptr = $LM.linmap_search_ref (env.variables.static, s2v, cmp)
+    val [l:addr] ptr = 
+      $TreeMap.linmap_search_ref<s2var, formula> (env.variables.statics, s2v)
   in
-    if ptr = null then
-      abort () where {
-        val _ = prerrln! ("SMT formula not found for s2var: ", s2v)
+    if iseqz{formula} (ptr) then
+      $raise FatalErrorException () where {
+        val () = println! ("SMT formula not found for s2var") 
       }
+      (*
+        The C code from this wouldn't compile:
+        abort {formula} ()
+      *)
     else let
-      prval (free, pf) = __assert () where {
-        extern praxi __assert (): (formula @ l -<prf> void, formula @ l)
-      }
-      val variable = $SMT.formula_dup(env.smt, !ptr)
-      prval () = free(pf)
+      val ptr1 = cptr2ptr {formula} (ptr)
+      val (pf, free | p) = $UN.ptr1_vtake {formula} (ptr1)
+      val variable = $SMT.formula_dup (env.smt, !ptr1)
+      prval () = free (pf)
     in
       variable
     end
   end
 
-  (* ****** ****** *)
-  
-  implement formula_make (env, s2e) = let
-    val s2e = s2exp_hnfize_smt (s2e)
-  in
+  implement formula_make (env, s2e) =
     case+ s2e.s2exp_node of
       | S2Eint i =>
         $SMT.make_numeral (env.smt, i, env.sorts.integer)
@@ -336,8 +316,14 @@ end
       in
         stub
       end // end of [_]
-  end // end of [formula_make]
+
+end // end of [local]
+
+////
+
+end
   
+////
   (* ****** ****** *)
   
   implement make_true (env) = $SMT.make_true (env.smt)

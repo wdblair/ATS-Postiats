@@ -23,6 +23,8 @@ overload fprint with fprint_stamp
 
 fun stamp_make (int): stamp
 
+fun stamp_get_int (stamp): int
+
 (* ****** ****** *)
 //
 fun
@@ -84,6 +86,10 @@ fun
 fprint_s2rt: fprint_type (s2rt)
 overload fprint with fprint_s2rt
 
+fun s2rt_is_int (s2rt): bool
+fun s2rt_is_addr (s2rt): bool
+fun s2rt_is_bool (s2rt): bool
+
 (* ****** ****** *)
 
 abstype s2cst_type = ptr
@@ -143,6 +149,7 @@ fun s2var_make_srt (s2rt): s2var
 //
 fun s2var_get_name (s2var):<> symbol
 fun s2var_get_stamp (s2var):<> stamp
+fun s2var_get_srt (s2var):<> s2rt
 //
 (* ****** ****** *)
   
