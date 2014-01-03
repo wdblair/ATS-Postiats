@@ -121,6 +121,7 @@ fun s2cst_make (symbol, stamp): s2cst
 //
 fun s2cst_get_name (s2cst):<> symbol
 fun s2cst_get_stamp (s2cst):<> stamp
+fun s2cst_get_srt (s2cst):<> s2rt
 //
 (* ****** ****** *)
 
@@ -225,6 +226,10 @@ fun s2exp_make_node
 
 fun s2exp_cst (s2t: s2rt, s2c: s2cst): s2exp
 fun s2exp_var (s2t: s2rt, s2v: s2var): s2exp
+
+fun s2exp_from_var (s2var): s2exp
+
+fun s2exp_eqeq (s2exp, s2exp): s2exp
 
 (* ****** ****** *)
 
@@ -381,8 +386,6 @@ fun tyreckind_is_nameless (knd: tyreckind): bool
 abstype label_type = ptr
 typedef label = label_type
 
-(* ****** ****** *)
-
 datatype s2zexp =
 //
   | S2ZEprf of () (* proof size *)
@@ -413,6 +416,11 @@ and
 s2zexplstlst = List (s2zexplst)
 and
 labs2zexplst = List (labs2zexp)
+
+(* ****** ****** *)
+
+fun fprint_s2zexp: fprint_type (s2zexp)
+overload fprint with fprint_s2zexp
 
 (* ****** ****** *)
 

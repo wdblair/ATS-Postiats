@@ -10,6 +10,44 @@ staload "solving/solver.sats"
 
 staload ERR = "solving/error.sats"
 
+(* ****** ****** *)
+
+local
+
+fun auxeq (
+  env: &smtenv, s2e1: s2exp, s2e2: s2exp
+) : s2exp = let
+  val s2t1 = s2e1.s2exp_srt
+//
+in
+  s2exp_eqeq (s2e1, s2e2)
+end // end of [auxeq]
+
+fun auxbind (
+  loc0: loc_t
+, env: &smtenv, s2v1: s2var, s2e2: s2exp
+) : s2exp = let
+  val s2e1 = s2exp_from_var (s2v1)
+  val s2be = auxeq (env, s2e1, s2e2)
+in
+  s2be
+end // end of [aux_bind]
+
+in (* in of [local] *)
+
+implement
+s2exp_make_h3ypo
+  (env, h3p) = (
+  case+ h3p.h3ypo_node of
+  | H3YPOprop s2p => s2p
+  | H3YPObind (s2v1, s2e2) => auxbind (h3p.h3ypo_loc, env, s2v1, s2e2)
+  | H3YPOeqeq (s2e1, s2e2) => auxeq (env, s2e1, s2e2)
+) // end of [s2exp_make_h3ypo]
+
+end // end of [local]
+
+(* ****** ****** *)
+
 extern
 fun c3nstr_solve_main 
   (env: &smtenv, c3t: c3nstr, unsolved : &uint, error: &int): int

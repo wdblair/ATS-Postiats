@@ -35,10 +35,10 @@ parse_s2exp
   (jsv0) = let
 //
 val-~Some_vt (jsv) =
-  jsonval_get_field (jsv0, "s2exp_srt") 
+  jsonval_get_field (jsv0, "s2exp_srt")
 val s2t = parse_s2rt (jsv)
 val-~Some_vt (jsv) =
-  jsonval_get_field (jsv0, "s2exp_node") 
+  jsonval_get_field (jsv0, "s2exp_node")
 val node = parse_s2exp_node (jsv)
 //
 in
@@ -58,6 +58,10 @@ extern
 fun parse_S2Evar (jsonval): s2exp_node
 extern
 fun parse_S2EVar (jsonval): s2exp_node
+extern
+fun parse_S2Esizeof (jsonval): s2exp_node
+extern
+fun parse_S2Eeqeq (jsonval): s2exp_node
 
 (* ****** ****** *)
 

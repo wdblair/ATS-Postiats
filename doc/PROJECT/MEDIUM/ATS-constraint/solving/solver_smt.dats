@@ -238,7 +238,9 @@ in
     end
   end
 
-  implement formula_make (env, s2e) =
+  implement formula_make (env, s2e) = let
+    val out = stdout_ref
+  in
     case+ s2e.s2exp_node of
       | S2Eint i =>
         $SMT.make_numeral (env.smt, i, env.sorts.integer)
@@ -286,50 +288,47 @@ in
               | S2Ecst s2c1 =>
                 formula_make_s2cst_s2explst (env, s2c1, s2es2)
               //
-              | _ => abort () where {
-                val _ = prerrln! ("formula_make: Invalid application ", s2e)
+              | _ => $raise FatalErrorException () where {
+                val _ = fprintln! (out, "formula_make: Invalid application ", s2e)
               }
           ) // end of [S2Eapp]
-      | S2Emetdec (met, met_bound) => let
-        val s2e_met = s2exp_metdec_reduce (met, met_bound)
+      | S2Emetdec (s2e_met) => let
       in
         formula_make (env, s2e_met)
       end // end of [S3Emetdec]
+      (*
+        Ignore size of for now, taking s2zexp_make_s2exp
+        out of the default typechecker seems a little tricky
+        right now
       | S2Esizeof (s2exp) => let
         val s2ze = s2zexp_make_s2exp (s2exp)
         val s3ub = s3ubexp_sizeof (s2ze)
       in
         formula_from_substitution (env, s3ub)
       end
+      *)
       | _ => let
         val srt = s2e.s2exp_srt
         val stub = (
-            if s2rt_is_int (srt) orelse s2rt_is_addr (srt)
-                orelse s2rt_is_char (srt) then
+            if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
               $SMT.make_fresh_constant (env.smt, env.sorts.integer)
             else 
               $SMT.make_fresh_constant (env.smt, env.sorts.boolean)
         ): formula
         (* TODO: Make this error mean something to calling functions *)
         val _ = env.err := env.err + 1
-        val _ = prerrln! ("warning(3): formula_make: s2e =:", s2e)
+        val _ = fprintln! (out, "warning(3): formula_make: s2e =:", s2e)
       in
         stub
       end // end of [_]
-
-end // end of [local]
-
-////
-
-end
-  
-////
+   end // end of [formula_make]
+   
   (* ****** ****** *)
   
   implement make_true (env) = $SMT.make_true (env.smt)
   
   (* ****** ****** *)
-    
+
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
     val _ = if log_smt then println! (
@@ -338,15 +337,6 @@ end
   in 
     $SMT.assert (env.smt, assumption)
   end
-
-  implement smtenv_assert_formula (env, prop) = let
-    val nprop = $SMT.make_not (env.smt, prop)
-    val _ = if log_smt then println! (
-      "(assert ", $SMT.string_of_formula (env.smt, nprop), ")"
-    )
-  in
-    $SMT.assert (env.smt, nprop)
-  end
   
   implement smtenv_formula_is_valid (env, wff) = let
     (* TODO: log this in SMT-Lib 2 format *)
@@ -354,8 +344,6 @@ end
     $SMT.is_valid (env.smt, wff)
   end
   
-  (* ****** ******  *)
-
   #define :: list_cons
   
   implement f_identity (env, s2es) = let
@@ -363,6 +351,9 @@ end
   in
     formula_make (env, s2e1)
   end // end of [f_identity]
+
+(* ****** ******  *)
+
 
   implement  f_neg_bool (env, s2es) = let
     val- s2e :: _ = s2es
@@ -512,7 +503,7 @@ end
   in
     $SMT.make_ite (env.smt, check_lt, neg, fie1'')
   end
-  
+
   implement f_sgn_int (env, s2es) = let
     val- s2e1 :: _ = s2es
     //
@@ -533,7 +524,7 @@ end
   in
     cond2
   end // end of [f_sgn_int]
- 
+
   implement f_max_int_int (env, s2es) = let
     val- s2e1 :: s2e2 ::  _ = s2es
     //
@@ -571,4 +562,4 @@ end
     $SMT.make_ite (env.smt, cond, t, f)
   end // end of [f_ifint_bool_int_int]
   
-end
+end // end of [local]
