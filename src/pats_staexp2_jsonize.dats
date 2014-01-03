@@ -234,11 +234,11 @@ case+ s2e0.s2exp_node of
   end // end of [S2Eapp]
 //
 | S2Emetdec
-    (s2es1, s2es2) => let
-    val s2es1 = jsonize_s2explst (flag, s2es1)
-    and s2es2 = jsonize_s2explst (flag, s2es2)
+    (met, met_bound) => let
+    val constraint = s2exp_metdec_reduce (met, met_bound)
+    val s2e = jsonize_s2exp (flag, constraint)
   in
-    jsonval_conarg2 ("S2Emetdec", s2es1(*met*), s2es2(*bound*))
+    jsonval_conarg1 ("S2Emetdec", s2e(*met*))
   end // end of [S2Emetdec]
 //
 | S2Einvar (s2e) =>

@@ -204,12 +204,11 @@ parse_S2Emetdec
   (jsv0) = let
 //
 val-JSONarray(jsvs) = jsv0
-val () = assertloc (length(jsvs) >= 2)
-val s2es1 = parse_list<s2exp> (jsvs[0], parse_s2exp)
-val s2es2 = parse_list<s2exp> (jsvs[1], parse_s2exp)
+val () = assertloc (length(jsvs) >= 1)
+val s2e = parse_s2exp (jsvs[0])
 //
 in
-  S2Emetdec (s2es1, s2es2)
+  S2Emetdec (s2e)
 end // end of [parse_S2Emetdec]
 
 (* ****** ****** *)

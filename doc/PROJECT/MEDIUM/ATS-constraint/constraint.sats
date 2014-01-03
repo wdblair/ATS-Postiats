@@ -110,6 +110,9 @@ fun
 compare_s2cst_s2cst (s2cst, s2cst): int
 overload compare with compare_s2cst_s2cst
 
+fun
+equal_string_s2cst (string, s2cst): bool
+
 (* ****** ****** *)
 
 fun s2cst_make (symbol, stamp): s2cst
@@ -191,7 +194,7 @@ s2exp_node =
 | S2Eapp of (s2exp, s2explst)
 //
 | S2Emetdec of
-    (s2explst(*met*), s2explst(*metbound*)) // strictly decreasing
+    (s2exp(*constraint*)) // strictly decreasing
   // end of [S2Emetdec]
 //
 | S2Eignored of ((*void*))

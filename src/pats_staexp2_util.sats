@@ -263,4 +263,8 @@ fun s2exp_fun_isbot (s2e: s2exp): bool
 
 (* ****** ****** *)
 
+fun s2exp_metdec_reduce (met: s2explst, met_bound: s2explst): s2exp
+
+(* ****** ****** *)
+
 (* end of [pats_staexp2_util.sats] *)

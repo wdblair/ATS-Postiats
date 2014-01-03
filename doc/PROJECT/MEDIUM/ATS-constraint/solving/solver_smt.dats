@@ -249,14 +249,14 @@ in
       | S2Evar s2v => smtenv_get_var_exn (env, s2v)
       | S2Ecst s2c => (case+ s2c of
         | _ when
-            s2cstref_equ_cst (the_null_addr, s2c) =>
+            equal_string_s2cst ("null_addr", s2c) =>
               $SMT.make_numeral (env.smt, 0, env.sorts.integer)
         //
         | _ when
-            s2cstref_equ_cst (the_true_bool, s2c) =>
+            equal_string_s2cst ("true_bool", s2c) =>
               $SMT.make_true (env.smt)
         | _ when
-            s2cstref_equ_cst (the_false_bool, s2c) =>
+            equal_string_s2cst ("false_bool", s2c) =>
               $SMT.make_false (env.smt)
         | _ => let
           val srt   = s2cst_get_srt (s2c)
