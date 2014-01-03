@@ -47,7 +47,7 @@ solver.o: \
   error_sats.o  \
   error_dats.o  \
   solver_smt_dats.o \
-  dynloadall_dats.o ; ld -r -o $@ $^
+  solver_dynload_dats.o ; ld -r -o $@ $^
 
 ######
 #

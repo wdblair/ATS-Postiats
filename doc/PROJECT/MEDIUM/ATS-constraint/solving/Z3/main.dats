@@ -11,10 +11,10 @@ staload "solving/solver.sats"
 
 (* ****** ****** *)
 
-dynload "dynloadall.dats"
-dynload "parsing/dynloadall.dats"
-dynload "solving/dynloadall.dats"
-dynload "solving/Z3/dynloadall.dats"
+dynload "constraint_dynload.dats"
+dynload "parsing/parsing_dynload.dats"
+dynload "solving/solver_dynload.dats"
+dynload "solving/Z3/z3_dynload.dats"
 
 (* ****** ****** *)
 
