@@ -20,6 +20,7 @@ staload "./../constraint.sats"
 //
 (* ****** ****** *)
 
+staload "{$JSONC}/SATS/json.sats"
 staload "{$JSONC}/SATS/json_ML.sats"
 
 (* ****** ****** *)
@@ -126,17 +127,29 @@ end // end of [parse_option]
 
 (* ****** ****** *)
 
-implement parse_c3nstropt_from_stdin () = let
+implement parse_c3nstr_from_stdin () = let
   val inp = stdin_ref
+  val out = stdout_ref
+  //
+  val D = 1024
+  val tkr = json_tokener_new_ex (D)
+  val () = assertloc (json_tokener2ptr (tkr) > 0)
+  //
   val cs = 
     fileref_get_file_string (inp)
-  val cs2 = $UN.strptr2string (cs)
-  val js =
-    jsonval_ofstring (cs2)
+  val jso = let
+    val cs2 = $UN.strptr2string (cs)
+    val len = g1u2i (string_length (cs2))
+  in
+    json_tokener_parse_ex (tkr, cs2, len)
+  end
+  //
+  val jsv = json_object2val0 (jso)
   val () = strptr_free (cs)
+  val () = json_tokener_free (tkr)
 in
-  parse_c3nstropt (js)
-end // end of [parse_c3nstropt_from_stdin]
+  parse_c3nstr (jsv)
+end // end of [parse_c3nstr_from_stdin]
 
 (* ****** ****** *)
 

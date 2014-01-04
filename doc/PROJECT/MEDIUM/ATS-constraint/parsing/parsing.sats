@@ -73,7 +73,7 @@ fun parse_c3nstropt (jsv: jsonval): c3nstropt
 
 (* ****** ****** *)
 
-fun parse_c3nstropt_from_stdin (): c3nstropt
+fun parse_c3nstr_from_stdin (): c3nstr
 
 (* ****** ****** *)
 
