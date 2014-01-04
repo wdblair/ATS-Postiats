@@ -217,15 +217,15 @@ in
   end
 
   implement smtenv_get_var_exn (env, s2v) = let
-    val [l:addr] ptr = 
+    val [l:addr] ptr =
       $TreeMap.linmap_search_ref<s2var, formula> (env.variables.statics, s2v)
   in
     if iseqz{formula} (ptr) then
       $raise FatalErrorException () where {
-        val () = println! ("SMT formula not found for s2var") 
+        val () = println! ("SMT formula not found for s2var")
       }
       (*
-        The C code from this wouldn't compile:
+        The C code from the following wouldn't compile:
         abort {formula} ()
       *)
     else let

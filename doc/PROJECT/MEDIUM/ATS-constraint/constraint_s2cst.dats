@@ -1,5 +1,5 @@
 (*
-** Implementing Untyped Functional PL
+** Implementing Static Constants
 *)
 
 (* ****** ****** *)
@@ -96,6 +96,19 @@ implement
 compare_s2cst_s2cst
   (s2c1, s2c2) = compare (s2c1.stamp, s2c2.stamp)
 // end of [compare_s2cst_s2cst]
+
+implement
+equal_s2cst_s2cst
+  (s2c1, s2c2) = s2c1.stamp = s2c2.stamp
+// end of [equal_s2cst_s2cst]
+
+implement
+equal_string_s2cst 
+  (name, s2c) = let
+    val name = symbol_make (name)
+in
+  name = s2cst_get_name (s2c)
+end // end of [equal_string_s2cst]
 
 (* ****** ****** *)
 

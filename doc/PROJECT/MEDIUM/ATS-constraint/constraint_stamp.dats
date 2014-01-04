@@ -35,6 +35,9 @@ fprint_stamp
 implement
 compare_stamp_stamp (s1, s2) = g0int_compare (s1, s2)
 
+implement
+equal_stamp_stamp (s1, s2) = compare (s1, s2) = 0
+
 (* ****** ****** *)
 
 (* end of [constraint_stamp.dats] *)

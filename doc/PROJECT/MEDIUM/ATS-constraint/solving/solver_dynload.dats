@@ -6,6 +6,7 @@ dynload "solver.sats"
 dynload "solver.dats"
 dynload "smt.sats"
 dynload "solver_smt.dats"
+dynload "solver_s2cstmap.dats"
 //
 (* ****** ****** *)
 

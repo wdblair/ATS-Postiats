@@ -1,3 +1,8 @@
+(*
+  Implementing the map that translates instants of static functions
+  into formulas understood by the underlying SMT solver.
+*)
+
 #include
 "share/atspre_define.hats"
 #include
@@ -24,10 +29,11 @@ typedef s2cst_ftype = (&smtenv, s2explst) -<fun1> formula
 
 assume s2cfunmap = map (symbol, s2cst_ftype)
 
-implement equal_key_key<symbol> (s0, s1) = compare_symbol_symbol (s0, s1) = 0
+implement 
+equal_key_key<symbol> (s0, s1) = 
+  compare_symbol_symbol (s0, s1) = 0
 
 local
-  
   var the_s2cfunmap: s2cfunmap = funmap_make_nil{symbol,s2cst_ftype} ()
 in
   val the_s2cfunmap =
@@ -37,7 +43,8 @@ end
 extern
 fun constraint3_initialize_map (map: &s2cfunmap): void
 
-implement constraint3_initialize () = {
+implement 
+constraint3_initialize () = {
   val (pf, free | p) = $UN.ref_vtake {s2cfunmap} (the_s2cfunmap)
   val () = constraint3_initialize_map (!p)
   prval () = free (pf)
@@ -62,7 +69,8 @@ formula_make_s2cst_s2explst
       end
   end // end of [formula_make_s2cst_s2explst]
 
-implement constraint3_initialize_map (map) = {
+implement 
+constraint3_initialize_map (map) = {
   typedef tfun = s2cst_ftype
   fun ins (
     map: &s2cfunmap, key: string, f: tfun
@@ -82,7 +90,7 @@ implement constraint3_initialize_map (map) = {
     ins (map, "add_int_int", f_add_int_int);
     ins (map, "sub_int_int", f_sub_int_int);
     ins (map, "mul_int_int", f_mul_int_int);
-    ins (map, "div_int_int", f_div_int_int);
+    ins (map, "div_int_int", f_idiv_int_int);
     ins (map, "ndiv_int_int", f_ndiv_int_int);
     ins (map, "idiv_int_int", f_idiv_int_int);
     //
@@ -114,7 +122,7 @@ implement constraint3_initialize_map (map) = {
     ins (map, "eq_addr_addr", f_eq_int_int);
     ins (map, "neq_addr_addr", f_neq_int_int);
     //
-    ins (map, "lte_cls_cls", f_lte_cls_cls);
+    // ins (map, "lte_cls_cls", f_lte_cls_cls);
   end
 }
 

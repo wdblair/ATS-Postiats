@@ -45,6 +45,11 @@ compare_stamp_stamp
   : (stamp, stamp) -<fun0> int
 overload compare with compare_stamp_stamp
 //
+fun
+equal_stamp_stamp
+  : (stamp, stamp) -<fun0> bool
+overload = with equal_stamp_stamp
+
 (* ****** ****** *)
 
 abstype symbol_type = ptr
@@ -66,6 +71,11 @@ fun
 compare_symbol_symbol
   : (symbol, symbol) -<fun0> int
 overload compare with compare_symbol_symbol
+//
+fun
+equal_symbol_symbol
+  : (symbol, symbol) -<fun0> bool
+overload = with equal_symbol_symbol
 //
 (* ****** ****** *)
 
@@ -122,6 +132,10 @@ overload fprint with fprint_s2cst
 fun
 compare_s2cst_s2cst (s2cst, s2cst): int
 overload compare with compare_s2cst_s2cst
+
+fun
+equal_s2cst_s2cst (s2cst, s2cst): bool
+overload = with equal_s2cst_s2cst
 
 fun
 equal_string_s2cst (string, s2cst): bool
