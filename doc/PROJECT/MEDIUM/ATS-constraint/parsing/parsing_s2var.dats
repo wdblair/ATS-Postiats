@@ -65,7 +65,7 @@ the_s2varmap_insert
 //
 val k0 = s2v0.stamp
 val (vbox(pf) | p) = ref_get_viewptr (the_s2varmap)
-val~None_vt ((*void*)) = $effmask_ref ($FM.funmap_insert_opt (!p, k0, s2v0))
+val-~None_vt ((*void*)) = $effmask_ref ($FM.funmap_insert_opt (!p, k0, s2v0))
 //
 in
   // nothing
@@ -103,6 +103,9 @@ case+ opt of
       jsonval_get_field (jsv0, "s2var_srt")
     val srt = parse_s2rt (jsv2)
     val s2v = s2var_make (sym, stamp, srt)
+    //
+    val () = the_stamp_counter_parse_new (stamp)
+    //
     val ((*void*)) = the_s2varmap_insert (s2v)
   } (* end of [None_vt] *)
 //

@@ -62,6 +62,12 @@ s3ubexp_syneq (s0, s1) =
     (* Not supporting unknown functions or size of right now. *)
     | (_, _) =>> false
 
+implement
+s3ubexp_app (s2c, s2es) = S3UBapp (s2c, s2es)
+
+implement
+s3ubexp_cst (s2c) = S3UBcst (s2c)
+
 (* ****** ****** *)
 
 extern

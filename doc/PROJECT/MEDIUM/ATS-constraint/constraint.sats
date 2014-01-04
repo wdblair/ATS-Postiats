@@ -15,14 +15,16 @@ typedef stamp = stamp_t0ype
 
 (* ****** ****** *)
 
-(* 
-  Reset the global stamp counter to some value.
+(*
+  This is a bad hack. During parsing,  whenever we see a stamp we call
+  this function so the stamp counter can start above the highest stamp
+  in the environment. This ensures that with any new variables we add,
+  there will be no collision with other variables' stamps.
 *)
-fun the_stamp_counter_set (stamp): void
+fun the_stamp_counter_parse_new (stamp): void
 
 (* 
-  Obtain the next stmap id. This also increments
-  the counter by one.
+  Obtain the next stamp id. This also increments the counter by one.
 *)
 fun the_stamp_counter_next (): stamp
 

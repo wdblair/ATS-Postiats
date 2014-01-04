@@ -103,6 +103,9 @@ case+ opt of
       jsonval_get_field (jsv0, "s2cst_srt")
     val srt = parse_s2rt (jsv2)
     val s2c = s2cst_make (sym, stamp, srt)
+    //
+    val () = the_stamp_counter_parse_new (stamp)
+    //
     val ((*void*)) = the_s2cstmap_insert (s2c)
   } (* end of [None_vt] *)
 //
