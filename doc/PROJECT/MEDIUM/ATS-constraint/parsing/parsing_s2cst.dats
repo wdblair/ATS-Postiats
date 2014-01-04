@@ -65,7 +65,7 @@ the_s2cstmap_insert
 //
 val k0 = s2c0.stamp
 val (vbox(pf) | p) = ref_get_viewptr (the_s2cstmap)
-val~None_vt ((*void*)) = $effmask_ref ($FM.funmap_insert_opt (!p, k0, s2c0))
+val-~None_vt ((*void*)) = $effmask_ref ($FM.funmap_insert_opt (!p, k0, s2c0))
 //
 in
   // nothing
@@ -96,10 +96,13 @@ case+ opt of
 | ~Some_vt (s2c) => s2c
 | ~None_vt ((*void*)) => s2c where
   {
-    val-~Some_vt(jsv1) =
+    val-~Some_vt (jsv1) =
       jsonval_get_field (jsv0, "s2cst_name")
     val sym = parse_symbol (jsv1)
-    val s2c = s2cst_make (sym, stamp)
+    val-~Some_vt (jsv2) =
+      jsonval_get_field (jsv0, "s2cst_srt")
+    val srt = parse_s2rt (jsv2)
+    val s2c = s2cst_make (sym, stamp, srt)
     val ((*void*)) = the_s2cstmap_insert (s2c)
   } (* end of [None_vt] *)
 //

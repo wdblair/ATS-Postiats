@@ -6,9 +6,12 @@
 (* ****** ****** *)
 
 staload "constraint.sats"
+staload "solving/smt.sats"
 staload "solving/solver.sats"
 
 staload ERR = "solving/error.sats"
+
+staload UN = "prelude/SATS/unsafe.sats"
 
 (* ****** ****** *)
 
@@ -21,10 +24,11 @@ typedef s2cst_ftype = (&smtenv, s2explst) -<fun1> formula
 
 assume s2cfunmap = map (symbol, s2cst_ftype)
 
+implement equal_key_key<symbol> (s0, s1) = compare_symbol_symbol (s0, s1) = 0
+
 local
-  typedef tfun = s2cst_ftype
   
-  var the_s2cfunmap: s2cfunmap = funmap_make_nil{symbol,tfun} ()
+  var the_s2cfunmap: s2cfunmap = funmap_make_nil{symbol,s2cst_ftype} ()
 in
   val the_s2cfunmap =
     ref_make_viewptr (view@ (the_s2cfunmap) | addr@ (the_s2cfunmap))
@@ -33,21 +37,39 @@ end
 extern
 fun constraint3_initialize_map (map: &s2cfunmap): void
 
-implement constraint3_initialize () = let
-  prval (vbox pf | p) = ref_get_viewptr (the_s2cfunmap)
-in
-  $effmask_ref (constraint3_initialize_map (!p))
-end
+implement constraint3_initialize () = {
+  val (pf, free | p) = $UN.ref_vtake {s2cfunmap} (the_s2cfunmap)
+  val () = constraint3_initialize_map (!p)
+  prval () = free (pf)
+}
+
+implement
+formula_make_s2cst_s2explst
+  (env, s2c, s2es) = let
+  val (vbox pf | p) = ref_get_viewptr{s2cfunmap} (the_s2cfunmap)
+  val sym = s2c.name
+  val opt = $effmask_ref funmap_search_opt<symbol,s2cst_ftype> (!p, sym)
+  //
+  in
+    case+ opt of
+      | ~Some_vt f => $effmask_ref f (env, s2es)
+      | ~None_vt _ => let
+        val function = s2c
+        val args = s2es
+        val app  = $effmask_ref s3ubexp_app (function, args)
+      in
+        $effmask_ref formula_from_substitution (env, app)
+      end
+  end // end of [formula_make_s2cst_s2explst]
 
 implement constraint3_initialize_map (map) = {
   typedef tfun = s2cst_ftype
-  macdef ins = funmap_insert_any
   fun ins (
     map: &s2cfunmap, key: string, f: tfun
   ): void = let
     val sym = symbol_make (key)
   in
-    funmap_insert_any (map, sym, f)
+    funmap_insert_any<symbol, tfun> (map, sym, f)
   end
   val () = begin
     ins (map, "neg_bool", f_neg_bool);

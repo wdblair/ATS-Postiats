@@ -76,6 +76,13 @@ s2exp_var (s2t, s2v) =
   s2exp_make_node (s2t, S2Evar(s2v))
 //
 implement
+s2exp_from_var (s2v) = let
+  val srt = s2var_get_srt (s2v)
+in
+  s2exp_make_node (srt, S2Evar(s2v))
+end
+//
+implement
 s2exp_eqeq (s2e0, s2e1) =
   s2exp_make_node (s2e0.s2exp_srt, S2Eeqeq (s2e0, s2e1))
   

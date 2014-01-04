@@ -15,6 +15,19 @@ typedef stamp = stamp_t0ype
 
 (* ****** ****** *)
 
+(* 
+  Reset the global stamp counter to some value.
+*)
+fun the_stamp_counter_set (stamp): void
+
+(* 
+  Obtain the next stmap id. This also increments
+  the counter by one.
+*)
+fun the_stamp_counter_next (): stamp
+
+(* ****** ****** *)
+
 fun
 fprint_stamp: fprint_type (stamp)
 overload fprint with fprint_stamp
@@ -115,7 +128,7 @@ equal_string_s2cst (string, s2cst): bool
 
 (* ****** ****** *)
 
-fun s2cst_make (symbol, stamp): s2cst
+fun s2cst_make (symbol, stamp, s2rt): s2cst
 
 (* ****** ****** *)
 //
@@ -145,7 +158,7 @@ overload compare with compare_s2var_s2var
 
 (* ****** ****** *)
 
-fun s2var_make (symbol, stamp): s2var
+fun s2var_make (symbol, stamp, s2rt): s2var
 
 fun s2var_make_srt (s2rt): s2var
 

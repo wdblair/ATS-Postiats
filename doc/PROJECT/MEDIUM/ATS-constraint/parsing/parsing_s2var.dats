@@ -99,7 +99,10 @@ case+ opt of
     val-~Some_vt(jsv1) =
       jsonval_get_field (jsv0, "s2var_name")
     val sym = parse_symbol (jsv1)
-    val s2v = s2var_make (sym, stamp)
+    val-~Some_vt(jsv2) =
+      jsonval_get_field (jsv0, "s2var_srt")
+    val srt = parse_s2rt (jsv2)
+    val s2v = s2var_make (sym, stamp, srt)
     val ((*void*)) = the_s2varmap_insert (s2v)
   } (* end of [None_vt] *)
 //

@@ -14,6 +14,26 @@ staload "./constraint.sats"
 (* ****** ****** *)
 
 implement
+s2rt_is_int (srt) = 
+  case+ srt of
+    | S2RTint () => true
+    | _ =>> false
+
+implement
+s2rt_is_addr (srt) = 
+  case+ srt of
+    | S2RTaddr () => true
+    | _ =>> false
+
+implement
+s2rt_is_bool (srt) = 
+  case+ srt of
+    | S2RTbool () => true
+    | _ =>> false
+    
+(* ****** ****** *)
+
+implement
 fprint_s2rt
   (out, s2t0) = let
 in

@@ -255,7 +255,6 @@ implement assert (solve, formula) = {
 
 implement push (solve) = Z3_solver_push (solve.ctx, solve.slv)
 
-
 implement pop (solve) = let
   val depth = Z3_solver_get_num_scopes (solve.ctx, solve.slv)
 in
