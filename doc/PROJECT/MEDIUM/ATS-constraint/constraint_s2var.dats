@@ -17,6 +17,7 @@ typedef
 s2var_struct = @{
   s2var_name= symbol
 , s2var_stamp= stamp
+, s2var_srt= s2rt
 } (* end of [s2var_struct] *)
 
 (* ****** ****** *)

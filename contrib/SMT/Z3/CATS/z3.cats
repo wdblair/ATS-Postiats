@@ -121,6 +121,10 @@ atscntrb_Z3_inc_ref
 
 /* ****** ****** */
 
+#include "z3_stringconv.cats"
+
+/* ****** ****** */
+
 #endif // end of [Z3_Z3_CATS]
 
 /* ****** ****** */

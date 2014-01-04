@@ -63,7 +63,7 @@ Z3_string
 Z3_ast_to_string (__in Z3_context c, __in Z3_ast a)
 Convert the given AST node into a string.
 *)
-fun Z3_ast_to_string (ctx: !Z3_context, a: !Z3_ast): string = "mac#"
+fun Z3_ast_to_string (ctx: !Z3_context, a: !Z3_ast): string = "mac#%"
 
 (* ****** ****** *)
 

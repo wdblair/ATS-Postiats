@@ -67,6 +67,7 @@ all:: solve-z3
 	make -C ../ solver.o
 
 solve-z3: main.dats \
+	z3.dats \
 	z3_dynload.dats \
 	../../constraint.o \
 	../../parsing/parsing.o \

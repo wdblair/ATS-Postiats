@@ -75,6 +75,10 @@ implement
 s2exp_var (s2t, s2v) =
   s2exp_make_node (s2t, S2Evar(s2v))
 //
+implement
+s2exp_eqeq (s2e0, s2e1) =
+  s2exp_make_node (s2e0.s2exp_srt, S2Eeqeq (s2e0, s2e1))
+  
 (* ****** ****** *)
 
 implement

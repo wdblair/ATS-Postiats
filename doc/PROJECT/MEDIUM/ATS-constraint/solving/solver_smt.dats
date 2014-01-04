@@ -354,7 +354,6 @@ in
 
 (* ****** ******  *)
 
-
   implement  f_neg_bool (env, s2es) = let
     val- s2e :: _ = s2es
     val fbe = formula_make (env, s2e)
