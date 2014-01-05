@@ -26,6 +26,7 @@ dynload "solving/Z3/z3_dynload.dats"
 (* ****** ****** *)
 
 implement main0 () = let
+  val () = constraint3_initialize ()
   val c3t = parse_c3nstr_from_stdin ()
 in
   c3nstr_solve (c3t)

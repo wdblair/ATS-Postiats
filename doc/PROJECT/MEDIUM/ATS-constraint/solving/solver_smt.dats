@@ -60,7 +60,7 @@ staload "solving/error.sats"
 
 (* ****** ****** *)
 
-val log_smt = true
+val log_smt = false
 
 (* ****** ****** *)
 
@@ -285,8 +285,10 @@ in
       | S2Eapp
           (s2e1, s2es2) => (
             case+ s2e1.s2exp_node of
-              | S2Ecst s2c1 =>
+              | S2Ecst s2c1 => let
+               in
                 formula_make_s2cst_s2explst (env, s2c1, s2es2)
+               end
               //
               | _ => $raise FatalErrorException () where {
                 val _ = fprintln! (out, "formula_make: Invalid application ", s2e)
@@ -332,7 +334,7 @@ in
   implement smtenv_assert_sbexp (env, prop) = let
     val assumption = formula_make (env, prop)
     val _ = if log_smt then println! (
-      "(assert ", $SMT.string_of_formula (env.smt, assumption),")"
+      "(assert ", $SMT.string_of_formula (env.smt, assumption) ,")"
     )
   in 
     $SMT.assert (env.smt, assumption)

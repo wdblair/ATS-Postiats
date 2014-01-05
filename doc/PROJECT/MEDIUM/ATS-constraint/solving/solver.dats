@@ -50,7 +50,7 @@ end // end of [local]
 
 implement 
 s3ubexp_get_srt (sub) =
-  case+ sub of 
+  case+ sub of
     | S3UBsizeof (_) => S2RTint ()
     | S3UBcst (s2c) => s2cst_get_srt (s2c)
     | S3UBapp (s2c, s2es) => S2RTignored ()
