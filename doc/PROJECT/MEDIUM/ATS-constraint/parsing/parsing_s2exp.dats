@@ -105,6 +105,8 @@ case+ name of
 | "S2Evar" => parse_S2Evar (jsv2)
 | "S2EVar" => parse_S2EVar (jsv2)
 //
+| "S2Eeqeq" => parse_S2Eeqeq (jsv2)
+//
 | "S2Eapp" => parse_S2Eapp (jsv2)
 //
 | "S2Emetdec" => parse_S2Emetdec (jsv2)
@@ -185,6 +187,22 @@ val s2V = parse_s2Var (jsvs[0])
 in
   S2EVar (s2V)
 end // end of [parse_S2EVar]
+
+(* ****** ****** *)
+
+implement
+parse_S2Eeqeq
+  (jsv0) = let
+//
+val-JSONarray(jsvs) = jsv0
+val () = assertloc (length(jsvs) >= 2)
+val l = parse_s2exp (jsvs[0])
+val r = parse_s2exp (jsvs[1])
+//
+in
+  S2Eeqeq (l, r)
+end // end of [parse_S2EVar]
+
 
 (* ****** ****** *)
 
