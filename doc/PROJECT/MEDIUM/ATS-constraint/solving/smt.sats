@@ -64,16 +64,6 @@ fun make_fresh_constant (
 
 (* ****** ****** *)
 
-fun push (
-  !solver
-): void
-
-fun pop (
-  !solver
-): void
-
-(* ****** ****** *)
-
 // Prop Logic and Equality
 
 fun make_true  (!solver): formula
@@ -97,7 +87,7 @@ fun make_ite (
 
 (* ****** ****** *)
 
-// Arithmetic
+// Integer Arithmetic
 
 symintr make_numeral
 
@@ -106,16 +96,6 @@ fun make_numeral_int (
 ): formula
 
 overload make_numeral with make_numeral_int
-
-(* 
-
-fun make_numeral_intinf (
-  !solver, intinf, !sort
-): formula
-
-overload make_numeral with make_numeral_intinf
-
-*)
 
 fun make_numeral_string (
   !solver, string, !sort
@@ -148,6 +128,14 @@ fun make_eq ( !solver,  formula,  formula): formula
 (* ****** ****** *)
 
 // Solving
+
+fun push (
+  !solver
+): void
+
+fun pop (
+  !solver
+): void
 
 fun assert (!solver, formula): void
 

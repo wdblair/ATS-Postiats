@@ -1,0 +1,8 @@
+External Constraint Solver Tests
+=================================
+
+This directory contains some tests of experimental features to an external
+constraint solver we're working on
+
+- bv: Programs involving fixed width bit vectors.
+
