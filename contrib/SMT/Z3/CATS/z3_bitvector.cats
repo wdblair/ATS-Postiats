@@ -32,8 +32,8 @@
 
 /* ****** ****** */
 
-Z3_DECLARE_MK_AST (Z3_mk_int2bv, int n, Z3_ast ty) {
-  Z3_BODY_MK_AST(Z3_mk_int2bv, n, ty)
+Z3_DECLARE_MK_AST (Z3_mk_int2bv, int n, Z3_ast num) {
+  Z3_BODY_MK_AST(Z3_mk_int2bv, n, num)
 }
 
 ATSinline()

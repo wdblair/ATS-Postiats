@@ -25,7 +25,7 @@ case+ s2e0.s2exp_node of
 //
 | S2Ecst (s2c) => fprint! (out, "S2Ecst(", s2c, ")")
 | S2Evar (s2v) => fprint! (out, "S2Evar(", s2v, ")")
-| S2EVar (s2V) => fprint! (out, "S2Evar(", s2V, ")")
+| S2EVar (s2V) => fprint! (out, "S2EVar(", s2V, ")")
 //
 | S2Esizeof (s2e) => fprint! (out, "S2Esizeof(", s2e, ")")
 //

@@ -184,6 +184,7 @@ in
   }
 
   implement smtenv_add_svar (env, s2v) = let
+    val () = fprintln! (stdout_ref, "Adding svar: ", s2v)
     val type = s2var_get_srt (s2v)
     val smt_type = (
       if s2rt_is_int (type) orelse s2rt_is_addr (type) then
@@ -283,6 +284,8 @@ in
         end
       )
       | S2Eeqeq (l, r) => let
+        val () = fprintln! (stdout_ref, "left hand side: ",  l)
+        val () = fprintln! (stdout_ref, "right hand side: ", r)
         val lhs = formula_make (env, l)
         val rhs = formula_make (env, r)
       in
@@ -320,7 +323,16 @@ in
         val stub = (
             if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
               $SMT.make_fresh_constant (env.smt, env.sorts.integer)
-            else 
+            //
+            else if s2rt_is_bitvec (srt) then let
+              val width = s2rt_bitvec_get_width (srt)
+              val () = assertloc (width > 0)
+              val bv = $SMT.make_bitvec_sort (env.smt, width)
+              val cst = $SMT.make_fresh_constant (env.smt, bv)
+              val () = $SMT.sort_free (env.smt, bv)
+            in cst end
+            //
+            else
               $SMT.make_fresh_constant (env.smt, env.sorts.boolean)
         ): formula
         (* TODO: Make this error mean something to calling functions *)

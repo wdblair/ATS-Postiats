@@ -252,6 +252,54 @@ end
 
 (* ****** ****** *)
 
+implement
+make_bv_sub2 (solve, l, r) = let
+  val dif = Z3_mk_bvsub (solve.ctx, l, r)
+  val () = begin
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
+  end
+in
+  dif
+end
+
+implement
+make_bv_add2 (solve, l, r) = let
+  val sum = Z3_mk_bvadd (solve.ctx, l, r)
+  val () = begin
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
+  end
+in
+  sum
+end
+
+implement
+make_bv_land2 (solve, l, r) = let
+  val masked = Z3_mk_bvand (solve.ctx, l, r)
+  val () = begin
+    Z3_dec_ref (solve.ctx, l);
+    Z3_dec_ref (solve.ctx, r);
+  end
+in
+  masked
+end
+
+implement
+make_bv_eq (solve, l, r) = make_eq (solve, l, r)
+
+implement
+make_bv_from_int (solve, n, i) = let
+  val bv = Z3_mk_int2bv (solve.ctx, n, i)
+  val () = begin
+    Z3_dec_ref (solve.ctx, i)
+  end
+in
+  bv
+end
+
+(* ****** ****** *)
+
 implement assert (solve, formula) = {
   val _ = Z3_solver_assert (solve.ctx, solve.slv, formula)
   val _ = Z3_dec_ref (solve.ctx, formula)
