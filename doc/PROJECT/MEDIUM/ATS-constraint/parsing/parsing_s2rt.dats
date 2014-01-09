@@ -38,6 +38,8 @@ case+ name of
 | "addr" => S2RTaddr ()
 | "bool" => S2RTbool ()
 //
+| "bv8" => S2RTbitvec (8)
+//
 | "s2rt_fun" => S2RTfun ()
 | "s2rt_tup" => S2RTtup ()
 | "s2rt_err" => S2RTerr ()

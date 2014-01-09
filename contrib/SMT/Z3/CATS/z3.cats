@@ -109,6 +109,10 @@ atscntrb_Z3_inc_ref
 
 /* ****** ****** */
 
+#include "z3_bitvector.cats"
+
+/* ****** ****** */
+
 #include "z3_solver.cats"
 
 /* ****** ****** */

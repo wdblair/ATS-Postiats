@@ -1,13 +1,15 @@
 (*
-  An interface  file that aims to  extend the statics to  handle fixed
+  An interface that aims to  extend the statics to  handle fixed
   width bit vectors.
 *)
 
 (*
   We can  declare an abstract  sort by using the  datasort declaration
-  but not providing any constructors along with it.
+  and not providing any constructors along with it.
   
-  From the perspective of the external constraint solver, 
+  From the perspective of the external constraint solver, the sort will
+  just be called "bv8". In our parser, we can turn this into a bitvector
+  of lenght 8.
 *)
 datasort bv8 = (*abstract*)
 

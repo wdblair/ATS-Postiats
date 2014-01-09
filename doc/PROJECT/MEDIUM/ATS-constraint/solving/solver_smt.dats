@@ -75,7 +75,7 @@ local
     x1: s2var, x2: s2var
   ) : int = compare_s2var_s2var (x1, x2)
   
-  implement $TreeMap.compare_key_key<s2var> (k1, k2) = 
+  implement $TreeMap.compare_key_key<s2var> (k1, k2) =
     $effmask_all compare_s2var_s2var (k1, k2)
   
   implement $ListMap.equal_key_key<s3ubexp> (s1, s2) =
@@ -186,15 +186,21 @@ in
   implement smtenv_add_svar (env, s2v) = let
     val type = s2var_get_srt (s2v)
     val smt_type = (
-      if s2rt_is_int (type) orelse s2rt_is_addr (type) then 
+      if s2rt_is_int (type) orelse s2rt_is_addr (type) then
          $SMT.make_int_sort (env.smt)
+      else if s2rt_is_bitvec (type) then let
+          val width = s2rt_bitvec_get_width (type)
+          val () = assertloc (width > 0)
+        in
+          $SMT.make_bitvec_sort (env.smt, width)
+        end
       else
         $SMT.make_bool_sort (env.smt)
     ): $SMT.sort
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
-    val () = if log_smt then 
-      println! ("Variables: ", 
+    val () = if log_smt then
+      println! ("Variables: ",
         $TreeMap.linmap_size<s2var, formula> (env.variables.statics)
     )
     //
@@ -562,5 +568,50 @@ in
   in
     $SMT.make_ite (env.smt, cond, t, f)
   end // end of [f_ifint_bool_int_int]
+  
+  implement
+  f_bv8_of_int (env, s2es) = let
+    val- s2e1 :: _ = s2es
+    //
+    val i = formula_make (env, s2e1)
+  in
+    $SMT.make_bv_from_int (env.smt, 8, i)
+  end
+
+  implement
+  f_sub_bv_bv (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val l = formula_make (env, s2e1)
+    val r = formula_make (env, s2e2)
+  in
+    $SMT.make_bv_sub2 (env.smt, l, r)
+  end
+
+  implement
+  f_add_bv_bv (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val l = formula_make (env, s2e1)
+    val r = formula_make (env, s2e2)
+  in
+    $SMT.make_bv_add2 (env.smt, l, r)
+  end
+
+  implement
+  f_land_bv_bv (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val l = formula_make (env, s2e1)
+    val r = formula_make (env, s2e2)
+  in
+    $SMT.make_bv_land2 (env.smt, l, r)
+  end
+  
+  implement
+  f_eq_bv_bv (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val l = formula_make (env, s2e1)
+    val r = formula_make (env, s2e2)
+  in
+    $SMT.make_bv_eq (env.smt, l, r)
+  end
   
 end // end of [local]

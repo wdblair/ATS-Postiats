@@ -30,7 +30,21 @@ s2rt_is_bool (srt) =
   case+ srt of
     | S2RTbool () => true
     | _ =>> false
+
+implement
+s2rt_is_bitvec (srt) =
+  case+ srt of
+    | S2RTbitvec (_) => true
+    | _ =>> false
     
+(* ****** ****** *)
+
+implement
+s2rt_bitvec_get_width (srt) =
+  case+ srt of
+    | S2RTbitvec (width) => width
+    | _ =>> ~1
+
 (* ****** ****** *)
 
 implement
@@ -43,6 +57,7 @@ case+ s2t0 of
 | S2RTint () => fprint (out, "S2RTint()")
 | S2RTaddr () => fprint (out, "S2RTaddr()")
 | S2RTbool () => fprint (out, "S2RTbool()")
+| S2RTbitvec (width) => fprint! (out, "S2RTbitvec(", width, ")")
 //
 | S2RTfun () => fprint (out, "S2RTfun()")
 | S2RTtup () => fprint (out, "S2RTtup()")

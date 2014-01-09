@@ -107,102 +107,71 @@ fun constraint3_initialize (): void
 
 (* ****** ****** *)
 
-fun f_identity (
-  env: &smtenv, s2es: s2explst
-) : formula
+typedef s2cstmap_ftype = (&smtenv, s2explst) -> formula
 
-fun f_neg_bool (
-  env: &smtenv, s2es: s2explst
-) : formula
+(* ****** ****** *)
 
-fun f_add_bool_bool (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_identity : s2cstmap_ftype
 
-fun f_mul_bool_bool (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_neg_bool : s2cstmap_ftype
 
-fun f_eq_bool_bool (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_add_bool_bool : s2cstmap_ftype
 
-fun f_neq_bool_bool (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_mul_bool_bool : s2cstmap_ftype
 
-fun f_neg_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_eq_bool_bool : s2cstmap_ftype
 
-fun f_add_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_neq_bool_bool : s2cstmap_ftype
 
-fun f_sub_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_neg_int : s2cstmap_ftype
 
-fun f_mul_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_add_int_int : s2cstmap_ftype
 
-fun f_div_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_sub_int_int : s2cstmap_ftype
 
-fun f_ndiv_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_mul_int_int : s2cstmap_ftype
 
-fun f_idiv_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_div_int_int : s2cstmap_ftype
 
-fun f_lt_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_ndiv_int_int : s2cstmap_ftype
 
-fun f_lte_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_idiv_int_int : s2cstmap_ftype
 
-fun f_gt_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_lt_int_int : s2cstmap_ftype
 
-fun f_gte_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_lte_int_int : s2cstmap_ftype
 
-fun f_eq_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_gt_int_int : s2cstmap_ftype
 
-fun f_neq_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_gte_int_int : s2cstmap_ftype
 
-fun f_abs_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_eq_int_int : s2cstmap_ftype
 
-fun f_sgn_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_neq_int_int : s2cstmap_ftype
 
-fun f_max_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_abs_int : s2cstmap_ftype
 
-fun f_min_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_sgn_int : s2cstmap_ftype
 
-fun f_ifint_bool_int_int (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_max_int_int : s2cstmap_ftype
 
-fun f_lte_cls_cls (
-  env: &smtenv, s2es: s2explst
-) : formula
+fun f_min_int_int : s2cstmap_ftype
+
+fun f_ifint_bool_int_int : s2cstmap_ftype
+
+(*
+  This isn't working yet...
+*)
+fun f_lte_cls_cls : s2cstmap_ftype
+
+(* ****** ****** *)
+
+fun f_bv8_of_int : s2cstmap_ftype
+
+fun f_sub_bv_bv : s2cstmap_ftype
+
+fun f_add_bv_bv : s2cstmap_ftype
+
+fun f_land_bv_bv : s2cstmap_ftype
+
+fun f_eq_bv_bv : s2cstmap_ftype

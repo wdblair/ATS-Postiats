@@ -48,11 +48,13 @@ absvt@ype sort = __sort_size
 
 fun make_solver (): solver
 
-fun delete_solver (_: solver): void
+fun delete_solver (solver): void
 
-fun make_int_sort (_: !solver): sort
+fun make_int_sort (!solver): sort
 
-fun make_bool_sort (_: !solver): sort
+fun make_bool_sort (!solver): sort
+
+fun make_bitvec_sort (_: !solver, width: int): sort
 
 fun make_int_constant (
   _: !solver, id: int, _: !sort
@@ -124,6 +126,20 @@ fun make_le ( !solver,  formula,  formula): formula
 fun make_gt ( !solver,  formula,  formula): formula
 fun make_ge ( !solver,  formula,  formula): formula
 fun make_eq ( !solver,  formula,  formula): formula
+
+(* ****** ****** *)
+
+// Bit Vectors
+
+fun make_bv_from_int (solv: !solver, width: int, i: formula): formula
+
+fun make_bv_sub2 (!solver, formula, formula): formula
+
+fun make_bv_add2 (!solver, formula, formula): formula
+
+fun make_bv_land2 (!solver, formula, formula): formula
+
+fun make_bv_eq (!solver, formula, formula): formula
 
 (* ****** ****** *)
 

@@ -100,6 +100,7 @@ datatype s2rt =
 | S2RTint of ()
 | S2RTaddr of ()
 | S2RTbool of ()
+| S2RTbitvec of (int(*width*))
 | S2RTfun of ((*void*))
 | S2RTtup of ((*void*))
 | S2RTerr of ((*void*))
@@ -114,6 +115,9 @@ overload fprint with fprint_s2rt
 fun s2rt_is_int (s2rt): bool
 fun s2rt_is_addr (s2rt): bool
 fun s2rt_is_bool (s2rt): bool
+fun s2rt_is_bitvec (s2rt): bool
+
+fun s2rt_bitvec_get_width (s2rt): int
 
 (* ****** ****** *)
 

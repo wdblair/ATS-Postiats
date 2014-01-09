@@ -85,7 +85,9 @@ implement make_int_sort (solve) =
 
 implement make_bool_sort (solve) =
   Z3_mk_bool_sort (solve.ctx)
-  
+
+implement make_bitvec_sort (solve, width) = 
+  Z3_mk_bv_sort (solve.ctx, g0int2uint(width))
   
 implement make_int_constant (solve, id, sort) = let
   val sym = Z3_mk_int_symbol (solve.ctx, id)
@@ -247,6 +249,8 @@ implement make_div (solve, num, den) = let
 in
   phi
 end
+
+(* ****** ****** *)
 
 implement assert (solve, formula) = {
   val _ = Z3_solver_assert (solve.ctx, solve.slv, formula)
