@@ -4,15 +4,13 @@ assume ubitvec8_t0ype (b:bv8) = $extype "uint8"
 
 stacst one: bv8
 
-//typedef controller = [b:bv8 | (b land one) == one] ubitvec8 (b)
-
-typedef BitVec8 = [b:bv8] ubitvec8 (b)
+typedef UBitVec8 = [b:bv8 | (b land bv8(1)) == bv8(1)] ubitvec8 (b)
 
 extern
-praxi initize_lemma (&BitVec8? >> BitVec8): void
+praxi initize_lemma (&UBitVec8? >> UBitVec8): void
 
 local
-  var control : BitVec8
+  var control : UBitVec8
   
   prval () = initize_lemma (control)
 in
