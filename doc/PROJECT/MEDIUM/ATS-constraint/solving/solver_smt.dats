@@ -60,7 +60,7 @@ staload "solving/error.sats"
 
 (* ****** ****** *)
 
-val log_smt = false
+val log_smt = true
 
 (* ****** ****** *)
 
@@ -327,6 +327,7 @@ in
             else if s2rt_is_bitvec (srt) then let
               val width = s2rt_bitvec_get_width (srt)
               val () = assertloc (width > 0)
+              val () = println! ("translating bitvec...", width)
               val bv = $SMT.make_bitvec_sort (env.smt, width)
               val cst = $SMT.make_fresh_constant (env.smt, bv)
               val () = $SMT.sort_free (env.smt, bv)
@@ -359,7 +360,7 @@ in
   end
   
   implement smtenv_formula_is_valid (env, wff) = let
-    (* TODO: log this in SMT-Lib 2 format *)
+    val () = println! ("(is-valid", $SMT.string_of_formula (env.smt, wff), ")")
   in
     $SMT.is_valid (env.smt, wff)
   end

@@ -35,30 +35,30 @@ stadef - = sub_bv8_bv8
 stacst eq_bv8_bv8: (bv8, bv8) -> bool
 stadef == = eq_bv8_bv8
 
-abst@ype uint8_t0ype (b:bv8)
-typedef uint8 (b:bv8) = uint8_t0ype (b)
+abst@ype ubitvec8_t0ype (b:bv8)
+typedef ubitvec8 (b:bv8) = ubitvec8_t0ype (b)
 
 fun land_bv8_bv8 {l,r:bv8} (
-  uint8 (l), uint8 (r)
-): uint8 (l land r) = "mac#"
+  ubitvec8 (l), ubitvec8 (r)
+): ubitvec8 (l land r) = "mac#"
 overload land with land_bv8_bv8
 
 fun lor_bv8_bv8 {l,r:bv8} (
-  uint8 (l), uint8 (r)
-): uint8 (l lor r) = "mac#"
+  ubitvec8 (l), ubitvec8 (r)
+): ubitvec8 (l lor r) = "mac#"
 
 fun sub_bv8_bv8 {l,r:bv8} (
-  uint8 (l), uint8 (r)
-): uint8 (l - r) = "mac#"
+  ubitvec8 (l), ubitvec8 (r)
+): ubitvec8 (l - r) = "mac#"
 overload - with sub_bv8_bv8
 
 fun equal_bv8_bv8 {l,r:bv8} (
-  uint8 (l), uint8 (r)
+  ubitvec8 (l), ubitvec8 (r)
 ): bool (l == r)
 overload = with equal_bv8_bv8
 
 symintr bv8 
 
-castfn bv8_of_int {n:int} (uint n): uint8 (bv8 (n))
+castfn bv8_of_int {n:int} (uint n): ubitvec8 (bv8 (n))
 
 overload bv8 with bv8_of_int
