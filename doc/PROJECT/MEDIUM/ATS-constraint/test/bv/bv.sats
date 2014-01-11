@@ -8,57 +8,57 @@
   and not providing any constructors along with it.
   
   From the perspective of the external constraint solver, the sort will
-  just be called "bv8". In our parser, we can turn this into a bitvector
+  just be called "bit8". In our parser, we can turn this into a bitvector
   of lenght 8.
 *)
-datasort bv8 = (*abstract*)
+datasort bit8 = (*abstract*)
 
 (*
   Z3 can transform an integer into a fixed width bit vector. I'm not
   sure about other SMT solvers.
 *)
-stacst bv8_of_int: (int) -> bv8
-stadef bv8 = bv8_of_int
+stacst bit8_of_int: (int) -> bit8
+stadef bit8 = bit8_of_int
 
-stacst and_bv8_bv8: (bv8, bv8) -> bv8
-stadef land = and_bv8_bv8
+stacst and_bit8_bit8: (bit8, bit8) -> bit8
+stadef land = and_bit8_bit8
 
-stacst or_bv8_bv8: (bv8, bv8) -> bv8
-stadef lor = or_bv8_bv8
+stacst or_bit8_bit8: (bit8, bit8) -> bit8
+stadef lor = or_bit8_bit8
 
-stacst xor_bv8_bv8: (bv8, bv8) -> bv8
-stadef xor = xor_bv8_bv8
+stacst xor_bit8_bit8: (bit8, bit8) -> bit8
+stadef xor = xor_bit8_bit8
 
-stacst sub_bv8_bv8: (bv8, bv8) -> bv8
-stadef - = sub_bv8_bv8
+stacst sub_bit8_bit8: (bit8, bit8) -> bit8
+stadef - = sub_bit8_bit8
 
-stacst eq_bv8_bv8: (bv8, bv8) -> bool
-stadef == = eq_bv8_bv8
+stacst eq_bit8_bit8: (bit8, bit8) -> bool
+stadef == = eq_bit8_bit8
 
-abst@ype ubitvec8_t0ype (b:bv8)
-typedef ubitvec8 (b:bv8) = ubitvec8_t0ype (b)
+abst@ype bit8_t0ype (b:bit8) = uint8
+typedef bit8 (b:bit8) = bit8_t0ype (b)
 
-fun land_bv8_bv8 {l,r:bv8} (
-  ubitvec8 (l), ubitvec8 (r)
-): ubitvec8 (l land r) = "mac#"
-overload land with land_bv8_bv8
+fun land_bit8_bit8 {l,r:bit8} (
+  bit8 (l), bit8 (r)
+): bit8 (l land r) = "mac#"
+overload land with land_bit8_bit8
 
-fun lor_bv8_bv8 {l,r:bv8} (
-  ubitvec8 (l), ubitvec8 (r)
-): ubitvec8 (l lor r) = "mac#"
+fun lor_bit8_bit8 {l,r:bit8} (
+  bit8 (l), bit8 (r)
+): bit8 (l lor r) = "mac#"
 
-fun sub_bv8_bv8 {l,r:bv8} (
-  ubitvec8 (l), ubitvec8 (r)
-): ubitvec8 (l - r) = "mac#"
-overload - with sub_bv8_bv8
+fun sub_bit8_bit8 {l,r:bit8} (
+  bit8 (l), bit8 (r)
+): bit8 (l - r) = "mac#"
+overload - with sub_bit8_bit8
 
-fun equal_bv8_bv8 {l,r:bv8} (
-  ubitvec8 (l), ubitvec8 (r)
+fun equal_bit8_bit8 {l,r:bit8} (
+  bit8 (l), bit8 (r)
 ): bool (l == r)
-overload = with equal_bv8_bv8
+overload = with equal_bit8_bit8
 
-symintr bv8 
+symintr bit8 
 
-castfn bv8_of_int {n:int} (uint n): ubitvec8 (bv8 (n))
+castfn bit8_of_int {n:int} (uint n): bit8 (bit8 (n))
 
-overload bv8 with bv8_of_int
+overload bit8 with bit8_of_int

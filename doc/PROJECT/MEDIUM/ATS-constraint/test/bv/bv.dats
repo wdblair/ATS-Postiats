@@ -1,17 +1,24 @@
 staload "bv.sats"
 
-assume ubitvec8_t0ype (b:bv8) = $extype "uint8"
-
-stacst one: bv8
-
-typedef UBitVec8 = [b:bv8 | (b land bv8(1)) == bv8(1)] ubitvec8 (b)
+typedef Ctrl = [b:bit8 | (b land bit8(1)) == bit8(1)] bit8 (b)
 
 extern
-praxi initize_lemma (&UBitVec8? >> UBitVec8): void
+praxi initize_lemma (&Ctrl? >> Ctrl): void
 
 local
-  var control : UBitVec8
+  var control : Ctrl
   
   prval () = initize_lemma (control)
 in
+end
+
+(*
+ Try to set ctrl to something such that
+ ctrl & 0x1 != 0x1
+ and observe that the invariant is violated. 
+*)
+fun make_controller (): Ctrl = let 
+  val ctrl = bit8(1u)
+in
+ ctrl
 end

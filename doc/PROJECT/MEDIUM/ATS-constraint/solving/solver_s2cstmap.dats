@@ -124,10 +124,10 @@ constraint3_initialize_map (map) = {
     //
     // ins (map, "lte_cls_cls", f_lte_cls_cls);
     //
-    ins (map, "bv8_of_int", f_bv8_of_int);
-    ins (map, "sub_bv8_bv8", f_sub_bv_bv);
-    ins (map, "and_bv8_bv8", f_land_bv_bv);
-    ins (map, "eq_bv8_bv8", f_eq_bv_bv);
+    ins (map, "bit8_of_int", f_bv8_of_int);
+    ins (map, "sub_bit8_bit8", f_sub_bv_bv);
+    ins (map, "and_bit8_bit8", f_land_bv_bv);
+    ins (map, "eq_bit8_bit8", f_eq_bv_bv);
   end
 }
 
