@@ -10,15 +10,18 @@ stacst array_store : (array, int(*index*), t@ype) -> array
 stadef store = array_store
 
 (* 
-  I'm not sure how to express permutation with SMT solvers...
+  I'm not sure how to express permutation in the SMT solver's
+  interface...
 *)
 stacst permutation : (array, array) -> bool
 
-stacst partitioned : (
+stacst partitioned_array : (
   array, int(*start0*), int(*stop0*), int(*start1*), int(*stop1*)
 ) -> bool
+stadef partitioned = partitioned_array
 
-stacst sorted : (array, int(*begin*), int(*end*)) -> bool
+stacst sorted_array : (array, int(*begin*), int(*end*)) -> bool
+stadef sorted = sorted_array
 
 abstype array (a:t@ype, n:int, buf: array) = ptr
 
