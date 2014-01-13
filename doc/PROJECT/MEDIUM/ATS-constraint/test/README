@@ -2,7 +2,14 @@ External Constraint Solver Tests
 =================================
 
 This directory contains some tests of experimental features to an external
-constraint solver we're working on
+constraint solver we're working on. The whole goal is to show programs
+where invariants are enforced that could not previously be expressed in
+the statics due to the limitation of the previous constraint solver.
 
-- bv: Programs involving fixed width bit vectors.
+- bv: constraints with fixed width bit vectors.
 
+- array: constraints with static arrays. The first example I want to work
+with is quick sort. If we can have a correct implementation in far fewer
+ATS lines as before, we can demonstrate the usefulness of more powerful
+statics. From the paper, "What's Decidable About Arrays?" there are some 
+interesting examples about shared memory between processes.

@@ -13,12 +13,12 @@ in
 end
 
 (*
- Try to set ctrl to something such that
+ Try to set c to something such that
  ctrl & 0x1 != 0x1
- and observe that the invariant is violated. 
+ and notice that the type checker will reject it.
 *)
-fun make_controller (): Ctrl = let 
-  val ctrl = bit8(1u)
+fun update_controller (ctrl: &Ctrl >> _): void = let 
+  val c = bit8 (0x101u)
 in
- ctrl
+  ctrl := c
 end

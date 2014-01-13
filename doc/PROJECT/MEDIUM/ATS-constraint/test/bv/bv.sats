@@ -26,11 +26,14 @@ stadef land = and_bit8_bit8
 stacst or_bit8_bit8: (bit8, bit8) -> bit8
 stadef lor = or_bit8_bit8
 
-stacst xor_bit8_bit8: (bit8, bit8) -> bit8
-stadef xor = xor_bit8_bit8
+stacst lxor_bit8_bit8: (bit8, bit8) -> bit8
+stadef lxor = lxor_bit8_bit8
 
 stacst sub_bit8_bit8: (bit8, bit8) -> bit8
 stadef - = sub_bit8_bit8
+
+stacst add_bit8_bit8: (bit8, bit8) -> bit8
+stadef + = add_bit8_bit8
 
 stacst eq_bit8_bit8: (bit8, bit8) -> bool
 stadef == = eq_bit8_bit8
@@ -46,11 +49,22 @@ overload land with land_bit8_bit8
 fun lor_bit8_bit8 {l,r:bit8} (
   bit8 (l), bit8 (r)
 ): bit8 (l lor r) = "mac#"
+overload lor with lor_bit8_bit8
+
+fun lxor_bit8_bit8 {l,r:bit8} (
+  bit8 (l), bit8 (r)
+): bit8 (l lxor r) = "mac#"
+overload lxor with lxor_bit8_bit8
 
 fun sub_bit8_bit8 {l,r:bit8} (
   bit8 (l), bit8 (r)
 ): bit8 (l - r) = "mac#"
 overload - with sub_bit8_bit8
+
+fun add_bit8_bit8 {l,r:bit8} (
+  bit8 (l), bit8 (r)
+): bit8 (l + r) = "mac#"
+overload + with add_bit8_bit8
 
 fun equal_bit8_bit8 {l,r:bit8} (
   bit8 (l), bit8 (r)
