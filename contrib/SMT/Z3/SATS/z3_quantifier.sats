@@ -46,26 +46,9 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 //
 (* ****** ****** *)
 
-fun Z3_mk_bool_sort (
-  ctx: !Z3_context
-): Z3_sort = "mac#%"
+fun Z3_mk_forall {n,p:nat} (
+  ctx: !Z3_context, weight: uint, num_patterns: uint p, patterns: &(@[Z3_pattern][p]), 
+  num_decls: uint n, sorts: &(@[Z3_sort][n]), decl_names: &(@[Z3_symbol][n]), body: !Z3_ast
+): Z3_ast = "mac#%"
 
-fun Z3_mk_int_sort (
-  ctx: !Z3_context
-): Z3_sort = "mac#%"
-
-fun Z3_mk_array_sort (
-  ctx: !Z3_context, domain: !Z3_sort, range: !Z3_sort
-): Z3_sort = "mac#%"
-
-fun Z3_sort_inc_ref (
-  ctx: !Z3_context, srt: !Z3_sort
-): Z3_sort = "mac#%"
-
-fun Z3_sort_dec_ref (
-  ctx: !Z3_context, srt: Z3_sort
-): void = "mac#%"
-
-(* ****** ****** *)
-
-(* end of [z3_sort.sats] *)
+(* end of [z3_quantifier.sats] *)

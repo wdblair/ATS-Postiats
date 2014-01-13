@@ -226,6 +226,10 @@ fun Z3_interrupt (ctx: !Z3_context): void = "mac#%"
 
 (* ****** ****** *)
 
+#include "./z3_quantifier.sats"
+
+(* ****** ****** *)
+
 #include "./z3_stringconv.sats"
 
 (* ****** ****** *)

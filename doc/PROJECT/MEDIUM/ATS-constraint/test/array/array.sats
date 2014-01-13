@@ -1,8 +1,5 @@
 datasort array = (*abstract*)
 
-stacst array_sub : (array, int(*begin*), int(*end*)) -> array
-stadef subarray = array_sub
-
 stacst array_select : (array, int(*index*)) -> t@ype
 stadef select = array_select
 
@@ -10,13 +7,13 @@ stacst array_store : (array, int(*index*), t@ype) -> array
 stadef store = array_store
 
 (* 
-  I'm not sure how to express permutation in the SMT solver's
+  I'm not sure how to express a permutation in the SMT solver's
   interface...
 *)
 stacst permutation : (array, array) -> bool
 
 stacst partitioned_array : (
-  array, int(*start0*), int(*stop0*), int(*start1*), int(*stop1*)
+  array, int(*start*), int (*pivot*), int(*stop*)
 ) -> bool
 stadef partitioned = partitioned_array
 
@@ -31,3 +28,8 @@ quicksort_sub_array {n:nat}
   &array(a, n, buf) >> array(a, n, buf'),
   int start, int stop
 ): #[buf':array | sorted(buf', start, stop)] void
+
+fun {a:t@ype}
+quicksort {buf:array} {n:nat} (
+  &array(a, n, buf) >> array(a, n, buf'), int n
+): #[buf':array | sorted (buf', 0, n)] void

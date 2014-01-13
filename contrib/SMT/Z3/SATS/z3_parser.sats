@@ -46,26 +46,9 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 //
 (* ****** ****** *)
 
-fun Z3_mk_bool_sort (
-  ctx: !Z3_context
-): Z3_sort = "mac#%"
+(* This is a bit of a hack *)
+fun Z3_parse_smtlib2_string (
+  !Z3_context, Z3_string
+): Z3_ast
 
-fun Z3_mk_int_sort (
-  ctx: !Z3_context
-): Z3_sort = "mac#%"
-
-fun Z3_mk_array_sort (
-  ctx: !Z3_context, domain: !Z3_sort, range: !Z3_sort
-): Z3_sort = "mac#%"
-
-fun Z3_sort_inc_ref (
-  ctx: !Z3_context, srt: !Z3_sort
-): Z3_sort = "mac#%"
-
-fun Z3_sort_dec_ref (
-  ctx: !Z3_context, srt: Z3_sort
-): void = "mac#%"
-
-(* ****** ****** *)
-
-(* end of [z3_sort.sats] *)
+(* end of [z3_parser.sats] *)

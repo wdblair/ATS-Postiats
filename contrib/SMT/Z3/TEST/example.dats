@@ -1,5 +1,5 @@
 (*
-  Some basic tests for the ATS Z3 Library
+  Some basic tests for the ATS Z3 bindings
 *)
 
 staload "contrib/SMT/Z3/SATS/z3.sats"
@@ -62,6 +62,9 @@ implement main () = 0 where {
     Z3_dec_ref (ctx, one);
     Z3_sort_dec_ref (ctx, bv8);
   end
+  //
+  (* Test Arrays *)
+  
   //
   val _ = Z3_sort_dec_ref (ctx, integers)
   val _ = Z3_solver_dec_ref (ctx, solve)

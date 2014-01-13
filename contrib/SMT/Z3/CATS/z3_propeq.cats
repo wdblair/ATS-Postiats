@@ -108,4 +108,10 @@ Z3_DECLARE_MK_AST(Z3_mk_ite, Z3_ast cond, Z3_ast t, Z3_ast f) {
 
 /* ****** ****** */
 
+Z3_DECLARE_MK_AST(Z3_mk_implies, Z3_ast a0, Z3_ast a1) {
+  Z3_BODY_MK_AST(Z3_mk_implies, cond, a0, a1)
+}
+
+/* ****** ****** */
+
 /* end of [z3_propeq.cats] */

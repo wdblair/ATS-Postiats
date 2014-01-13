@@ -27,58 +27,17 @@
 
 /* ****** ****** */
 
-#ifndef Z3_Z3_SORT_CATS
-#define Z3_Z3_SORT_CATS
+#ifndef Z3_Z3_QUANTIFIER_CATS
+#define Z3_Z3_QUANTIFIER_CATS
 
 /* ****** ****** */
 
-Z3_DECLARE_DEC_REF(Z3_sort)
-
-ATSinline()
-Z3_sort
-atscntrb_Z3_mk_int_sort(Z3_context ctx) {
-  Z3_sort ty = Z3_mk_int_sort(ctx);
-
-  Z3_error_code e = Z3_get_error_code(ctx);
-  if (e != Z3_OK) {
-    Z3_string msg = Z3_get_error_msg_ex(ctx, e);
-    fprintf(stderr, "Z3 Error: %s\n", msg);
-  }
-  Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty));
-  return ty;
+Z3_DECLARE_MK_AST(Z3_mk_forall, unsigned weight, unsigned num_patterns, Z3_pattern const patterns[], unsigned num_decls, Z3_sort const sorts[], Z3_symbol const decl_names[], Z3_ast body) {
+  Z3_BODY_MK_AST(Z3_mk_forall, weight, num_patterns, patterns, num_decls, sorts, decl_names, body)
 }
-
-ATSinline()
-Z3_sort
-atscntrb_Z3_mk_bool_sort(Z3_context ctx) {
-  Z3_sort ty = Z3_mk_bool_sort(ctx);
-
-  Z3_error_code e = Z3_get_error_code(ctx);
-  if (e != Z3_OK) {
-    Z3_string msg = Z3_get_error_msg_ex(ctx, e);
-    fprintf(stderr, "Z3 Error: %s\n", msg);
-  }
-  Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty));
-  return ty;
-}
-
-ATSinline()
-Z3_sort
-atscntrb_Z3_mk_array_sort(Z3_context ctx, Z3_sort domain, Z3_sort range) {
-  Z3_sort ty = Z3_mk_array_sort(ctx, domain, range);
-
-  Z3_error_code e = Z3_get_error_code(ctx);
-  if (e != Z3_OK) {
-    Z3_string msg = Z3_get_error_msg_ex(ctx, e);
-    fprintf(stderr, "Z3 Error: %s\n", msg);
-  }
-  Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty));
-  return ty;
-}
-
-#define atscntrb_Z3_sort_inc_ref Z3_inc_ref
-#define atscntrb_Z3_sort_dec_ref Z3_dec_ref
 
 /* ****** ****** */
 
 #endif
+
+/* end of [z3_quantifier.cats] */

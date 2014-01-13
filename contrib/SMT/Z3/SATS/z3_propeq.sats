@@ -93,4 +93,9 @@ fun Z3_mk_ite
 
 (* ****** ****** *)
 
+fun Z3_mk_implies
+  (ctx: !Z3_context, a1: !Z3_ast, a2: !Z3_ast): Z3_ast = "mac#%"
+
+(* ****** ****** *)
+
 (* end of [z3_propeq.sats] *)

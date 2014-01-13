@@ -113,6 +113,10 @@ atscntrb_Z3_inc_ref
 
 /* ****** ****** */
 
+#include "z3_quantifier.cats"
+
+/* ****** ****** */
+
 #include "z3_solver.cats"
 
 /* ****** ****** */
