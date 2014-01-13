@@ -100,6 +100,7 @@ datatype s2rt =
 | S2RTint of ()
 | S2RTaddr of ()
 | S2RTbool of ()
+| S2RTarray of ()
 | S2RTbitvec of (int(*width*))
 | S2RTfun of ((*void*))
 | S2RTtup of ((*void*))

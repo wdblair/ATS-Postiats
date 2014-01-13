@@ -38,6 +38,7 @@ case+ name of
 | "addr" => S2RTaddr ()
 | "bool" => S2RTbool ()
 //
+| "array" => S2RTarray ()
 | "bit8" => S2RTbitvec (8)
 //
 | "s2rt_fun" => S2RTfun ()

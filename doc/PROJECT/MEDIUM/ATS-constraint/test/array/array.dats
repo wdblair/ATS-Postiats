@@ -6,19 +6,24 @@ fun random_int_range {start,stop:nat} (
 ): [s:nat | start <= s; s <= stop] int s
 
 extern
-fun {a:t@ype} partition {n,len,i:nat | i < len; len <= n} {buf: array} (
-  &array (a, n, buf) >> array (a, n, partitioned (buf, n-1, i)), int len
-): void
-
+fun {a:t@ype}
+partition {start,stop,i,n:nat | start <= i; i <= stop; stop < n} {buf: array} (
+  &array (a, n, buf) >> array (a, n, buf'), int i, int start, int stop
+): #[buf':array]
+    [
+      p:nat | start <= p; p <= stop;
+      partitioned (buf', start, p, p+1, stop)
+    ] int p
+    
 implement {a}
-quicksort {n} {..} {buf} (arr, start, stop) = let
+quicksort_sub_array (arr, start, stop) = let
   val len = stop - start
 in
   if len <= 1 then
     ()
   else let
-    val pivot = random_int_range (start, stop)
-    val () = partition (arr, len)
+    val p = random_int_range (start, stop)
+    val pivot = partition (arr, p, start, stop)
     val left_stop =
       if pivot = start then
         pivot
@@ -30,7 +35,7 @@ in
       else
         pivot+1
   in
-    quicksort (arr, start, left_stop);
-    quicksort (arr, right_start, stop);
+    quicksort_sub_array (arr, start, left_stop);
+    quicksort_sub_array (arr, right_start, stop);
   end
 end
