@@ -160,7 +160,7 @@ fun f_min_int_int : s2cstmap_ftype
 fun f_ifint_bool_int_int : s2cstmap_ftype
 
 (*
-  This isn't working yet...
+  I haven't implemented this yet...
 *)
 fun f_lte_cls_cls : s2cstmap_ftype
 
@@ -175,3 +175,10 @@ fun f_add_bv_bv : s2cstmap_ftype
 fun f_land_bv_bv : s2cstmap_ftype
 
 fun f_eq_bv_bv : s2cstmap_ftype
+
+(* ****** ****** *)
+
+fun f_partitioned_array : s2cstmap_ftype
+fun f_sorted_array : s2cstmap_ftype
+
+(* ****** ****** *)

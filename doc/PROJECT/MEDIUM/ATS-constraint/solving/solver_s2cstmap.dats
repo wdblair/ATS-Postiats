@@ -128,6 +128,7 @@ constraint3_initialize_map (map) = {
     ins (map, "sub_bit8_bit8", f_sub_bv_bv);
     ins (map, "and_bit8_bit8", f_land_bv_bv);
     ins (map, "eq_bit8_bit8", f_eq_bv_bv);
+    //
   end
 }
 
