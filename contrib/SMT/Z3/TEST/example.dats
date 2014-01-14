@@ -64,9 +64,13 @@ implement main () = 0 where {
   end
   //
   (* Test Arrays *)
+  val integers1 = Z3_sort_inc_ref (ctx, integers)
+  val arrays = Z3_mk_array_sort (ctx, integers, integers1)
   
   //
   val _ = Z3_sort_dec_ref (ctx, integers)
+  val _ = Z3_sort_dec_ref (ctx, integers1)
+  val _ = Z3_sort_dec_ref (ctx, arrays)
   val _ = Z3_solver_dec_ref (ctx, solve)
   val _ = Z3_del_context (ctx)
 }

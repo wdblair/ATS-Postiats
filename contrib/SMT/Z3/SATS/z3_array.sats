@@ -46,17 +46,12 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 //
 (* ****** ****** *)
 
-fun Z3_mk_pattern {n:nat} (
-  !Z3_context, uint n, &(@[Z3_ast][n])
-): Z3_pattern = "mac#%"
-
-fun Z3_mk_bound (
-  ctx: !Z3_context, index: uint, ty: Z3_sort
+fun Z3_mk_select (
+  ctx: !Z3_context, array: !Z3_ast, index: !Z3_ast
 ): Z3_ast = "mac#%"
 
-fun Z3_mk_forall {n:nat} (
-  ctx: !Z3_context, weight: uint, num_patterns: uint, patterns: ptr,
-  num_decls: uint n, sorts: &(@[Z3_sort][n]), decl_names: &(@[Z3_symbol][n]), body: !Z3_ast
+fun Z3_mk_store (
+  ctx: !Z3_context, array: !Z3_ast, index: !Z3_ast, v: !Z3_ast
 ): Z3_ast = "mac#%"
 
-(* end of [z3_quantifier.sats] *)
+(* ****** ****** *)

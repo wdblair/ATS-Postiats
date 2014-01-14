@@ -93,6 +93,10 @@ atscntrb_Z3_inc_ref
 
 /* ****** ****** */
 
+#include "z3_array.cats"
+
+/* ****** ****** */
+
 #include "z3_constapp.cats"
 
 /* ****** ****** */
