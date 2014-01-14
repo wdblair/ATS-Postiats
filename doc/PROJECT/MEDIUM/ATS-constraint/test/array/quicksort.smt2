@@ -1,8 +1,9 @@
-;; An interaction with Z3 that proves quicksort sorts an array.
+;; An interaction with Z3 that proves quicksort sorts an array
 
 (define-fun partitioned ((a (Array Int Int)) (l Int) (p Int) (u Int)) Bool
     (forall ((i Int) (j Int))
-      (=> (and (<= l i p) (<= (+ p 1) j u)) (<= (select a i) (select a j)) )))
+      (=> (and (<= l i p) (<= p j u))
+          (<= (select a i) (select a p) (select a j)))))
 
 (define-fun sorted ((a (Array Int Int)) (l Int) (u Int)) Bool
   (forall((i Int) (j Int))
@@ -22,7 +23,7 @@
 (assert (<= 0 p n))
 
 (assert (partitioned buffer 0 p n))
-(assert (sorted buffer 0 p))
+(assert (sorted buffer 0 (- p 1)))
 (assert (sorted buffer (+ p 1) n))
 
 (push 1)
