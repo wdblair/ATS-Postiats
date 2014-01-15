@@ -1,5 +1,9 @@
 ;; An interaction with Z3 that proves quicksort sorts an array
 
+(define-fun swap ((a (Array Int Int)) (i Int) (j Int)) (Array Int Int)
+  (let ((tmp (select a i)))
+    (store (store a i (select a j)) j tmp)))
+
 (define-fun partitioned ((a (Array Int Int)) (l Int) (p Int) (u Int)) Bool
     (forall ((i Int) (j Int))
       (=> (and (<= l i p) (<= p j u))
@@ -9,9 +13,9 @@
   (forall((i Int) (j Int))
     (=> (<= l i j u) (<= (select a i) (select a j)))))
 
-;; TODO: how could we capture a permutation in Z3?
-;; Do we really need to? Could we just use props built
-;; using swap operations?
+;; TODO: how could  we capture a permutation in Z3?  Do we really need
+;; to? Could we just use props  that contain static arrays built using
+;; just swap operations?
 
 (declare-fun buffer () (Array Int Int))
 
@@ -23,6 +27,7 @@
 (assert (<= 0 p n))
 
 (assert (partitioned buffer 0 p n))
+
 (assert (sorted buffer 0 (- p 1)))
 (assert (sorted buffer (+ p 1) n))
 

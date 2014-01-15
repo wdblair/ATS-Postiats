@@ -17,7 +17,7 @@ end
  ctrl & 0x1 != 0x1
  and notice that the type checker will reject it.
 *)
-fun update_controller (ctrl: &Ctrl >> _): void = let 
+fun update_controller (ctrl: &Ctrl >> _): void = let
   val c = bit8 (0x101u)
 in
   ctrl := c

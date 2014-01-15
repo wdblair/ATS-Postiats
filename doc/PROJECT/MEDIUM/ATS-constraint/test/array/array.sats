@@ -12,6 +12,8 @@ stadef store = array_store
 *)
 stacst permutation : (array, array) -> bool
 
+stacst swap : (array, int, int) -> array
+
 stacst partitioned_array : (
   array, int(*start*), int (*pivot*), int(*stop*)
 ) -> bool
@@ -23,8 +25,8 @@ stadef sorted = sorted_array
 abstype array (a:t@ype, n:int, buf: array) = ptr
 
 fun {a:t@ype}
-quicksort_sub_array {n:nat}
-  {start,stop:nat | start <= stop; stop < n} {buf: array} (
+quicksort_sub_array {n:int}
+  {start,stop:int | start <= stop; stop < n} {buf: array} (
   &array(a, n, buf) >> array(a, n, buf'),
   int start, int stop
 ): #[buf':array | sorted(buf', start, stop)] void
@@ -32,4 +34,4 @@ quicksort_sub_array {n:nat}
 fun {a:t@ype}
 quicksort {buf:array} {n:nat} (
   &array(a, n, buf) >> array(a, n, buf'), int n
-): #[buf':array | sorted (buf', 0, n)] void
+): #[buf':array | sorted(buf', 0, n)] void
