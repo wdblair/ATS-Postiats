@@ -8,7 +8,7 @@ random_int_range {start,stop:int} (
 
 extern
 fun {a:t@ype}
-partition {start,stop,i,n:int | stop < n}
+partition {start,stop,i,n:nat | start < stop; stop < n}
   {buf: array} (
   &array (a, n, buf) >> array (a, n, buf'), int i, int start, int stop
 ): #[buf':array]
@@ -16,7 +16,7 @@ partition {start,stop,i,n:int | stop < n}
       p:nat | start <= p; p <= stop;
       partitioned (buf', start, p, stop)
     ] int p
-
+    
 extern
 fun swap {a:t@ype} {buf:array} {i,j,n:int} (
   &array (a, n, buf) >> array (a, n, swap (buf,i,j)), int i, int j
@@ -26,9 +26,25 @@ implement {a}
 partition {start,stop,i,n} {buf} (buf, i, start, stop) = let
   // Swap the pivot with the last element
   val () = swap (buf, i, stop)
-  fun loop (): [p:int | partitioned (buf,start,p,end)] int p
+  fun loop {buf: array} {i,pi:nat}  (
+    buf: &array(a, n,  buf) >> array (a, n, buf'), i: int, pivotIndex: int pi
+  ): #[buf': array]  int = 
+    if i = stop then let
+      val () = swap (buf, pivotIndex, stop)
+    in
+      pivotIndex
+    end
+    else if read (buf, i) <= read (buf, stop) then let
+      val () = swap (buf, i, pivotIndex)
+    in
+      loop (buf, succ(i), succ (pivotIndex))
+    end
+    else 
+      loop (buf, succ(i), pivotIndex)
+
+    
 in
-  
+  loop (buf, 0)
 end
   
 ////

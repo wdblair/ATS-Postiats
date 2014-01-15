@@ -21,6 +21,8 @@
 
 (declare-fun n () Int)
 
+(push 1)
+
 (declare-fun p () Int)
 
 ;; Suppose we selected some p uniformly at random
@@ -34,4 +36,31 @@
 (push 1)
 (assert (not (sorted buffer 0 n)))
 (check-sat)
+(pop 2)
+
+(declare-fun start () Int)
+(declare-fun stop  () Int)
+
+
+(define-fun partitioned-part 
+  ((a (Array Int Int)) (l Int) (pindex Int) (p Int) (u Int)) Bool
+    (forall ((i Int) (j Int))
+      (=> (and (< l i pindex) (<= pindex j) (< j u))
+          (<= (select a i) (select a p) (select a j)))))
+
+(declare-fun pindex () Int)
+
+(push 1)
+(assert (not (partitioned-part buffer start start  n start)))
+(check-sat)
+(pop 1)
+
+;; Try to go from partitioned-part to partitioned
+
+(assert (partitioned-part buffer start pindex n n))
+
+(push 1)
+(assert (not (partitioned (swap buffer pindex n) start pindex n)))
+(check-sat)
+(get-model)
 (pop 1)
