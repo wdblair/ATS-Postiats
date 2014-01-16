@@ -55,7 +55,7 @@
 (declare-fun i () Int)
 
 (assert (<= 0 start pindex i))
-(assert (< i stop))
+(assert (<= i stop))
 
 ;; This is our base case
 ;; pindex = start
@@ -83,6 +83,8 @@
 (assert (not (partitioned-right (swap buffer i pindex) (+ i 1) (+ pindex 1) stop)))
 (check-sat)
 (pop 2)
+
+(push 1)
 
 ;; buffer[i] > buffer[stop]
 
