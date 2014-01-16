@@ -1,9 +1,5 @@
 ;; An interaction with Z3 that (i think) proves quicksort sorts an array
 
-(define-fun swap ((a (Array Int Int)) (i Int) (j Int)) (Array Int Int)
-  (let ((tmp (select a i)))
-    (store (store a i (select a j)) j tmp)))
-
 (define-fun partitioned ((a (Array Int Int)) (l Int) (p Int) (u Int)) Bool
     (forall ((i Int) (j Int))
       (=> (and (<= l i p) (<= p j u))
@@ -40,6 +36,10 @@
 (declare-fun start () Int)
 (declare-fun stop  () Int)
 
+(define-fun swap ((a (Array Int Int)) (i Int) (j Int)) (Array Int Int)
+  (let ((tmp (select a i)))
+    (store (store a i (select a j)) j tmp)))
+
 (define-fun partitioned-left
     ((a (Array Int Int)) (l Int) (pindex Int) (p Int)) Bool
       (forall ((i Int))
@@ -68,13 +68,13 @@
 
 (push 1)
 
-;; loop function pre-condition
+;; loop function invariant
 (assert (partitioned-left buffer start pindex stop))
 (assert (partitioned-right buffer i pindex stop))
 
 (push 1)
 
-;; buffer[i] <= buffer[stop]
+;; if buffer[i] <= buffer[stop]
 
 (assert (<= (select buffer i) (select buffer stop)))
 
@@ -86,7 +86,7 @@
 
 (push 1)
 
-;; buffer[i] > buffer[stop]
+;; else buffer[i] > buffer[stop]
 
 (assert (> (select buffer i) (select buffer stop)))
 
@@ -101,7 +101,6 @@
 (assert (= i stop))
 
 (push 1)
-
 (assert (not (partitioned (swap buffer pindex stop) start pindex stop)))
 (check-sat)
 (pop 1)

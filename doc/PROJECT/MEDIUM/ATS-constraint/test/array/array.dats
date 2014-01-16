@@ -8,39 +8,45 @@ random_int_range {start,stop:int} (
 
 extern
 fun {a:t@ype}
-partition {start,stop,i,n:nat | start < stop; stop < n}
+partition {start,stop,i,n:int}
   {buf: array} (
   &array (a, n, buf) >> array (a, n, buf'), int i, int start, int stop
-): #[buf':array]
-    [
-      p:nat | start <= p; p <= stop;
-      partitioned (buf', start, p, stop)
-    ] int p
+): #[buf':array] [p:int] int p
     
 extern
 fun swap {a:t@ype} {buf:array} {i,j,n:int} (
   &array (a, n, buf) >> array (a, n, swap (buf,i,j)), int i, int j
 ): void
 
-implement {a}
-partition {start,stop,i,n} {buf} (buf, i, start, stop) = let
-  // Swap the pivot with the last element
-  val () = swap (buf, i, stop)
-  fun loop {buf: array} {i,pi:nat}  (
-    buf: &array(a, n,  buf) >> array (a, n, buf'), i: int, pivotIndex: int pi
-  ): #[buf': array] int = 
-    if i = stop then {
-      val () = swap (buf, pivotIndex, stop)
-    }
-    else if read (buf, i) <= read (buf, stop) then let
-      val () = swap (buf, i, pivotIndex)
-    in
-      loop (buf, succ(i), succ (pivotIndex))
-    end
-    else 
-      loop (buf, succ(i), pivotIndex)
+local
+
+(* See the ATS-constraint project for these definitions. *)
+stacst partitioned_left : (array, int (*start*), int (*pindex*), int(*pivot*)) -> bool
+stacst partitioned_right : (array, int (*i*), int (*pindex*), int(*pivot*)) -> bool
+
 in
-  loop (buf, 0)
+
+  implement {a}
+  partition {start,stop,i,n} {buf} (buf, i, start, stop) = let
+    // Put the pivot as the last element
+    val () = swap (buf, i, stop)
+    fun loop {buf: array} {i, pi:nat}  (
+      buf: &array(a, n,  buf) >> array (a, n, buf'), i: int, pivotIndex: int pi
+    ): #[buf': array] int = 
+      if i = stop then {
+        val () = swap (buf, pivotIndex, stop)
+      }
+      else if buf[i] <= buf[stop] then let
+        val () = swap (buf, i, pivotIndex)
+      in
+        loop (buf, succ(i), succ (pivotIndex))
+      end
+      else 
+        loop (buf, succ(i), pivotIndex)
+  in
+    loop (buf, 0)
+  end
+
 end
 
 ////
