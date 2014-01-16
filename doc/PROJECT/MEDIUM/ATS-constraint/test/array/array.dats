@@ -28,11 +28,11 @@ partition {start,stop,i,n} {buf} (buf, i, start, stop) = let
   val () = swap (buf, i, stop)
   fun loop {buf: array} {i,pi:nat}  (
     buf: &array(a, n,  buf) >> array (a, n, buf'), i: int, pivotIndex: int pi
-  ): #[buf': array]  int = 
+  ): #[buf': array] int = 
     if i = stop then let
       val () = swap (buf, pivotIndex, stop)
     in
-      pivotIndex
+      
     end
     else if read (buf, i) <= read (buf, stop) then let
       val () = swap (buf, i, pivotIndex)

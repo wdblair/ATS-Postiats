@@ -1,4 +1,4 @@
-;; An interaction with Z3 that proves quicksort sorts an array
+;; An interaction with Z3 that (i think) proves quicksort sorts an array
 
 (define-fun swap ((a (Array Int Int)) (i Int) (j Int)) (Array Int Int)
   (let ((tmp (select a i)))
@@ -13,10 +13,7 @@
   (forall((i Int) (j Int))
     (=> (<= l i j u) (<= (select a i) (select a j)))))
 
-;; TODO: how could  we capture a permutation in Z3?  Do we really need
-;; to? Could we just use props  that contain static arrays built using
-;; just swap operations?
-
+;; Some array of integers
 (declare-fun buffer () (Array Int Int))
 
 (declare-fun n () Int)
@@ -41,26 +38,63 @@
 (declare-fun start () Int)
 (declare-fun stop  () Int)
 
+(define-fun partitioned-left
+    ((a (Array Int Int)) (l Int) (pindex Int) (p Int)) Bool
+      (forall ((i Int))
+        (=> (and (<= l i ) (< i pindex)) (<= (select a i) (select a p)))))
 
-(define-fun partitioned-part 
-  ((a (Array Int Int)) (l Int) (pindex Int) (p Int) (u Int)) Bool
-    (forall ((i Int) (j Int))
-      (=> (and (< l i pindex) (<= pindex j) (< j u))
-          (<= (select a i) (select a p) (select a j)))))
+(define-fun partitioned-right
+    ((a (Array Int Int)) (u Int) (pindex Int) (p Int)) Bool
+      (forall ((i Int))
+        (=> (and (<= pindex i u)) (<= (select a p) (select a i)))))
 
 (declare-fun pindex () Int)
 
+(declare-fun i () Int)
+
+(assert (<= 0 start pindex i))
+(assert (< i stop))
+
+;; This is our base case
 (push 1)
-(assert (not (partitioned-part buffer start start  n start)))
+(assert (not (partitioned-left buffer start start stop)))
+(assert (not (partitioned-right buffer start start stop)))
 (check-sat)
 (pop 1)
 
-;; Try to go from partitioned-part to partitioned
-
-(assert (partitioned-part buffer start pindex n n))
 
 (push 1)
-(assert (not (partitioned (swap buffer pindex n) start pindex n)))
+
+;; pre-conditions
+(assert (partitioned-left buffer start pindex stop))
+(assert (partitioned-right buffer i pindex stop))
+
+(push 1)
+
+(assert (<= (select buffer i) (select buffer stop)))
+
+(push 1)
+(assert (not (partitioned-left (swap buffer i pindex) start (+ pindex 1) stop)))
+(assert (not (partitioned-right (swap buffer i pindex) (+ i 1) (+ pindex 1) stop)))
 (check-sat)
-(get-model)
+(pop 2)
+
+;; buffer[i] > buffer[stop]
+
+(assert (> (select buffer i) (select buffer stop)))
+
+(push 1)
+(assert (not (partitioned-left buffer start pindex stop)))
+(assert (not (partitioned-right buffer (+ i 1) pindex stop)))
+(check-sat)
+(pop 2)
+
+;; Final case, when i = stop
+
+(assert (= i stop))
+
+(push 1)
+
+(assert (not (partitioned (swap buffer pindex stop) start pindex stop)))
+(check-sat)
 (pop 1)

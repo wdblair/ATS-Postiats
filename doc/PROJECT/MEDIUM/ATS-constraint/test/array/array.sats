@@ -1,16 +1,10 @@
 datasort array = (*abstract*)
 
-stacst array_select : (array, int(*index*)) -> t@ype
+stacst array_select : (array, int(*index*))
 stadef select = array_select
 
 stacst array_store : (array, int(*index*), t@ype) -> array
 stadef store = array_store
-
-(* 
-  I'm not sure how to express a permutation in the SMT solver's
-  interface...
-*)
-stacst permutation : (array, array) -> bool
 
 stacst swap : (array, int, int) -> array
 
@@ -26,7 +20,7 @@ abstype array (a:t@ype, n:int, buf: array) = ptr
 
 fun {a:t@ype}
 quicksort_sub_array {n:int}
-  {start,stop:int | start <= stop; stop < n} {buf: array} (
+  {start,stop:int | 0 <= start; start <= stop; stop < n} {buf: array} (
   &array(a, n, buf) >> array(a, n, buf'),
   int start, int stop
 ): #[buf':array | sorted(buf', start, stop)] void
@@ -34,4 +28,4 @@ quicksort_sub_array {n:int}
 fun {a:t@ype}
 quicksort {buf:array} {n:nat} (
   &array(a, n, buf) >> array(a, n, buf'), int n
-): #[buf':array | sorted(buf', 0, n)] void
+): #[buf':array | sorted(buf', 0, n-1)] void
