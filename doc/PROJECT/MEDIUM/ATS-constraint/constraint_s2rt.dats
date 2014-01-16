@@ -58,6 +58,7 @@ case+ s2t0 of
 | S2RTaddr () => fprint (out, "S2RTaddr()")
 | S2RTbool () => fprint (out, "S2RTbool()")
 | S2RTbitvec (width) => fprint! (out, "S2RTbitvec(", width, ")")
+| S2RTarray () => fprint (out, "S2RTarray()")
 //
 | S2RTfun () => fprint (out, "S2RTfun()")
 | S2RTtup () => fprint (out, "S2RTtup()")

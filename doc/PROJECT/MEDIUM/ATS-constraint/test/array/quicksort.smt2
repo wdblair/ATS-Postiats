@@ -35,6 +35,8 @@
 (check-sat)
 (pop 2)
 
+;; These constraints will be checked for the loop inside the partition function.
+
 (declare-fun start () Int)
 (declare-fun stop  () Int)
 
@@ -56,20 +58,23 @@
 (assert (< i stop))
 
 ;; This is our base case
+;; pindex = start
+;; i = start
 (push 1)
 (assert (not (partitioned-left buffer start start stop)))
 (assert (not (partitioned-right buffer start start stop)))
 (check-sat)
 (pop 1)
 
-
 (push 1)
 
-;; pre-conditions
+;; loop function pre-condition
 (assert (partitioned-left buffer start pindex stop))
 (assert (partitioned-right buffer i pindex stop))
 
 (push 1)
+
+;; buffer[i] <= buffer[stop]
 
 (assert (<= (select buffer i) (select buffer stop)))
 
