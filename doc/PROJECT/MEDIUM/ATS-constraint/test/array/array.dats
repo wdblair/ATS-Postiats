@@ -1,39 +1,40 @@
 staload "array.sats"
 
 extern
-fun 
+fun
 random_int_range {start,stop:int} (
   int start, int stop
 ): [s:int | start <= s; s <= stop] int s
 
 extern
 fun {a:t@ype}
-partition {start,stop,i,n:int}
-  {buf: array} (
-  &array (a, n, buf) >> array (a, n, buf'), int i, int start, int stop
+partition {start, stop, pivot, n:nat
+  | start <= pivot; pivot <= stop; stop < n
+} {buf: array} (
+  &array (a, n, buf) >> array (a, n, buf'), int pivot, int start, int stop
 ): #[buf':array] [p:int] int p
     
 extern
-fun swap {a:t@ype} {buf:array} {i,j,n:int} (
+fun {a:t@ype} swap {buf:array} {i,j,n:int} (
   &array (a, n, buf) >> array (a, n, swap (buf,i,j)), int i, int j
 ): void
 
 local
 
 (* See the ATS-constraint project for these definitions. *)
-stacst 
+stacst
 partitioned_left : (array, int (*start*), int (*pindex*), int(*pivot*)) -> bool
- 
-stacst 
+
+stacst
 partitioned_right : (array, int (*i*), int (*pindex*), int(*pivot*)) -> bool
 
 in
 
-  implement {a}
-  partition {start,stop,i,n} {buf} (buf, i, start, stop) = let
-    // Put the pivot as the last element
-    val () = swap (buf, i, stop)
-    fun loop {buf: array} {i, pi:nat}  (
+implement {a}
+partition {start,stop,pivot,n} {buf} (buf, pivot, start, stop) = let
+    val () = swap (buf, pivot, stop)
+    //
+    fun loop {buf: array} {i, pi:nat | i <= stop}  (
       buf: &array(a, n,  buf) >> array (a, n, buf'), i: int i, pivotIndex: int pi
     ): #[buf': array] [p:nat] int p =
       if i = stop then let
@@ -51,7 +52,6 @@ in
   in
     loop (buf, 0, 0)
   end
-
 end
 
 ////
