@@ -85,7 +85,7 @@ infixl ( >= ) igte fgte pgte ugte
 
 infixr 40 :: @
 
-infix 30 = == <> !=
+infix 30 = == <> != ==>
 (*
 //
 // HX-2012-07: removed
@@ -95,9 +95,9 @@ infix ( <> ) ineq fneq pneq uneq
 *)
 
 infixl 21 &&
-infixl ( && ) andalso land
+infixl ( && ) andalso land And
 infixl 20 ||
-infixl ( || ) orelse lor lxor
+infixl ( || ) orelse lor lxor Or
 
 infixr 10 ->
 
@@ -113,6 +113,10 @@ infixr 0 >>
 prefix 0 ++ -- // inc and dec
 prefix 0 !++ --! // getinc and decget
 infixr 0 =++ --= // setinc and decset
+
+(* ****** ****** *)
+
+prefix 0 ^ //copy or duplicate
 
 (* ****** ****** *)
 

@@ -48,6 +48,9 @@ staload "solving/error.sats"
 staload "solving/solver.sats"
 staload SMT = "solving/smt.sats"
 
+staload "solving/smt_ML.sats"
+staload _  = "solving/smt_ML.dats"
+
 (* ****** ****** *)
 
 viewtypedef solver = $SMT.solver

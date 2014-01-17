@@ -34,13 +34,8 @@
 
 absvtype solver = ptr
 
-#ifndef __formula_size
-#define __formula_size ptr
-#define __sort_size ptr
-#endif
-
-absvt@ype formula = __formula_size
-absvt@ype sort = __sort_size
+absvtype formula = ptr
+absvtype sort = ptr
 
 (* ****** ****** *)
 
