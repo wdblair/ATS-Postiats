@@ -189,6 +189,7 @@ in
   implement smtenv_add_svar (env, s2v) = let
     val () = fprintln! (stdout_ref, "Adding svar: ", s2v)
     val type = s2var_get_srt (s2v)
+    //
     val smt_type = (
       if s2rt_is_int (type) orelse s2rt_is_addr (type) then
          $SMT.make_int_sort (env.smt)
@@ -201,6 +202,7 @@ in
       else
         $SMT.make_bool_sort (env.smt)
     ): $SMT.sort
+    //
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
     val () = if log_smt then
@@ -368,6 +370,17 @@ in
     $SMT.is_valid (env.smt, wff)
   end
   
+(* ****** ******  *)
+
+(*
+  Users should be able to write these functions as easily as possible, 
+  so they're likely to change often.
+  If someone wants to add a function to extend the power of the statics,
+  it will be implemented here.
+*)
+
+(* ****** ******  *)
+
   #define :: list_cons
   
   implement f_identity (env, s2es) = let
@@ -376,13 +389,11 @@ in
     formula_make (env, s2e1)
   end // end of [f_identity]
 
-(* ****** ******  *)
-
   implement  f_neg_bool (env, s2es) = let
     val- s2e :: _ = s2es
-    val fbe = formula_make (env, s2e)
+    val boole = formula_make (env, s2e)
   in
-    $SMT.make_not(env.smt , fbe)
+    $SMT.make_not (env.smt, boole)
   end // end of [f_neg_bool]
   
   implement f_add_bool_bool (env, s2es) = let
