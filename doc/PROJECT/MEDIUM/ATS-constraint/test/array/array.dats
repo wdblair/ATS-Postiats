@@ -21,8 +21,11 @@ fun swap {a:t@ype} {buf:array} {i,j,n:int} (
 local
 
 (* See the ATS-constraint project for these definitions. *)
-stacst partitioned_left : (array, int (*start*), int (*pindex*), int(*pivot*)) -> bool
-stacst partitioned_right : (array, int (*i*), int (*pindex*), int(*pivot*)) -> bool
+stacst 
+partitioned_left : (array, int (*start*), int (*pindex*), int(*pivot*)) -> bool
+ 
+stacst 
+partitioned_right : (array, int (*i*), int (*pindex*), int(*pivot*)) -> bool
 
 in
 
@@ -31,11 +34,13 @@ in
     // Put the pivot as the last element
     val () = swap (buf, i, stop)
     fun loop {buf: array} {i, pi:nat}  (
-      buf: &array(a, n,  buf) >> array (a, n, buf'), i: int, pivotIndex: int pi
-    ): #[buf': array] int = 
-      if i = stop then {
+      buf: &array(a, n,  buf) >> array (a, n, buf'), i: int i, pivotIndex: int pi
+    ): #[buf': array] [p:nat] int p =
+      if i = stop then let
         val () = swap (buf, pivotIndex, stop)
-      }
+      in
+        pivotIndex
+      end
       else if buf[i] <= buf[stop] then let
         val () = swap (buf, i, pivotIndex)
       in
@@ -44,7 +49,7 @@ in
       else 
         loop (buf, succ(i), pivotIndex)
   in
-    loop (buf, 0)
+    loop (buf, 0, 0)
   end
 
 end

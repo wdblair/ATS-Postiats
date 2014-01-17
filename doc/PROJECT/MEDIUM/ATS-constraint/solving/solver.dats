@@ -117,11 +117,13 @@ c3nstr_solve_errmsg (c3t, unsolved) =
     0
   else let
     val out = stdout_ref
+    val loc = c3t.c3nstr_loc
   in
-    fprintln! (out, "Unsolved constraint: ", c3t);
+    fprintln! (out, "Unsolved constraint @ ", loc,":");
+    fprintln! (out, c3t);
     0
   end
-
+  
 implement
 c3nstr_solve_prop
   (loc0, env, s2p, err) = let

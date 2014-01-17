@@ -11,9 +11,9 @@ datasort array = (*abstract*)
   then swapping the ith element with our pivot index
   maintains the partition invariant.
 *)
-datasort array_read = (*abstract*)
+datasort select = (*abstract*)
 
-stacst array_select : (array, int(*index*)) -> array_read
+stacst array_select : (array, int(*index*)) -> select
 stadef select = array_select
 
 stacst swap : (array, int, int) -> array
@@ -30,13 +30,13 @@ abstype array (a:t@ype, n:int, buf: array) = ptr
 
 (* ****** ****** *)
 
-stacst lte_array_read_array_read: (array_read, array_read) -> bool
-stadef <= = lte_array_read_array_read
+stacst lte_select_select: (select, select) -> bool
+stadef <= = lte_select_select
 
-abst@ype read (a:t@ype, rs:array_read) = a
+abst@ype read (a:t@ype, s:select) = a
 
-fun {a:t@ype} {i,j:array_read}
-read_lte (read (a, i), read (a, j)): bool (i <= j)
+fun {a:t@ype}
+read_lte {i,j:select} (read (a, i), read (a, j)): bool (i <= j)
 
 overload <= with read_lte
 
