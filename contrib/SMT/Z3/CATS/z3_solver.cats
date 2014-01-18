@@ -75,6 +75,13 @@ atscntrb_Z3_mk_solver(Z3_context ctx) {
   return s;
 }
 
+ATSinline()
+Z3_solver
+atscntrb_Z3_solver_inc_ref(Z3_context ctx, Z3_solver s) {
+  Z3_solver_inc_ref(ctx, s);
+  return s;
+}
+
 #define atscntrb_Z3_solver_assert Z3_solver_assert
 #define atscntrb_Z3_solver_check Z3_solver_check
 #define atscntrb_Z3_solver_dec_ref Z3_solver_dec_ref

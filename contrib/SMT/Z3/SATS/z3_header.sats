@@ -61,10 +61,10 @@ vtypedef Z3_config = [l:addr] Z3_config (l)
 
 (* ****** ****** *)
 
-absvtype
-Z3_context_vtype (l:addr) = ptr
-stadef Z3_context = Z3_context_vtype
-vtypedef Z3_context = [l:addr] Z3_context (l)
+abstype
+Z3_context_type (l:addr) = ptr
+stadef Z3_context = Z3_context_type
+typedef Z3_context = [l:addr] Z3_context (l)
 
 (* ****** ****** *)
 

@@ -39,7 +39,7 @@ absvtype sort = ptr
 
 (* ****** ****** *)
 
-
+fun the_solver_get (): solver
 
 (* ****** ****** *)
 
@@ -49,41 +49,43 @@ fun make_solver (): solver
 
 fun delete_solver (solver): void
 
-fun make_int_sort (!solver): sort
+overload ~ with delete_solver
 
-fun make_bool_sort (!solver): sort
+fun make_int_sort (): sort
 
-fun make_bitvec_sort (_: !solver, width: int): sort
+fun make_bool_sort (): sort
+
+fun make_bitvec_sort (width: int): sort
 
 fun make_int_constant (
-  _: !solver, id: int, _: !sort
+  id: int, _: !sort
 ): formula
 
 fun make_fresh_constant (
-  _: !solver, _: !sort
+  !sort
 ): formula
 
 (* ****** ****** *)
 
 // Prop Logic and Equality
 
-fun make_true  (!solver): formula
-fun make_false (!solver): formula
+fun make_true  (): formula
+fun make_false (): formula
 
 fun make_not (
-  _: !solver, _: formula
+  formula
 ): formula
 
 fun make_and2 (
-  !solver, formula, formula
+  formula, formula
 ): formula
 
 fun make_or2 (
-  !solver, formula, formula
+  formula, formula
 ): formula
 
 fun make_ite (
-  !solver, condition: formula, t: formula, f: formula
+  condition: formula, t: formula, f: formula
 ): formula
 
 (* ****** ****** *)
@@ -93,52 +95,52 @@ fun make_ite (
 symintr make_numeral
 
 fun make_numeral_int (
-  !solver, int, !sort
+  int, !sort
 ): formula
 
 overload make_numeral with make_numeral_int
 
 fun make_numeral_string (
-  !solver, string, !sort
+  string, !sort
 ): formula
 
 overload make_numeral with make_numeral_string
 
 fun make_numeral_uninterpreted (
-  _: !solver, _: !sort
-): formula = "make_int"
+  !sort
+): formula
 
 overload make_numeral with make_numeral_uninterpreted
 
-fun make_negate (!solver, formula): formula
+fun make_negate (formula): formula
 
-fun make_add2 (!solver, formula, formula): formula
+fun make_add2 (formula, formula): formula
 
-fun make_sub2 (!solver, formula, formula): formula
+fun make_sub2 (formula, formula): formula
 
-fun make_mul2 (!solver, formula, formula): formula
+fun make_mul2 (formula, formula): formula
 
-fun make_div ( !solver,  formula,  formula): formula
+fun make_div (formula,  formula): formula
 
-fun make_lt ( !solver,  formula,  formula): formula
-fun make_le ( !solver,  formula,  formula): formula
-fun make_gt ( !solver,  formula,  formula): formula
-fun make_ge ( !solver,  formula,  formula): formula
-fun make_eq ( !solver,  formula,  formula): formula
+fun make_lt (formula,  formula): formula
+fun make_le (formula,  formula): formula
+fun make_gt (formula,  formula): formula
+fun make_ge (formula,  formula): formula
+fun make_eq (formula,  formula): formula
 
 (* ****** ****** *)
 
 // Bit Vectors
 
-fun make_bv_from_int (solv: !solver, width: int, i: formula): formula
+fun make_bv_from_int (width: int, i: formula): formula
 
-fun make_bv_sub2 (!solver, formula, formula): formula
+fun make_bv_sub2 (formula, formula): formula
 
-fun make_bv_add2 (!solver, formula, formula): formula
+fun make_bv_add2 (formula, formula): formula
 
-fun make_bv_land2 (!solver, formula, formula): formula
+fun make_bv_land2 (formula, formula): formula
 
-fun make_bv_eq (!solver, formula, formula): formula
+fun make_bv_eq (formula, formula): formula
 
 (* ****** ****** *)
 
@@ -158,18 +160,18 @@ fun is_valid (!solver, formula): bool
 
 (* ****** ****** *)
 
-fun formula_dup (!solver, !formula): formula
+fun formula_dup (!formula): formula
 
-fun formula_free (!solver, formula): void
+fun formula_free (formula): void
 
-fun sort_free (!solver, sort): void
+fun sort_free (sort): void
 
 (* ****** ****** *)
 
 // Debugging (SMT-Lib)
 
 fun string_of_formula (
-  !solver, !formula
+  !formula
 ): string
 
 (* ****** ****** *)

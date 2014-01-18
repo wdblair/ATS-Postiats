@@ -35,18 +35,23 @@
 staload "solving/smt.sats"
 staload "solving/smt_ML.sats"
 
-implement {}
+(* ****** ****** *)
+
+implement 
 FormulaDup (f) = let
-  val (pf | slv) = Solver ()
-  val f' = formula_dup (slv, f);
-  prval () = Return (pf | slv)
+  val slv = the_solver_get ()
+  val f' = formula_dup (slv, f)
 in
+  ~slv;
   f'
 end
 
-implement {}
-FormulaFree (f) = {
-  val (pf | slv) = Solver ()
-  val f' = formula_free (slv, f);
-  prval () = Return (pf | slv)
-}
+implement
+FormulaFree (f) = let
+  val slv = the_solver_get ()
+  val f' = formula_free (slv, f)
+in
+  ~slv
+end
+
+(* ****** ****** *)

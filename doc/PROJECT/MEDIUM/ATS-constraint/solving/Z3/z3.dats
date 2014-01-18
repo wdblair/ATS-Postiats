@@ -41,6 +41,7 @@
 
 staload "constraint.sats"
 staload "solving/smt.sats"
+staload "solving/smt_ML.sats"
 
 (* ****** ****** *)
 
@@ -52,199 +53,244 @@ staload UN = "prelude/SATS/unsafe.sats"
 
 (* ****** ****** *)
 
-viewtypedef solver_vtype = '{
-  ctx= Z3_context,
-  slv= Z3_solver
-}
-
-assume solver = solver_vtype
+assume solver = Z3_solver
 
 assume formula = Z3_ast
 assume sort = Z3_sort
 
-implement make_solver () = let
-  val conf = Z3_mk_config ()
-  val ctx = Z3_mk_context_rc (conf)
-  val _ = Z3_del_config (conf)
-  val solve = Z3_mk_solver (ctx)
-  //
-in
-  '{ctx= ctx, slv= solve}
-end // end of [make_solver]
-
-implement delete_solver (solve) = {
-    val _ = Z3_solver_dec_ref (solve.ctx, solve.slv)
-    val _ = Z3_del_context (solve.ctx)
-    prval () = __free (solve) where {
-      extern praxi __free{a:viewt@ype} (a): void
-    }
-}
-
-implement make_int_sort (solve) =
-  Z3_mk_int_sort (solve.ctx)
-
-implement make_bool_sort (solve) =
-  Z3_mk_bool_sort (solve.ctx)
-
-implement make_bitvec_sort (solve, width) = 
-  Z3_mk_bv_sort (solve.ctx, g0int2uint(width))
+local
+  var ctx : Z3_context
   
-implement make_int_constant (solve, id, sort) = let
-  val sym = Z3_mk_int_symbol (solve.ctx, id)
+  val conf = Z3_mk_config ()
+  val () = ctx := Z3_mk_context_rc (conf)
+  
+  val () = Z3_del_config (conf)
 in
-  Z3_mk_const (solve.ctx, sym, sort)
+  val the_context = ref_make_viewptr{Z3_context} (view@ ctx | addr@ ctx)
 end
 
-implement make_fresh_constant (solve, sort) =
-    Z3_mk_fresh_const (solve.ctx, "postiats", sort)
+(* ****** ****** *)
 
-implement make_true (solve) = Z3_mk_true (solve.ctx)
+local
+  var slv: solver
+  
+  val () = slv := Z3_mk_solver (!the_context)
+in
+  val the_solver = ref_make_viewptr {solver} (view@ slv | addr@ slv)
+end
 
-implement make_false (solve) = Z3_mk_false (solve.ctx)
+(* ****** ****** *)
 
-implement make_not (solve, phi) = let
-  val psi = Z3_mk_not (solve.ctx, phi)
-  val _ = Z3_dec_ref (solve.ctx, phi)
+implement 
+the_solver_get () = let
+  val (pf, fpf | p ) = $UN.ref_vtake{solver} (the_solver)
+  val new = Z3_solver_inc_ref (!the_context, !p)
+  prval () = fpf (pf)
+in
+  new
+end // end of [the_solver_get]
+
+implement 
+make_solver () = let
+  val solve = the_solver_get ()
+in
+  solve
+end // end of [make_solver]
+
+implement 
+delete_solver (solve) = {
+    val _ = Z3_solver_dec_ref (!the_context, solve)
+}
+
+implement 
+make_int_sort () =
+  Z3_mk_int_sort (!the_context)
+
+implement 
+make_bool_sort () =
+  Z3_mk_bool_sort (!the_context)
+
+implement 
+make_bitvec_sort (width) =
+  Z3_mk_bv_sort (!the_context, g0int2uint(width))
+  
+implement 
+make_int_constant (id, sort) = let
+  val sym = Z3_mk_int_symbol (!the_context, id)
+in
+  Z3_mk_const (!the_context, sym, sort)
+end
+
+implement 
+make_fresh_constant (sort) =
+    Z3_mk_fresh_const (!the_context, "postiats", sort)
+
+implement 
+make_true () = Z3_mk_true (!the_context)
+
+implement 
+make_false () = Z3_mk_false (!the_context)
+
+implement 
+make_not (phi) = let
+  val psi = Z3_mk_not (!the_context, phi)
+  val _ = Z3_dec_ref (!the_context, phi)
 in
   psi
 end
 
-implement make_ite (solve, cond, t, f) = let
-  val ite = Z3_mk_ite (solve.ctx, cond, t, f)
+implement 
+make_ite (cond, t, f) = let
+  val ite = Z3_mk_ite (!the_context, cond, t, f)
   val () = begin
-    Z3_dec_ref (solve.ctx, cond);
-    Z3_dec_ref (solve.ctx, t);
-    Z3_dec_ref (solve.ctx, f);
+    Z3_dec_ref (!the_context, cond);
+    Z3_dec_ref (!the_context, t);
+    Z3_dec_ref (!the_context, f);
   end
 in
   ite
 end
 
-implement make_or2 (solve, l, r) = let
-  val phi = Z3_mk_or2 (solve.ctx, l, r)
+implement 
+make_or2 (l, r) = let
+  val phi = Z3_mk_or2 (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   phi
 end
 
-implement make_and2 (solve, l, r) = let
-  val phi = Z3_mk_and2 (solve.ctx, l, r)
+implement 
+make_and2 (l, r) = let
+  val phi = Z3_mk_and2 (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   phi
 end
 
-implement make_eq (solve, l, r) = let
-  val phi = Z3_mk_eq (solve.ctx, l, r)
+implement 
+make_eq (l, r) = let
+  val phi = Z3_mk_eq (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   phi
 end
 
-implement make_numeral_int (solve, num, srt) =
-  Z3_mk_int (solve.ctx, num, srt)
+implement 
+make_numeral_int (num, srt) =
+  Z3_mk_int (!the_context, num, srt)
   
-implement make_numeral_string (solve, num, srt) =
-  Z3_mk_numeral (solve.ctx, num, srt)
+implement 
+make_numeral_string (num, srt) =
+  Z3_mk_numeral (!the_context, num, srt)
 
-implement make_numeral_uninterpreted (solve, srt) = let
+implement 
+make_numeral_uninterpreted (srt) = let
 in
-  Z3_mk_fresh_const (solve.ctx, "uninterp", srt)
+  Z3_mk_fresh_const (!the_context, "uninterp", srt)
 end
 
-implement make_negate (solve, num) = let
-  val neg = Z3_mk_unary_minus (solve.ctx, num)
+implement 
+make_negate (num) = let
+  val neg = Z3_mk_unary_minus (!the_context, num)
   val () = begin
-    Z3_dec_ref (solve.ctx, num)
+    Z3_dec_ref (!the_context, num)
   end
 in
   neg
 end
 
-implement make_lt (solve, l, r) = let
-  val phi = Z3_mk_lt (solve.ctx, l, r)
+implement 
+make_lt (l, r) = let
+  val phi = Z3_mk_lt (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   phi
 end
 
-implement make_le (solve, l, r) = let
-  val phi = Z3_mk_le (solve.ctx, l, r)
+implement 
+make_le (l, r) = let
+  val phi = Z3_mk_le (!the_context, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref(!the_context, l);
+    Z3_dec_ref(!the_context, r);
   end
 in
   phi
 end
 
-implement make_gt (solve, l, r) = let
-  val phi = Z3_mk_gt (solve.ctx, l, r)
+implement 
+make_gt (l, r) = let
+  val phi = Z3_mk_gt (!the_context, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref(!the_context, l);
+    Z3_dec_ref(!the_context, r);
   end
 in
   phi
 end
 
-implement make_ge (solve, l , r) = let
-  val phi = Z3_mk_ge (solve.ctx, l, r)
+implement 
+make_ge (l , r) = let
+  val phi = Z3_mk_ge (!the_context, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref(!the_context, l);
+    Z3_dec_ref(!the_context, r);
   end
 in
   phi
 end
 
-implement make_mul2 (solve, l, r) = let
-  val phi = Z3_mk_mul2 (solve.ctx, l, r)
+implement 
+make_mul2 (l, r) = let
+  val phi = Z3_mk_mul2 (!the_context, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref(!the_context, l);
+    Z3_dec_ref(!the_context, r);
   end
 in
   phi
 end
 
-implement make_add2 (solve, l, r) = let
-  val phi = Z3_mk_add2 (solve.ctx, l, r)
+implement 
+make_add2 (l, r) = let
+  val phi = Z3_mk_add2 (!the_context, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref(!the_context, l);
+    Z3_dec_ref(!the_context, r);
   end
 in
   phi
 end
 
-implement make_sub2 (solve, l, r) = let
-  val phi = Z3_mk_sub2 (solve.ctx, l, r)
+implement 
+make_sub2 (l, r) = let
+  val phi = Z3_mk_sub2 (!the_context, l, r)
   val () = begin
-    Z3_dec_ref(solve.ctx, l);
-    Z3_dec_ref(solve.ctx, r);
+    Z3_dec_ref(!the_context, l);
+    Z3_dec_ref(!the_context, r);
   end
 in
   phi
 end
 
-implement make_div (solve, num, den) = let
-  val phi = Z3_mk_div (solve.ctx, num, den)
+implement 
+make_div (num, den) = let
+  val phi = Z3_mk_div (!the_context, num, den)
   val () = begin
-    Z3_dec_ref(solve.ctx, num);
-    Z3_dec_ref(solve.ctx, den);
+    Z3_dec_ref(!the_context, num);
+    Z3_dec_ref(!the_context, den);
   end
 in
   phi
@@ -253,46 +299,46 @@ end
 (* ****** ****** *)
 
 implement
-make_bv_sub2 (solve, l, r) = let
-  val dif = Z3_mk_bvsub (solve.ctx, l, r)
+make_bv_sub2 (l, r) = let
+  val dif = Z3_mk_bvsub (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   dif
 end
 
 implement
-make_bv_add2 (solve, l, r) = let
-  val sum = Z3_mk_bvadd (solve.ctx, l, r)
+make_bv_add2 (l, r) = let
+  val sum = Z3_mk_bvadd (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   sum
 end
 
 implement
-make_bv_land2 (solve, l, r) = let
-  val masked = Z3_mk_bvand (solve.ctx, l, r)
+make_bv_land2 (l, r) = let
+  val masked = Z3_mk_bvand (!the_context, l, r)
   val () = begin
-    Z3_dec_ref (solve.ctx, l);
-    Z3_dec_ref (solve.ctx, r);
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
   end
 in
   masked
 end
 
 implement
-make_bv_eq (solve, l, r) = make_eq (solve, l, r)
+make_bv_eq (l, r) = make_eq (l, r)
 
 implement
-make_bv_from_int (solve, n, i) = let
-  val bv = Z3_mk_int2bv (solve.ctx, n, i)
+make_bv_from_int (n, i) = let
+  val bv = Z3_mk_int2bv (!the_context, n, i)
   val () = begin
-    Z3_dec_ref (solve.ctx, i)
+    Z3_dec_ref (!the_context, i)
   end
 in
   bv
@@ -300,30 +346,37 @@ end
 
 (* ****** ****** *)
 
-implement assert (solve, formula) = {
-  val _ = Z3_solver_assert (solve.ctx, solve.slv, formula)
-  val _ = Z3_dec_ref (solve.ctx, formula)
+
+(* ****** ****** *)
+
+implement 
+assert (solve, formula) = {
+  val _ = Z3_solver_assert (!the_context, solve, formula)
+  val _ = Z3_dec_ref (!the_context, formula)
 }
 
-implement push (solve) = Z3_solver_push (solve.ctx, solve.slv)
+implement 
+push (solve) = Z3_solver_push (!the_context, solve)
 
-implement pop (solve) = let
-  val depth = Z3_solver_get_num_scopes (solve.ctx, solve.slv)
+implement 
+pop (solve) = let
+  val depth = Z3_solver_get_num_scopes (!the_context, solve)
 in
-   if depth >  0u then
-    Z3_solver_pop (solve.ctx, solve.slv, 1u)
+   if depth > 0u then
+    Z3_solver_pop (!the_context, solve, 1u)
 end
 
 macdef Z3_FALSE = $extval (Z3_lbool, "Z3_L_FALSE")
 macdef Z3_TRUE  = $extval (Z3_lbool, "Z3_L_TRUE")
 
-implement is_valid (solve, formula) = let
+implement 
+is_valid (solve, formula) = let
   val () = push (solve)
-  
-  val neg = make_not (solve, formula)
+  //
+  val neg = make_not (formula)
   val () = assert (solve, neg)
-  val sat = Z3_solver_check (solve.ctx, solve.slv)
-  
+  val sat = Z3_solver_check (!the_context, solve)
+  //
   val () = pop (solve)
 in
   if sat = Z3_FALSE then
@@ -334,13 +387,57 @@ end
 
 (* ****** ****** *)
 
-implement formula_dup (solve, wff) = Z3_inc_ref (solve.ctx, wff)
+implement 
+formula_dup (wff) = Z3_inc_ref (!the_context, wff)
 
-implement formula_free (solve, wff) = Z3_dec_ref (solve.ctx, wff)
+implement 
+formula_free (wff) = Z3_dec_ref (!the_context, wff)
 
-implement sort_free (solve, srt) = Z3_sort_dec_ref (solve.ctx, srt)
+implement 
+sort_free (srt) = Z3_sort_dec_ref (!the_context, srt)
 
 (* ****** ****** *)
 
-implement string_of_formula (solve, wff) =
-  Z3_ast_to_string (solve.ctx, wff)
+implement 
+string_of_formula (wff) =
+  Z3_ast_to_string (!the_context, wff)
+  
+(* ****** ****** *)
+
+(* ML interface *)
+
+implement
+int_constant_name (label) = let
+  val sym = Z3_mk_string_symbol (!the_context, label)
+  val ty = Z3_mk_int_sort (!the_context)
+  val const = Z3_mk_const (!the_context, sym, ty)
+in
+  Z3_sort_dec_ref (!the_context, ty);
+  const
+end
+
+implement
+int_numeral (i) = let
+  val ty = Z3_mk_int_sort (!the_context)
+  val i = Z3_mk_int (!the_context, i, ty)
+in
+  Z3_sort_dec_ref (!the_context, ty);
+  i
+end
+
+implement
+bool_constant_name (b) = let
+  val sym = Z3_mk_string_symbol (!the_context, b)
+  val ty = Z3_mk_bool_sort (!the_context)
+  val const = Z3_mk_const (!the_context, sym, ty)
+in
+  Z3_sort_dec_ref (!the_context, ty);
+  const
+end
+
+implement
+bool_bool (b) =
+  if b then 
+    Z3_mk_true (!the_context)
+  else 
+    Z3_mk_false (!the_context)    

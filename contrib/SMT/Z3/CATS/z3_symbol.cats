@@ -33,6 +33,7 @@
 /* ****** ****** */
 
 #define atscntrb_Z3_mk_int_symbol Z3_mk_int_symbol
+#define atscntrb_Z3_mk_string_symbol Z3_mk_string_symbol
 
 /* ****** ****** */
 

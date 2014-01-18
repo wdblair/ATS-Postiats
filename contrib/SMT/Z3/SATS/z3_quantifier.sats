@@ -59,4 +59,8 @@ fun Z3_mk_forall {n:nat} (
   num_decls: uint n, sorts: &(@[Z3_sort][n]), decl_names: &(@[Z3_symbol][n]), body: !Z3_ast
 ): Z3_ast = "mac#%"
 
+fun Z3_mk_forall_const {n:nat} (
+  ctx: !Z3_context, weight: uint, num_bound: uint n, bound: &(@[Z3_app][n]), num_patterns: uint, patterns: ptr, body: !Z3_ast
+): Z3_ast = "mac#%"
+
 (* end of [z3_quantifier.sats] *)

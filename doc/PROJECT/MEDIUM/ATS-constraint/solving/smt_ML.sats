@@ -38,6 +38,7 @@
 
 staload "solving/smt.sats"
 
+<<<<<<< HEAD
 (* Contexts *)
 
 fun
@@ -48,6 +49,8 @@ SolverFree (solver): void
 
 overload ~ with SolverFree
 
+=======
+>>>>>>> Revised the SMT interface some more, started adding in the ML functions.
 (* Reference Counting *)
 
 (*
@@ -58,6 +61,7 @@ overload ~ with SolverFree
 *)
 symintr ^
 
+<<<<<<< HEAD
 fun FormulaDup (!formula): formula
 
 overload ^ with FormulaDup
@@ -65,6 +69,11 @@ overload ^ with FormulaDup
 fun FormulaFree (formula): void
 
 overload ~ with FormulaFree
+=======
+overload ^ with formula_dup
+
+overload ~ with formula_free
+>>>>>>> Revised the SMT interface some more, started adding in the ML functions.
 
 (* Sorts *)
 
@@ -80,11 +89,14 @@ int_numeral (int): formula
 
 overload Int with int_numeral
 
+<<<<<<< HEAD
 fun
 int_numeral_string (string): formula
 
 overload Int with int_numeral_string
 
+=======
+>>>>>>> Revised the SMT interface some more, started adding in the ML functions.
 symintr Bool
 
 fun
