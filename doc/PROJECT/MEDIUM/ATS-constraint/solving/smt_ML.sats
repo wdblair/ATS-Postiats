@@ -32,26 +32,21 @@
 //
 
 (* 
-  The linearity of formulas and sorts will prevent memory leaks using this
-  interface.
+  The linearity of formulas and sorts will prevent memory leaks when
+  people use this interface.
 *)
 
 staload "solving/smt.sats"
 
 (* Contexts *)
 
-(* 
-  This can be made more precise, but it's ok for now...
-*)
+fun
+Solver (): solver
 
-absview Borrow (a:vtype)
+fun 
+SolverFree (solver): void
 
-praxi Borrow{a:vtype} (): Borrow (a)
-
-fun{}
-Solver (): (Borrow (solver) | solver)
-
-prfun Return {a:vtype} (Borrow (a) | a): void
+overload ~ with SolverFree
 
 (* Reference Counting *)
 
@@ -63,11 +58,11 @@ prfun Return {a:vtype} (Borrow (a) | a): void
 *)
 symintr ^
 
-fun{} FormulaDup (!formula): formula
+fun FormulaDup (!formula): formula
 
 overload ^ with FormulaDup
 
-fun{} FormulaFree (formula): void
+fun FormulaFree (formula): void
 
 overload ~ with FormulaFree
 
@@ -75,29 +70,29 @@ overload ~ with FormulaFree
 
 symintr Int
 
-fun{}
+fun
 int_constant_name (string): formula
 
 overload Int with int_constant_name
 
-fun{}
+fun
 int_numeral (int): formula
 
 overload Int with int_numeral
 
-fun{}
+fun
 int_numeral_string (string): formula
 
 overload Int with int_numeral_string
 
 symintr Bool
 
-fun{}
+fun
 bool_constant_name (string): formula
 
 overload Bool with bool_constant_name
 
-fun{}
+fun
 bool_bool (bool): formula
 
 overload Bool with bool_bool
@@ -106,44 +101,44 @@ overload Bool with bool_bool
 
 symintr ForAll
 
-fun{}
+fun
 forall1 (formula, formula): formula
 
 overload ForAll with forall1
 
-fun{}
+fun
 forall2 (formula, formula, formula): formula
 
 overload ForAll with forall2
 
 (* Propositional *)
 
-fun{}
+fun
 And (formula, formula): formula
 
-fun{}
+fun
 Or (formula, formula): formula
 
-fun{}
+fun
 Not (formula, formula): formula
 
 symintr ==>
 
-fun{}
+fun
 Implies (formula, formula): formula
 
 overload ==> with Implies
 
-fun{}
+fun
 If (condition:formula, true: formula, false: formula): formula
 
 (* Arithmetic *)
 
-fun{} add_formula_formula (formula, formula): formula
-fun{} sub_formula_formula (formula, formula): formula
-fun{} mul_formula_formula (formula, formula): formula
-fun{} div_formula_formula (formula, formula): formula
-fun{} mod_formula_formula (formula, formula): formula
+fun add_formula_formula (formula, formula): formula
+fun sub_formula_formula (formula, formula): formula
+fun mul_formula_formula (formula, formula): formula
+fun div_formula_formula (formula, formula): formula
+fun mod_formula_formula (formula, formula): formula
 
 overload + with add_formula_formula
 overload - with sub_formula_formula
@@ -151,11 +146,11 @@ overload * with mul_formula_formula
 overload / with mul_formula_formula
 overload mod with mod_formula_formula
 
-fun{} gt_formula_formula (formula, formula): formula
-fun{} gte_formula_formula (formula, formula): formula
-fun{} eq_formula_formula (formula, formula): formula
-fun{} lte_formula_formula (formula, formula): formula
-fun{} lt_formula_formula (formula, formula): formula
+fun gt_formula_formula (formula, formula): formula
+fun gte_formula_formula (formula, formula): formula
+fun eq_formula_formula (formula, formula): formula
+fun lte_formula_formula (formula, formula): formula
+fun lt_formula_formula (formula, formula): formula
 
 overload > with gt_formula_formula
 overload >= with gte_formula_formula
@@ -165,8 +160,8 @@ overload < with lt_formula_formula
 
 (* Arrays *)
 
-fun{} 
+fun 
 Select (array: formula, i: formula): formula
 
-fun{}
+fun
 Store (array: formula, i: formula, v: formula): formula

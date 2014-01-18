@@ -48,9 +48,6 @@ staload "solving/error.sats"
 staload "solving/solver.sats"
 staload SMT = "solving/smt.sats"
 
-staload "solving/smt_ML.sats"
-staload _  = "solving/smt_ML.dats"
-
 (* ****** ****** *)
 
 viewtypedef solver = $SMT.solver
@@ -289,8 +286,6 @@ in
         end
       )
       | S2Eeqeq (l, r) => let
-        val () = fprintln! (stdout_ref, "left hand side: ",  l)
-        val () = fprintln! (stdout_ref, "right hand side: ", r)
         val lhs = formula_make (env, l)
         val rhs = formula_make (env, r)
       in
@@ -640,5 +635,5 @@ in
   in
     $SMT.make_bv_eq (env.smt, l, r)
   end
-  
+    
 end // end of [local]

@@ -39,6 +39,10 @@ absvtype sort = ptr
 
 (* ****** ****** *)
 
+
+
+(* ****** ****** *)
+
 // Building Terms and Formulas
 
 fun make_solver (): solver
