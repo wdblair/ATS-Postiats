@@ -204,8 +204,9 @@ fun Z3_interrupt (ctx: !Z3_context): void = "mac#%"
 
 (* ****** ****** *)
 
+#include "./z3_array.sats"
+
 (*
-#include "./z3_arrayset.sats"
 #include "./z3_quantifier.sats"
 *)
 

@@ -51,8 +51,6 @@ symintr ^
 
 overload ^ with formula_dup
 
-overload ~ with formula_free
-
 (* Sorts *)
 
 symintr Int
@@ -102,7 +100,7 @@ fun
 Or (formula, formula): formula
 
 fun
-Not (formula, formula): formula
+Not (formula): formula
 
 symintr ==>
 
@@ -116,16 +114,18 @@ If (condition:formula, true: formula, false: formula): formula
 
 (* Arithmetic *)
 
+fun neg_formula (formula): formula
 fun add_formula_formula (formula, formula): formula
 fun sub_formula_formula (formula, formula): formula
 fun mul_formula_formula (formula, formula): formula
 fun div_formula_formula (formula, formula): formula
 fun mod_formula_formula (formula, formula): formula
 
+overload ~ with neg_formula
 overload + with add_formula_formula
 overload - with sub_formula_formula
 overload * with mul_formula_formula
-overload / with mul_formula_formula
+overload / with div_formula_formula
 overload mod with mod_formula_formula
 
 fun gt_formula_formula (formula, formula): formula

@@ -450,43 +450,78 @@ bool_bool (b) =
   else 
     Z3_mk_false (!the_context)
     
-implement
-forall1 (v, body) = let
-  var bound = @[Z3_app](Z3_app_from_ast (v))
+local
   val null = the_null_ptr
-  val forall =   
-    Z3_mk_forall_const (!the_context, 0u, 1u, bound,  0u, null, body)
-  //
+  
   implement array_uninitize$clear<Z3_app> (i, x) = {
     val ast = Z3_ast_from_app (x)
     val () = Z3_dec_ref (!the_context, ast)
   }
-  //
-  val () = array_uninitize<Z3_app> (bound, u2sz(1u))
+in   
+ 
+implement
+forall1 (v, body) = let
+  var bound = @[Z3_app](Z3_app_from_ast (v))
+  val forall =
+    Z3_mk_forall_const (!the_context, 0u, 1u, bound,  0u, null, body)
 in
+  array_uninitize<Z3_app> (bound, u2sz(1u));
   Z3_dec_ref (!the_context, body);
   forall
 end
 
 implement
 forall2 (x, y, body) = let
-  var bound = @[Z3_app](Z3_app_from_ast (x), Z3_app_from_ast(y))
-  val null = the_null_ptr
+  var bound = @[Z3_app](Z3_app_from_ast (x), Z3_app_from_ast (y))
   val forall =
     Z3_mk_forall_const (!the_context, 0u, 2u, bound,  0u, null, body)
-  //
-  implement array_uninitize$clear<Z3_app> (i, x) = {
-    val ast = Z3_ast_from_app (x)
-    val () = Z3_dec_ref (!the_context, ast)
-  }
-  //
-  val () = array_uninitize<Z3_app> (bound, u2sz(2u))
 in
+  array_uninitize<Z3_app> (bound, u2sz(2u));
   Z3_dec_ref (!the_context, body);
   forall
 end
 
-implement And = make_and2
-implement Or = make_or2
-implement Not = make_not
-implement Implies = make_implies
+end // end of [local]
+
+(* ****** ****** *)
+
+(* I think I'd like to get rid of the make_* functions... *)
+
+implement And (f0, f1) = make_and2 (f0, f1)
+implement Or (f0, f1) = make_or2 (f0, f1)
+implement Not (f0) = make_not (f0)
+implement Implies (f0, f1) = make_implies (f0, f1)
+implement If (f0, f1, f2) = make_ite (f0, f1, f2)
+
+implement add_formula_formula (f0, f1) = make_add2 (f0, f1)
+implement sub_formula_formula (f0, f1) = make_sub2 (f0, f1)
+implement mul_formula_formula (f0, f1) = make_mul2 (f0, f1)
+implement div_formula_formula (f0, f1) = make_div (f0, f1)
+implement neg_formula (f0) = make_negate (f0)
+
+implement gt_formula_formula (f0, f1) = make_gt (f0, f1)
+implement gte_formula_formula (f0, f1) = make_ge (f0, f1)
+implement eq_formula_formula (f0, f1) = make_eq (f0, f1)
+implement lte_formula_formula (f0, f1) = make_le (f0, f1)
+implement lt_formula_formula (f0, f1) = make_lt (f0, f1)
+
+(* ****** ****** *)
+
+implement
+Select (a, i) = let
+  val sel = Z3_mk_select (!the_context, a, i)
+in
+  Z3_dec_ref (!the_context, a);
+  Z3_dec_ref (!the_context, i);
+  sel
+end
+
+implement
+Store (a, i, v) = let
+  val store = Z3_mk_store (!the_context, a, i, v)
+in
+  Z3_dec_ref (!the_context, a);
+  Z3_dec_ref (!the_context, i);
+  Z3_dec_ref (!the_context, v);
+  store
+end

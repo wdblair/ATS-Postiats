@@ -48,8 +48,6 @@ staload "solving/error.sats"
 staload "solving/solver.sats"
 staload SMT = "solving/smt.sats"
 
-staload "solving/smt_ML.sats"
-
 (* ****** ****** *)
 
 viewtypedef solver = $SMT.solver
@@ -366,17 +364,23 @@ in
   in
     $SMT.is_valid (env.smt, wff)
   end
-  
+
+end // end of [local]
+
 (* ****** ******  *)
 
 (*
-  Users should be able to write these functions as easily as possible, 
-  so they're likely to change often.
   If someone wants to add a function to extend the power of the statics,
-  it will be implemented here.
+  it will be implemented here. TODO: put these functions in their own file.
 *)
 
 (* ****** ******  *)
+
+local
+
+staload "solving/smt_ML.sats"
+
+in
 
   #define :: list_cons
   
@@ -390,15 +394,15 @@ in
     val- s2e :: _ = s2es
     val boole = formula_make (env, s2e)
   in
-    $SMT.make_not (boole)
+    Not (boole)
   end // end of [f_neg_bool]
   
   implement f_add_bool_bool (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val b0 = formula_make (env, s2e1)
+    val b1 = formula_make (env, s2e2)
   in
-    $SMT.make_or2 (fbe1, fbe2)
+    (b0 Or b1)
   end // end of [f_add_bool_bool]
   
   implement f_mul_bool_bool (env, s2es) = let
@@ -406,7 +410,7 @@ in
     val fbe1 = formula_make (env, s2e1)
     val fbe2 = formula_make (env, s2e2)
   in
-    $SMT.make_and2 (fbe1, fbe2)
+    (fbe1 And fbe2)
   end // end of [f_mul_bool_bool]
 
   implement f_eq_bool_bool (env, s2es) = let
@@ -414,23 +418,22 @@ in
     val fbe1 = formula_make (env, s2e1)
     val fbe2 = formula_make (env, s2e2)
   in
-    $SMT.make_eq (fbe1, fbe2)
+    fbe1 = fbe2
   end // end of [f_eq_bool_bool]
 
   implement f_neq_bool_bool (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
     val fbe1 = formula_make (env, s2e1)
     val fbe2 = formula_make (env, s2e2)
-    val eq = $SMT.make_eq (fbe1, fbe2)
   in
-    $SMT.make_not (eq)
+    Not (fbe1 = fbe2)
   end // end of [f_neq_bool_bool]
   
   implement f_neg_int (env, s2es) = let
     val- s2e1 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
+    val n = formula_make (env, s2e1)
   in 
-    $SMT.make_negate (fbe1)
+    ~n
   end // end of [f_neg_int]
   
   implement f_add_int_int (env, s2es) = let
@@ -438,7 +441,7 @@ in
     val fbe1 = formula_make (env, s2e1)
     val fbe2 = formula_make (env, s2e2)
   in
-    $SMT.make_add2 (fbe1, fbe2)
+    fbe1 + fbe2
   end // end of [f_add_int_int]
 
   implement f_sub_int_int (env, s2es) = let
@@ -446,151 +449,122 @@ in
     val fbe1 = formula_make (env, s2e1)
     val fbe2 = formula_make (env, s2e2)
   in
-    $SMT.make_sub2 (fbe1, fbe2)
+    fbe1 - fbe2
   end // end of [f_sub_int_int]
 
   implement f_mul_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val p = formula_make (env, s2e1)
+    val q = formula_make (env, s2e2)
   in
-    $SMT.make_mul2 (fbe1, fbe2)
+    p * q
   end // end of [f_mul_int_int]
   
   implement f_ndiv_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val n = formula_make (env, s2e1)
+    val d = formula_make (env, s2e2)
   in
-    $SMT.make_div (fbe1, fbe2)
+    n / d
   end // end of [f_ndiv_int_int]
 
   implement f_idiv_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val n = formula_make (env, s2e1)
+    val d = formula_make (env, s2e2)
   in
-    $SMT.make_div (fbe1, fbe2)
+    n / d
   end // end of [f_idiv_int_int]
 
   implement f_lt_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val small = formula_make (env, s2e1)
+    val great = formula_make (env, s2e2)
   in
-    $SMT.make_lt (fbe1, fbe2)
+    small < great
   end // end of [f_lt_int_int]
 
   implement f_lte_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val small = formula_make (env, s2e1)
+    val great = formula_make (env, s2e2)
   in
-    $SMT.make_le (fbe1, fbe2)
+    small <= great
   end // end of [f_lte_int_int]
 
   implement f_gt_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val great = formula_make (env, s2e1)
+    val small = formula_make (env, s2e2)
   in
-    $SMT.make_gt (fbe1, fbe2)
+    great > small
   end // end of [f_gt_int_int]
 
   implement f_gte_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val great = formula_make (env, s2e1)
+    val small = formula_make (env, s2e2)
   in
-    $SMT.make_ge (fbe1, fbe2)
+    great >= small
   end // end of [f_gte_int_int]
 
   implement f_eq_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
+    val lhs = formula_make (env, s2e1)
+    val rhs = formula_make (env, s2e2)
   in
-    $SMT.make_eq (fbe1, fbe2)
+    lhs = rhs
   end // end of [f_eq_int_int]
 
   implement f_neq_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
-    val eq   = $SMT.make_eq (fbe1, fbe2)
+    val lhs = formula_make (env, s2e1)
+    val rhs = formula_make (env, s2e2)
   in
-    $SMT.make_not (eq)
+    Not (lhs = rhs)
   end // end of [f_neq_int_int]
   
   implement f_abs_int (env, s2es) = let
     val- s2e1 :: _ = s2es
-    //
-    val fie1 = formula_make (env, s2e1)
-    val zero = $SMT.make_numeral (0, env.sorts.integer)
-    val fie1' = $SMT.formula_dup (fie1)
-    val fie1'' = $SMT.formula_dup (fie1)
-    val neg = $SMT.make_negate (fie1')
-    val check_lt = $SMT.make_lt (fie1, zero)
+    val i = formula_make (env, s2e1)
   in
-    $SMT.make_ite (check_lt, neg, fie1'')
+    If (^i < Int(0), ~(^i), i)
   end
 
   implement f_sgn_int (env, s2es) = let
     val- s2e1 :: _ = s2es
-    //
-    val pos  = $SMT.make_numeral (1, env.sorts.integer)
-    val zero  = $SMT.make_numeral (0, env.sorts.integer)
-    val zero' = $SMT.make_numeral (0, env.sorts.integer)
-    val zero'' = $SMT.make_numeral (0, env.sorts.integer)
-    val neg  = $SMT.make_numeral  (~1, env.sorts.integer)
-    //
-    val fbe1 = formula_make (env, s2e1)
-    val fbe1' = $SMT.formula_dup (fbe1)
-    //
-    val check_neg = $SMT.make_lt (fbe1, zero)
-    val check_zero = $SMT.make_eq (fbe1', zero')
-    //
-    val cond1 = $SMT.make_ite (check_zero, zero'', pos)
-    val cond2 = $SMT.make_ite (check_neg,  neg, cond1)
+    val i = formula_make (env, s2e1)
   in
-    cond2
+    If (^i < Int (0), Int (~1),
+      If ( i = Int (0), Int (0), Int (1)))
   end // end of [f_sgn_int]
 
   implement f_max_int_int (env, s2es) = let
     val- s2e1 :: s2e2 ::  _ = s2es
-    //
-    val fbe1 = formula_make (env, s2e1)
-    val fbe1' = $SMT.formula_dup (fbe1)
-    val fbe2  = formula_make (env, s2e2)
-    val fbe2' = $SMT.formula_dup (fbe2)
-    //
-    val gt = $SMT.make_gt (fbe1, fbe2)
+    val i = formula_make (env, s2e1)
+    val j  = formula_make (env, s2e2)
   in
-    $SMT.make_ite (gt, fbe1', fbe2')
+    If (^i >= ^j, i, j)
   end // end of [f_max_int_int]
 
   implement f_min_int_int (env, s2es) = let
     val- s2e1 :: s2e2 ::  _ = s2es
     //
-    val fbe1 = formula_make (env, s2e1)
-    val fbe2 = formula_make (env, s2e2)
-    val fbe1' = $SMT.formula_dup (fbe1)
-    val fbe2' = $SMT.formula_dup (fbe2)
-    //
-    val gt = $SMT.make_le (fbe1, fbe2)
+    val i = formula_make (env, s2e1)
+    val j = formula_make (env, s2e2)
   in
-    $SMT.make_ite (gt, fbe1', fbe2')
+    If (^i <= ^j, i, j)
   end // end of [f_min_int_int]
 
   implement f_ifint_bool_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: s2e3 ::  _ = s2es
     //
     val cond = formula_make (env, s2e1)
-    val t = formula_make (env, s2e2)
-    val f = formula_make (env, s2e3)
+    val T = formula_make (env, s2e2)
+    val F = formula_make (env, s2e3)
     //
   in
-    $SMT.make_ite (cond, t, f)
+    If (cond, T, F)
   end // end of [f_ifint_bool_int_int]
   
   implement
@@ -637,5 +611,5 @@ in
   in
     $SMT.make_bv_eq (l, r)
   end
-    
+  
 end // end of [local]

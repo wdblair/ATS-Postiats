@@ -116,7 +116,7 @@ infixr 0 =++ --= // setinc and decset
 
 (* ****** ****** *)
 
-prefix 0 ^ //copy or duplicate
+prefix 62 ^ //copy or duplicate
 
 (* ****** ****** *)
 
