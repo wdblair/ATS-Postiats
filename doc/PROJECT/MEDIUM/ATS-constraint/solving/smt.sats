@@ -88,6 +88,10 @@ fun make_ite (
   condition: formula, t: formula, f: formula
 ): formula
 
+fun make_implies (
+  formula, formula
+): formula
+
 (* ****** ****** *)
 
 // Integer Arithmetic

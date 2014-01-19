@@ -68,4 +68,14 @@ fun Z3_sort_dec_ref (
 
 (* ****** ****** *)
 
+castfn Z3_app_from_ast (
+  Z3_ast
+): Z3_app
+
+castfn Z3_ast_from_app (
+  Z3_app
+): Z3_ast
+
+(* ****** ****** *)
+
 (* end of [z3_sort.sats] *)

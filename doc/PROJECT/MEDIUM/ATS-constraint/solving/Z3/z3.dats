@@ -81,7 +81,7 @@ end
 
 (* ****** ****** *)
 
-implement 
+implement
 the_solver_get () = let
   val (pf, fpf | p ) = $UN.ref_vtake{solver} (the_solver)
   val new = Z3_solver_inc_ref (!the_context, !p)
@@ -165,6 +165,17 @@ end
 implement 
 make_and2 (l, r) = let
   val phi = Z3_mk_and2 (!the_context, l, r)
+  val () = begin
+    Z3_dec_ref (!the_context, l);
+    Z3_dec_ref (!the_context, r);
+  end
+in
+  phi
+end
+
+implement
+make_implies (l, r) = let
+  val phi = Z3_mk_implies (!the_context, l, r)
   val () = begin
     Z3_dec_ref (!the_context, l);
     Z3_dec_ref (!the_context, r);
@@ -346,9 +357,6 @@ end
 
 (* ****** ****** *)
 
-
-(* ****** ****** *)
-
 implement 
 assert (solve, formula) = {
   val _ = Z3_solver_assert (!the_context, solve, formula)
@@ -440,4 +448,45 @@ bool_bool (b) =
   if b then 
     Z3_mk_true (!the_context)
   else 
-    Z3_mk_false (!the_context)    
+    Z3_mk_false (!the_context)
+    
+implement
+forall1 (v, body) = let
+  var bound = @[Z3_app](Z3_app_from_ast (v))
+  val null = the_null_ptr
+  val forall =   
+    Z3_mk_forall_const (!the_context, 0u, 1u, bound,  0u, null, body)
+  //
+  implement array_uninitize$clear<Z3_app> (i, x) = {
+    val ast = Z3_ast_from_app (x)
+    val () = Z3_dec_ref (!the_context, ast)
+  }
+  //
+  val () = array_uninitize<Z3_app> (bound, u2sz(1u))
+in
+  Z3_dec_ref (!the_context, body);
+  forall
+end
+
+implement
+forall2 (x, y, body) = let
+  var bound = @[Z3_app](Z3_app_from_ast (x), Z3_app_from_ast(y))
+  val null = the_null_ptr
+  val forall =
+    Z3_mk_forall_const (!the_context, 0u, 2u, bound,  0u, null, body)
+  //
+  implement array_uninitize$clear<Z3_app> (i, x) = {
+    val ast = Z3_ast_from_app (x)
+    val () = Z3_dec_ref (!the_context, ast)
+  }
+  //
+  val () = array_uninitize<Z3_app> (bound, u2sz(2u))
+in
+  Z3_dec_ref (!the_context, body);
+  forall
+end
+
+implement And = make_and2
+implement Or = make_or2
+implement Not = make_not
+implement Implies = make_implies

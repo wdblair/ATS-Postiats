@@ -390,7 +390,7 @@ in
     val- s2e :: _ = s2es
     val boole = formula_make (env, s2e)
   in
-    $SMT.make_not(fbe)
+    $SMT.make_not (boole)
   end // end of [f_neg_bool]
   
   implement f_add_bool_bool (env, s2es) = let

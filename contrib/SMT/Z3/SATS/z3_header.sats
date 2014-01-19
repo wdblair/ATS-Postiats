@@ -92,7 +92,7 @@ stadef Z3_func_decl = Z3_func_decl_vtype
 vtypedef
 Z3_func_decl = [l:addr] Z3_func_decl (l)
 
-absvtype
+absvt@ype
 Z3_app_vtype (l:addr) = ptr
 stadef Z3_app = Z3_app_vtype
 vtypedef
