@@ -2,12 +2,17 @@
 
 (define-fun partitioned ((a (Array Int Int)) (l Int) (p Int) (u Int)) Bool
     (forall ((i Int) (j Int))
-      (=> (and (<= l i p) (<= p j u))
+      (=> (and (and (<= l i) (<= i p)) (<= p j u))
           (<= (select a i) (select a p) (select a j)))))
 
 (define-fun sorted ((a (Array Int Int)) (l Int) (u Int)) Bool
   (forall((i Int) (j Int))
-    (=> (<= l i j u) (<= (select a i) (select a j)))))
+    (=> (and (and (<= l i) (<= i j)) (<= j u)) (<= (select a i) (select a j)))))
+
+(define-fun sub-array 
+  ((a (Array Int Int)) (sub (Array Int Int)) (l Int) (u Int)) Bool
+  (forall((i Int))
+    (=> (<= l i u) (= (select a i) (select sub i)))))
 
 ;; Some array of integers
 (declare-fun buffer () (Array Int Int))
@@ -16,22 +21,32 @@
 
 (push 1)
 
+(declare-fun left-buffer () (Array Int Int))
+(declare-fun right-buffer () (Array Int Int))
+
 (declare-fun p () Int)
 
 ;; Suppose we selected some p uniformly at random
-(assert (<= 0 p n))
+(assert (<= 0 p (- n 1)))
 
-(assert (partitioned buffer 0 p n))
+(assert (partitioned buffer 0 p (- n 1)))
 
-(assert (sorted buffer 0 (- p 1)))
-(assert (sorted buffer (+ p 1) n))
+;;(assert (sorted buffer 0 p))
+;;(assert (sorted buffer p (- n 1)))
+
+(assert (sorted left-buffer 0 p))
+(assert (sorted right-buffer p (- n 1)))
+
+(assert (sub-array buffer left-buffer 0 p))
+(assert (sub-array buffer right-buffer p (- n 1)))
 
 (push 1)
-(assert (not (sorted buffer 0 n)))
+(assert (not (sorted buffer 0 (- n 1))))
 (check-sat)
 (pop 2)
 
-;; These constraints will be checked for the loop inside the partition function.
+;; These constraints will be checked for the loop inside the partition 
+;; function.
 
 (declare-fun start () Int)
 (declare-fun stop  () Int)

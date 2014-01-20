@@ -49,10 +49,12 @@ overload [] with array_select
 
 (* ****** ****** *)
 
+absprop Invariant (buf:array, start:int, stop: int)
+
 fun {a:t@ype}
-quicksort_sub_array {n:int} {buf: array}
-   {start,stop:int} (
-  &array(a, n, buf) >> array(a, n, buf'),
+quicksort_sub_array {n:nat} {buf: array}
+   {start,stop:nat | stop < n} (
+  &array (a, n, buf) >> array(a, n, buf'),
   int start, int stop
 ): #[buf':array | sorted(buf', start, stop)] void
 

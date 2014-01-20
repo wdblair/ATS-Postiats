@@ -57,6 +57,8 @@ fun make_bool_sort (): sort
 
 fun make_bitvec_sort (width: int): sort
 
+fun make_array_sort (): sort
+
 fun make_int_constant (
   id: int, _: !sort
 ): formula

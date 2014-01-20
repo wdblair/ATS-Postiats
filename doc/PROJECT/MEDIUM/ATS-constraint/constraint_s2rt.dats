@@ -36,6 +36,12 @@ s2rt_is_bitvec (srt) =
   case+ srt of
     | S2RTbitvec (_) => true
     | _ =>> false
+
+implement
+s2rt_is_array (srt) =
+  case+ srt of
+    | S2RTarray () => true
+    | _ =>> false
     
 (* ****** ****** *)
 

@@ -117,6 +117,7 @@ fun s2rt_is_int (s2rt): bool
 fun s2rt_is_addr (s2rt): bool
 fun s2rt_is_bool (s2rt): bool
 fun s2rt_is_bitvec (s2rt): bool
+fun s2rt_is_array (s2rt): bool
 
 fun s2rt_bitvec_get_width (s2rt): int
 

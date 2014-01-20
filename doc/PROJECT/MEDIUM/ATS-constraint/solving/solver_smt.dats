@@ -182,23 +182,27 @@ in
       extern praxi __pop (pf: smtenv_push_v): void
     }
   }
-
+  
+  fun
+  sort_of_s2rt (type: s2rt): sort =
+      if s2rt_is_int (type) || s2rt_is_addr (type) then
+        $SMT.make_int_sort ()
+      else if s2rt_is_bitvec (type) then let
+        val width = s2rt_bitvec_get_width (type)
+        val () = assertloc (width > 0)
+      in
+        $SMT.make_bitvec_sort (width)
+      end
+      else if s2rt_is_array (type) then
+        $SMT.make_array_sort ()
+      else
+        $SMT.make_bool_sort ()
+  
   implement smtenv_add_svar (env, s2v) = let
     val () = fprintln! (stdout_ref, "Adding svar: ", s2v)
     val type = s2var_get_srt (s2v)
     //
-    val smt_type = (
-      if s2rt_is_int (type) orelse s2rt_is_addr (type) then
-         $SMT.make_int_sort ()
-      else if s2rt_is_bitvec (type) then let
-          val width = s2rt_bitvec_get_width (type)
-          val () = assertloc (width > 0)
-        in
-          $SMT.make_bitvec_sort (width)
-        end
-      else
-        $SMT.make_bool_sort ()
-    ): $SMT.sort
+    val smt_type = sort_of_s2rt (type)
     //
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
@@ -224,7 +228,7 @@ in
         prval () = opt_unnone {formula} (res)
       }
   end
-
+  
   implement smtenv_get_var_exn (env, s2v) = let
     val [l:addr] ptr =
       $TreeMap.linmap_search_ref<s2var, formula> (env.variables.statics, s2v)
@@ -282,7 +286,7 @@ in
               val s3ub = s3ubexp_cst (s2c)
            in 
               formula_from_substitution (env, s3ub)
-           end        
+           end
         end
       )
       | S2Eeqeq (l, r) => let
@@ -612,4 +616,34 @@ in
     $SMT.make_bv_eq (l, r)
   end
   
+  implement
+  f_partitioned_array (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val start = formula_make (env,s2e2)
+    val p = formula_make (env, s2e3)
+    val stop  = formula_make (env, s2e4)
+    //
+    val i = Int ("i"); val j = Int ("j")
+  in
+    ForAll (^i, ^j,
+      ((start <= ^i) And (^i <= ^p) And (^p <= ^j) And (^j <= stop)) ==>
+        (((Select(^a, i)) <= (Select(^a, ^p))) And ((Select(^a, p)) <= (Select(a, j))))
+        )
+  end
+  
+  implement
+  f_sorted_array (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val start = formula_make (env, s2e2)
+    val stop = formula_make (env, s2e3)
+    //
+    val i = Int ("i"); val j = Int ("j")
+  in
+    ForAll (^i, ^j,
+      ((start <= ^i) And (^i <= ^j) And (^j <= stop)) ==> 
+        (Select (^a, i) <= Select (a, j))
+      )
+  end
 end // end of [local]

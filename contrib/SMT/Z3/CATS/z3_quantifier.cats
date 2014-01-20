@@ -36,9 +36,6 @@ Z3_DECLARE_MK_AST(Z3_mk_forall_const, unsigned weight, unsigned num_bound, void 
   Z3_BODY_MK_AST(Z3_mk_forall_const, weight, num_bound, (Z3_app const *)bound, num_patterns, (Z3_pattern const *) patterns, body)
 }
 
-Z3_DECLARE_MK_AST(Z3_mk_bound, unsigned index, Z3_sort ty) {
-  Z3_BODY_MK_AST(Z3_mk_bound, index, ty)
-}
 
 /* ****** ****** */
 

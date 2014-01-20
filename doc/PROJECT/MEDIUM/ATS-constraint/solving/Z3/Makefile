@@ -36,7 +36,7 @@ PATSCC2=\
 
 ######
 
-CFLAGS :=
+CFLAGS := -g
 CFLAGS += -I$(PATSHOMEQ)
 CFLAGS += -I$(PATSHOMEQ)/ccomp/runtime
 CFLAGS += $(shell pkg-config --cflags json-c)

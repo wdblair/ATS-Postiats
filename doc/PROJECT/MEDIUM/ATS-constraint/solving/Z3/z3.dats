@@ -113,7 +113,18 @@ make_bool_sort () =
 implement 
 make_bitvec_sort (width) =
   Z3_mk_bv_sort (!the_context, g0int2uint(width))
-  
+
+implement
+make_array_sort () = let
+  val int  = Z3_mk_int_sort (!the_context)
+  val int' = Z3_sort_inc_ref (!the_context, int)
+  val array = Z3_mk_array_sort (!the_context, int, int')
+in
+  Z3_sort_dec_ref (!the_context, int);
+  Z3_sort_dec_ref (!the_context, int');
+  array
+end
+
 implement 
 make_int_constant (id, sort) = let
   val sym = Z3_mk_int_symbol (!the_context, id)

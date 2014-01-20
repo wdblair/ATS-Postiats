@@ -129,8 +129,8 @@ constraint3_initialize_map (map) = {
     ins (map, "and_bit8_bit8", f_land_bv_bv);
     ins (map, "eq_bit8_bit8", f_eq_bv_bv);
     //
-    ins (map, "partitioned_array", f_partitioned_array)
-    ins (map, "sorted_array", f_sorted_array)
+    ins (map, "partitioned_array", f_partitioned_array);
+    ins (map, "sorted_array", f_sorted_array);
   end
 }
 
