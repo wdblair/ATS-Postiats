@@ -8,15 +8,15 @@ random_int_range {start,stop:nat} (
 
 extern
 fun {a:t@ype}
-partition {start, stop, pivot, n:nat
+partition {l:addr} {start, stop, pivot, n:nat
   | start <= pivot; pivot <= stop; stop < n
 } {buf: array} (
-  &array (a, n, buf) >> array (a, n, buf'), int pivot, int start, int stop
+  &array (l, a, n, buf) >> array (l, a, n, buf'), int pivot, int start, int stop
 ): #[buf':array] [p:nat | start <= p; p <= stop; partitioned (buf', start, p, stop)] int p
     
 extern
-fun {a:t@ype} swap {buf:array} {i,j,n:int} (
-  &array (a, n, buf) >> array (a, n, swap (buf,i,j)), int i, int j
+fun {a:t@ype} swap {l:addr} {buf:array} {i,j,n:int} (
+  &array (l, a, n, buf) >> array (l, a, n, swap (buf,i,j)), int i, int j
 ): void
 
 local

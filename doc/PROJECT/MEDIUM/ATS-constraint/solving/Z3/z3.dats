@@ -76,7 +76,7 @@ local
   
   val () = slv := Z3_mk_solver (!the_context)
 in
-  val the_solver = ref_make_viewptr {solver} (view@ slv | addr@ slv)
+  val the_solver = ref_make_viewptr{solver} (view@ slv | addr@ slv)
 end
 
 (* ****** ****** *)
