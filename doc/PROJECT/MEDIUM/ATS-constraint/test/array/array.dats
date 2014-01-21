@@ -15,11 +15,13 @@ local
 
 (* See the ATS-constraint project for these definitions. *)
 stacst
-partitioned_left : (array, int (*start*), int (*pindex*), int(*pivot*)) -> bool
+partitioned_left : 
+  (array, int (*start*), int (*pindex*), int(*pivot*)) -> bool
 
 stacst
-partitioned_right : (array, int (*i*), int (*pindex*), int(*pivot*)) -> bool
-
+partitioned_right : 
+  (array, int (*i*), int (*pindex*), int(*pivot*)) -> bool
+  
 in
 
 (*
@@ -56,8 +58,10 @@ partition {l:addr} {start, stop, pivot, n:nat
   | start <= pivot; pivot <= stop; stop < n
 } {buf: array} (
   array (l, a, n, buf), int pivot, int start, int stop
-): [buf':array] [p:nat | start <= p; p <= stop; partitioned (buf', start, p, stop)] (array (l, a, n, buf'), int p)
-
+): [buf':array] [p:nat | 
+  start <= p; p <= stop; 
+  partitioned (buf', start, p, stop)
+] (array (l, a, n, buf'), int p)
 
 absview Split (l:addr, r: addr)
 
@@ -67,19 +71,22 @@ fun {a:t@ype} split {l:addr} {n, p:int}
   array (l, a, n, buf), int p
 ): [left,right: array] [r:addr]
   (Split (l,r) | array (l, a, p, left), array (r, a, n - p - 1, right))
-  
+
 stacst merged_array :
   (array, array(* left *), array (*right*), int (*pivot*), int (*n*)) -> bool
 stadef merged = merged_array
 
+(* One item that's missing is using a linear type to make sure the two
+sub arrays are a permutation of the original arrays. *)
+
 extern
 fun {a:t@ype} 
 merge {l,r:addr} {n,m,p:int}
-  {left,right:array | sorted (left, 0, n - 1); sorted (right, 0, m - 1)}
+  {left,right:array}
    (
   Split (l,r) | array (l, a, n, left), array(r, a , m, right), int p
 ): [final: array | merged (final, left, right, p, n+m);
-  partitioned (final, 0, p , n+m)]
+  partitioned (final, 0, p, n+m)]
   array (l, a, n+m+1, final)
   
 implement {a}
@@ -91,7 +98,7 @@ else let
   val (parted, pivot) = partition (arr, p, 0, n - 1)
   val (pf | left, right) = split (parted, pivot)
   //
-  val sorted_left = quicksort (left, pivot);
+  val sorted_left  = quicksort (left, pivot);
   val sorted_right = quicksort (right, n - pivot - 1);
   //
   val new = merge (pf | sorted_left, sorted_right, pivot)

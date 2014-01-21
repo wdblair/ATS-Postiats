@@ -619,25 +619,26 @@ in
   implement
   f_partitioned_array (env, s2es) = let
     val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: _ = s2es
-    val a = formula_make (env, s2e1)
-    val start = formula_make (env,s2e2)
-    val p = formula_make (env, s2e3)
+    val a     = formula_make (env, s2e1)
+    val start = formula_make (env, s2e2)
+    val p     = formula_make (env, s2e3)
     val stop  = formula_make (env, s2e4)
     //
     val i = Int ("i"); val j = Int ("j")
   in
     ForAll (^i, ^j,
-      ((start <= ^i) And (^i <= ^p) And (^p <= ^j) And (^j <= stop)) ==>
-        (((Select(^a, i)) <= (Select(^a, ^p))) And ((Select(^a, p)) <= (Select(a, j))))
-        )
+      ((start <= ^i) And (^i <= ^p) And (^p <= ^j) 
+        And (^j <= stop)) ==>
+          (((Select(^a, i)) <= (Select(^a, ^p))) 
+            And ((Select(^a, p)) <= (Select(a, j)))))
   end
   
   implement
   f_sorted_array (env, s2es) = let
     val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
-    val a = formula_make (env, s2e1)
+    val a     = formula_make (env, s2e1)
     val start = formula_make (env, s2e2)
-    val stop = formula_make (env, s2e3)
+    val stop  = formula_make (env, s2e3)
     //
     val i = Int ("i"); val j = Int ("j")
   in
@@ -646,4 +647,24 @@ in
         (Select (^a, i) <= Select (a, j))
       )
   end
+  
+  implement
+  f_merged_array (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: s2e5 :: _ = s2es
+    val a     = formula_make (env, s2e1)
+    val left  = formula_make (env, s2e2)
+    val right = formula_make (env, s2e3)
+    val pivot = formula_make (env, s2e4)
+    val n     = formula_make (env, s2e5)
+    
+    val i = Int ("i"); val j = Int("j")
+  in
+    ForAll (^i,
+      ((Int(0) <= ^i) And (^i <= (^pivot - Int(1)))) ==> 
+        (Select (^a, ^i) = Select (left, i)))
+    And ForAll (^j, 
+      (((^pivot + Int(1)) <= ^j) And (^j <= n)) ==>
+        (Select (a, ^j) = Select (right, j - (pivot + Int(1)))))
+  end
+  
 end // end of [local]

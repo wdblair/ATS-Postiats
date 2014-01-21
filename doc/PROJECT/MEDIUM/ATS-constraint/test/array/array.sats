@@ -26,7 +26,7 @@ abstype array (l:addr, a:t@ype, n:int, buf: array) = ptr
 (* ****** ****** *)
 
 (*
-  Using a  homomorphism between a  t@ype a and an integer, I  can use
+  Using a  homomorphism between a t@ype "a" and an integer, I  can use
   just arrays of integers in the statics.
 *)
 abst@ype stamp (a:t@ype, i: int) = a

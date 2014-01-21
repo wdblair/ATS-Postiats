@@ -184,4 +184,6 @@ fun f_sorted_array : s2cstmap_ftype
 fun f_partitioned_left_array  : s2cstmap_ftype
 fun f_partitioned_right_array : s2cstmap_ftype
 
+fun f_merged_array : s2cstmap_ftype
+
 (* ****** ****** *)

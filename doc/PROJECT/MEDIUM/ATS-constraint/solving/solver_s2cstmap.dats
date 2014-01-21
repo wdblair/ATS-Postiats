@@ -131,6 +131,7 @@ constraint3_initialize_map (map) = {
     //
     ins (map, "partitioned_array", f_partitioned_array);
     ins (map, "sorted_array", f_sorted_array);
+    ins (map, "merged_array", f_merged_array);
   end
 }
 
