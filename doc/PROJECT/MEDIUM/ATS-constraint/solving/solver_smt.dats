@@ -656,13 +656,13 @@ in
     val right = formula_make (env, s2e3)
     val pivot = formula_make (env, s2e4)
     val n     = formula_make (env, s2e5)
-    
+    //
     val i = Int ("i"); val j = Int("j")
   in
     ForAll (^i,
       ((Int(0) <= ^i) And (^i <= (^pivot - Int(1)))) ==> 
         (Select (^a, ^i) = Select (left, i)))
-    And ForAll (^j, 
+    And ForAll (^j,
       (((^pivot + Int(1)) <= ^j) And (^j <= n)) ==>
         (Select (a, ^j) = Select (right, j - (pivot + Int(1)))))
   end
