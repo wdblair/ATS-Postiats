@@ -6,7 +6,6 @@ random_int_range {start,stop:nat} (
   int start, int stop
 ): [s:nat | start <= s; s <= stop] int s
 
-    
 extern
 fun {a:t@ype} swap {l:addr} {buf:array} {i,j,n:int} (
   &array (l, a, n, buf) >> array (l, a, n, swap (buf,i,j)), int i, int j
@@ -56,23 +55,46 @@ fun {a:t@ype}
 partition {l:addr} {start, stop, pivot, n:nat
   | start <= pivot; pivot <= stop; stop < n
 } {buf: array} (
-  &array (l, a, n, buf) >> array (l, a, n, buf'), int pivot, int start, int stop
-): #[buf':array] [p:nat | start <= p; p <= stop; partitioned (buf', start, p, stop)] int p
+  array (l, a, n, buf), int pivot, int start, int stop
+): [buf':array] [p:nat | start <= p; p <= stop; partitioned (buf', start, p, stop)] (array (l, a, n, buf'), int p)
 
 
+absview Split (l:addr, r: addr)
 
+extern
+fun {a:t@ype} split {l:addr} {n, p:int}
+  {buf:array | partitioned (buf, 0, p, n - 1)}  (
+  array (l, a, n, buf), int p
+): [left,right: array] [r:addr]
+  (Split (l,r) | array (l, a, p, left), array (r, a, n - p - 1, right))
+  
+stacst merged_array :
+  (array, array(* left *), array (*right*), int (*pivot*), int (*n*)) -> bool
+stadef merged = merged_array
+
+extern
+fun {a:t@ype} 
+merge {l,r:addr} {n,m,p:int}
+  {left,right:array | sorted (left, 0, n - 1); sorted (right, 0, m - 1)}
+   (
+  Split (l,r) | array (l, a, n, left), array(r, a , m, right), int p
+): [final: array | merged (final, left, right, p, n+m);
+  partitioned (final, 0, p , n+m)]
+  array (l, a, n+m+1, final)
+  
 implement {a}
-quicksort_sub_array {..} {..} {n} (arr, start, stop) =
-if start >= stop then
-  ()
-else {
-  val p = random_int_range (start, stop)
-  val pivot = partition (arr, p, start, stop)
-  val (left, right) = split (arr, pivot)
-  val () = begin
-    quicksort_sub_array (left, start, pivot);
-    quicksort_sub_array (right, pivot, stop);
-  end
-  prval () = merge (arr, left, right, pivot, stop)
-}
-
+quicksort {..} {..} {n} (arr, n) =
+if n <= 1 then
+  arr
+else let
+  val p = random_int_range (0, n-1)
+  val (parted, pivot) = partition (arr, p, 0, n - 1)
+  val (pf | left, right) = split (parted, pivot)
+  //
+  val sorted_left = quicksort (left, pivot);
+  val sorted_right = quicksort (right, n - pivot - 1);
+  //
+  val new = merge (pf | sorted_left, sorted_right, pivot)
+in
+  new
+end
