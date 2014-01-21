@@ -1,21 +1,17 @@
 datasort array = (*abstract*)
 
 (*
-  The following type  is needed to reason about  elements at different
-  indicies in an  array. For example, I want to  capture the following
-  constraint
+  I want to express constraints like the following
   
   (select a i) <= (select a (- n 1))
   
   The SMT solver needs this constraint  to know that then swapping the
   ith element with our pivot index maintains the partition invariant.
-
-  I think I  might still be able  to express using just int  and not a
-  new sort.
+  
+  Using a homomorphism between a t@ype a and an integer, I can capture
+  this invariant.
 *)
-datasort select = (*abstract*)
-
-stacst array_select : (array, int(*index*)) -> select
+stacst array_select : (array, int(*index*)) -> int
 stadef select = array_select
 
 stacst swap : (array, int, int) -> array
@@ -28,40 +24,28 @@ stadef partitioned = partitioned_array
 stacst sorted_array : (array, int(*begin*), int(*end*)) -> bool
 stadef sorted = sorted_array
 
-abstype array (l:addr, a:t@ype, n:int, buf: array) = ptr
+abstype array (a:t@ype, n:int, buf: array) = ptr
 
 (* ****** ****** *)
 
-stacst lte_select_select: (select, select) -> bool
-stadef <= = lte_select_select
-
-abst@ype read (a:t@ype, s:select) = a
+abst@ype stamp (a:t@ype, i: int) = a
 
 fun {a:t@ype}
-read_lte {i,j:select} (read (a, i), read (a, j)): bool (i <= j)
+stamp_lte {i,j:int} (stamp (a, i), stamp(a, j)): bool (i <= j)
 
-overload <= with read_lte
+overload <= with stamp_lte
 
 fun {a:t@ype}
 array_select {l:addr} {buf:array} {i,n:nat | i < n} (
-  array (l, a, n, buf), int i
-): read (a, select (buf, i))
+  array (a, n, buf), int i
+): stamp (a, select (buf, i))
 
 overload [] with array_select
 
 (* ****** ****** *)
 
-
 fun {a:t@ype}
-array_split {l:addr} {buf: array} {i,n:nat | i < n} (
-  array (l, a, n, buf), int i
-): [left,right:array]
-  (array (l, a, i+1, left), array (l + sizeof(a) * i, a, n - (i + 1), right))
-  
-(* ****** ****** *)
-
-fun {a:t@ype}
-quicksort_sub_array {l:addr} {n:nat} {buf: array}
+quicksort_sub_array {l:addr} {buf: array} {n:nat}
    {start,stop:nat | stop < n} (
   &array (l, a, n, buf) >> array(l, a, n, buf'),
   int start, int stop
@@ -70,4 +54,4 @@ quicksort_sub_array {l:addr} {n:nat} {buf: array}
 fun {a:t@ype}
 quicksort {l:addr} {buf:array} {n:nat} (
   &array(l, a, n, buf) >> array(l, a, n, buf'), int n
-): #[buf: array | sorted(buf', 0, n-1)] void
+): #[buf': array | sorted (buf', 0, n-1)] void

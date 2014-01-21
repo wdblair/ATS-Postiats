@@ -6,13 +6,6 @@ random_int_range {start,stop:nat} (
   int start, int stop
 ): [s:nat | start <= s; s <= stop] int s
 
-extern
-fun {a:t@ype}
-partition {l:addr} {start, stop, pivot, n:nat
-  | start <= pivot; pivot <= stop; stop < n
-} {buf: array} (
-  &array (l, a, n, buf) >> array (l, a, n, buf'), int pivot, int start, int stop
-): #[buf':array] [p:nat | start <= p; p <= stop; partitioned (buf', start, p, stop)] int p
     
 extern
 fun {a:t@ype} swap {l:addr} {buf:array} {i,j,n:int} (
@@ -58,14 +51,28 @@ end
 
 end
 
+extern
+fun {a:t@ype}
+partition {l:addr} {start, stop, pivot, n:nat
+  | start <= pivot; pivot <= stop; stop < n
+} {buf: array} (
+  &array (l, a, n, buf) >> array (l, a, n, buf'), int pivot, int start, int stop
+): #[buf':array] [p:nat | start <= p; p <= stop; partitioned (buf', start, p, stop)] int p
+
+
+
 implement {a}
-quicksort_sub_array (arr, start, stop) =
+quicksort_sub_array {..} {..} {n} (arr, start, stop) =
 if start >= stop then
   ()
-else let
+else {
   val p = random_int_range (start, stop)
   val pivot = partition (arr, p, start, stop)
-in
-  quicksort_sub_array (arr, start, pivot);
-  quicksort_sub_array (arr, pivot, stop);
-end
+  val (left, right) = split (arr, pivot)
+  val () = begin
+    quicksort_sub_array (left, start, pivot);
+    quicksort_sub_array (right, pivot, stop);
+  end
+  prval () = merge (arr, left, right, pivot, stop)
+}
+
