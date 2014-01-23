@@ -44,8 +44,3 @@ array_select {l:addr} {buf:array} {i,n:nat | i < n} (
 overload [] with array_select
 
 (* ****** ****** *)
-
-fun {a:t@ype}
-quicksort {l:addr} {buf:array} {n:int} (
-  array(l, a, n, buf), int n
-): [buf': array | sorted (buf', 0, n-1)] array(l, a, n, buf')

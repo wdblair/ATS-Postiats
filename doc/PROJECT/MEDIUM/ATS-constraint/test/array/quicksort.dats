@@ -1,5 +1,6 @@
 staload "array.sats"
 
+
 extern
 fun
 random_int_range {start,stop:nat} (
@@ -61,10 +62,10 @@ partition {l:addr} {start, stop, pivot, n:nat
   array (l, a, n, buf), int pivot, int start, int stop
 ): [buf':array] [p:nat | 
   start <= p; p <= stop; 
-  partitioned (buf', start, p, stop)
+  partitioned (buf', 0, p, stop)
 ] (array (l, a, n, buf'), int p)
 
-absview Split (l:addr, r: addr)
+absprop Split (l:addr, r: addr)
 
 (*
   This is intended to be a proof function to split a partitioned array
@@ -75,7 +76,7 @@ fun {a:t@ype} split {l:addr} {n, p:int}
   {buf:array | partitioned (buf, 0, p, n - 1)}  (
   array (l, a, n, buf), int p
 ): [left,right: array] [r:addr]
-  (Split (l,r) | array (l, a, p, left), array (r, a, n - p - 1, right))
+  (Split (l, r) | array (l, a, p, left), array (r, a, n - p - 1, right))
   
 stacst merged_array :
   (array, array(* left *), array (*right*), int (*pivot*), int (*n*)) -> bool
@@ -92,15 +93,17 @@ stadef merged = merged_array
 *)
 extern
 fun {a:t@ype}
-merge {l,r:addr} {n,m,p:int}
+append {l,r:addr} {n,m,p:int}
   {left,right:array} (
   Split (l,r) | array (l, a, n, left), array(r, a , m, right), int p
 ): [final: array | merged (final, left, right, p, n+m);
   partitioned (final, 0, p, n+m)
 ] array (l, a, n+m+1, final)
 
-implement {a}
-quicksort (arr, n) =
+fun {a:t@ype}
+quicksort {l:addr} {buf:array} {n:nat} .<n>. (
+  arr: array(l, a, n, buf), n: int n
+): [buf': array | sorted (buf', 0, n-1)] array(l, a, n, buf') =
 if n <= 1 then
   arr
 else let
@@ -111,7 +114,7 @@ else let
   val sorted_left  = quicksort (left, pivot);
   val sorted_right = quicksort (right, n - pivot - 1);
   //
-  val new = merge (pf | sorted_left, sorted_right, pivot)
+  val new = append (pf | sorted_left, sorted_right, pivot)
 in
   new
 end

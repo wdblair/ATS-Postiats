@@ -20,7 +20,7 @@
   (forall ((i Int))
           (=> (<= start i end) (= (select a i) (select right (- i start))))))
 
-(define-fun merged
+(define-fun append
   ((a (Array Int Int)) (left (Array Int Int)) (right (Array Int Int))
    (pivot Int) (n Int)) Bool
    (and
@@ -39,7 +39,7 @@
 (assert (sorted left 0 (- p 1)))
 (assert (sorted right 0 (- (- n p) 1)))
 
-(assert (merged buffer left right p n))
+(assert (append buffer left right p n))
 
 (assert (partitioned buffer 0 p n))
 
