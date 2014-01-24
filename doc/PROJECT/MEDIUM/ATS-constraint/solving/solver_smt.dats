@@ -199,8 +199,8 @@ in
         $SMT.make_bool_sort ()
   
   implement smtenv_add_svar (env, s2v) = let
-    val () = fprintln! (stdout_ref, "Adding svar: ", s2v)
     val type = s2var_get_srt (s2v)
+    val () = fprintln! (stdout_ref, "Adding svar: ", s2v, " type: ", type)
     //
     val smt_type = sort_of_s2rt (type)
     //
@@ -615,6 +615,25 @@ in
   in
     $SMT.make_bv_eq (l, r)
   end
+
+  implement
+  f_array_select (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val i = formula_make (env, s2e2)
+  in
+    Select (a, i)
+  end
+
+  implement
+  f_array_store (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val i = formula_make (env, s2e2)
+    val v = formula_make (env, s2e3)
+  in
+    Store (a, i, v)
+  end
   
   implement
   f_partitioned_array (env, s2es) = let
@@ -632,6 +651,21 @@ in
           (((Select(^a, i)) <= (Select(^a, ^p))) 
             And ((Select(^a, p)) <= (Select(a, j)))))
   end
+
+  local
+  
+    fun
+    Sorted (a: formula, start: formula, stop: formula): formula = let
+      val i = Int ("i")
+      val j = Int("j")
+    in
+      ForAll (^i, ^j,
+        ((start <= ^i) And (^i <= ^j) And (^j <= stop)) ==> 
+          (Select (^a, i) <= Select (a, j))
+        )
+    end
+    
+  in
   
   implement
   f_sorted_array (env, s2es) = let
@@ -640,13 +674,34 @@ in
     val start = formula_make (env, s2e2)
     val stop  = formula_make (env, s2e3)
     //
-    val i = Int ("i"); val j = Int ("j")
   in
+    Sorted (a, start, stop)
+    (*
     ForAll (^i, ^j,
       ((start <= ^i) And (^i <= ^j) And (^j <= stop)) ==> 
         (Select (^a, i) <= Select (a, j))
       )
+    *)
   end
+
+  implement
+  f_sorted_split_array (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val l = formula_make (env, s2e2)
+    val p = formula_make (env, s2e3)
+    val r = formula_make (env, s2e4)
+    //
+    val i = Int("i")
+    val j = Int("j")
+  in
+    Sorted (^a, ^l, (^p - Int(1))) And Sorted (^a, ^p, ^r) And
+    ForAll (^i, ^j, ((l <= ^i) And (^i <= (^p - Int(1))) And (^p < ^j) And (^j <= r))
+      ==> ((Select (^a, p) <= Select (^a, ^j))
+            And (Select (^a, i) <= Select (a, j))))
+  end
+  
+  end // end of [local]
   
   implement
   f_merged_array (env, s2es) = let
@@ -665,6 +720,16 @@ in
     And ForAll (^j,
       (((^pivot + Int(1)) <= ^j) And (^j <= n)) ==>
         (Select (a, ^j) = Select (right, j - (pivot + Int(1)))))
+  end
+    
+  implement
+  f_array_swap (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val i = formula_make (env, s2e2)
+    val j = formula_make (env, s2e3)
+  in
+    Store (Store (^a, ^j, Select(^a, ^i)), i, Select (a, j))
   end
   
 end // end of [local]

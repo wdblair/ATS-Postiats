@@ -1,16 +1,10 @@
 staload "array.sats"
 
-
 extern
 fun
 random_int_range {start,stop:nat} (
   int start, int stop
 ): [s:nat | start <= s; s <= stop] int s
-
-extern
-fun {a:t@ype} swap {l:addr} {buf:array} {i,j,n:int} (
-  &array (l, a, n, buf) >> array (l, a, n, swap (buf,i,j)), int i, int j
-): void
 
 local
 
@@ -61,7 +55,7 @@ partition {l:addr} {start, stop, pivot, n:nat
 } {buf: array} (
   array (l, a, n, buf), int pivot, int start, int stop
 ): [buf':array] [p:nat | 
-  start <= p; p <= stop; 
+  start <= p; p <= stop;
   partitioned (buf', 0, p, stop)
 ] (array (l, a, n, buf'), int p)
 
@@ -103,7 +97,7 @@ append {l,r:addr} {n,m,p:int}
 fun {a:t@ype}
 quicksort {l:addr} {buf:array} {n:nat} .<n>. (
   arr: array(l, a, n, buf), n: int n
-): [buf': array | sorted (buf', 0, n-1)] array(l, a, n, buf') =
+): [buf': array | sorted (buf', n-1)] array(l, a, n, buf') =
 if n <= 1 then
   arr
 else let

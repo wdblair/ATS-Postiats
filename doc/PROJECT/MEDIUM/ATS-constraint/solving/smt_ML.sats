@@ -145,5 +145,9 @@ overload < with lt_formula_formula
 fun 
 Select (array: formula, i: formula): formula
 
+overload [] with Select
+
 fun
 Store (array: formula, i: formula, v: formula): formula
+
+overload [] with Store

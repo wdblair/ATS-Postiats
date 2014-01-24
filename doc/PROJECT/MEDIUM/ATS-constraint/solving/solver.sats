@@ -1,6 +1,5 @@
 (*
-  A generic wrapper around an SMT sovler for the purpose
-  of typechecking.
+  A generic wrapper around an SMT solver for solving ATS constraints.
 *)
 
 staload "constraint.sats"
@@ -93,7 +92,7 @@ abstype s2cstmap (a:t@ype) = ptr
 fun {a:t@ype}
 s2cstmap_nil (): s2cstmap (a)
 
-fun {a:t@ype} 
+fun {a:t@ype}
 s2cstmap_find (store: s2cstmap (a), key: s2cst): a
 
 fun {a:t@ype}
@@ -178,12 +177,24 @@ fun f_eq_bv_bv : s2cstmap_ftype
 
 (* ****** ****** *)
 
+(* 
+  These are pretty application specific and have verbose
+  definitions. It might be easier on the user to be able
+  to defin them in SMT-LIB syntax.
+*)
+
 fun f_partitioned_array : s2cstmap_ftype
 fun f_sorted_array : s2cstmap_ftype
+fun f_sorted_split_array : s2cstmap_ftype
 
 fun f_partitioned_left_array  : s2cstmap_ftype
 fun f_partitioned_right_array : s2cstmap_ftype
 
 fun f_merged_array : s2cstmap_ftype
+
+fun f_array_store : s2cstmap_ftype
+fun f_array_select : s2cstmap_ftype
+
+fun f_array_swap : s2cstmap_ftype
 
 (* ****** ****** *)
