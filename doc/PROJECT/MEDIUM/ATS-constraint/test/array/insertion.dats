@@ -21,28 +21,28 @@ if n <= 1 then
 else let
   //
   fun loop {i:pos | i <= n} .<n-i>. (
-    p: PartialSortedArray (a, i, n), i: int i
+    part: PartialSortedArray (a, i, n), i: int i
   ): SortedArray (a, n) =
     if i = n then
-      p
+      part
     else let
       //
       fun {a:t@ype}
       inner_loop {j:int | ~1 <= j; j < i} .<j+1>.
       {buf:array | sorted_split (buf, 0, j+1, i)} (
-        ar: array (a, n, buf), j: int j
+        split: array (a, n, buf), j: int j
       ): PartialSortedArray (a , i+1, n) =
         if j = ~1 then
-          ar
-        else if ar[j] <= ar[j+1] then
-          ar
+          split
+        else if split[j] <= split[j+1] then
+          split
         else let
-          val ar = swap (ar, j, j+1)
+          val ar = swap (split, j, j+1)
         in
           inner_loop (ar, j-1)
         end
       //
-      val p = inner_loop (p, i-1)
+      val p = inner_loop (part, i-1)
     in
       loop (p, i+1)
     end
