@@ -676,12 +676,6 @@ in
     //
   in
     Sorted (a, start, stop)
-    (*
-    ForAll (^i, ^j,
-      ((start <= ^i) And (^i <= ^j) And (^j <= stop)) ==> 
-        (Select (^a, i) <= Select (a, j))
-      )
-    *)
   end
 
   implement

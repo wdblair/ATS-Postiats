@@ -2,13 +2,13 @@ staload "array.sats"
 
 typedef Array (l:addr, a:t@ype, n:int) = [buf:array] array (l, a, n, buf)
 
-(*
 (* A fully sorted array *)
-typedef SortedArray (l:addr, a:t@ype, n:int) = [buf:array | sorted(buf, 0, n-1)] array (l, a, n, buf)
+typedef SortedArray (l:addr, a:t@ype, n:int) = [buf:array | sorted(buf, n-1)] array (l, a, n, buf)
 
 (* An only partially sorted with the first i elements sorted. *)
-typedef PartialSortedArray (l:addr, a:t@ype, i: int, n:int) = [buf:array | sorted(buf, 0, i-1)] array (l, a, i, n, buf)
-*)
+typedef PartialSortedArray (l:addr, a:t@ype, i: int, n:int) = 
+  [buf:array | sorted(buf, i-1)] array (l, a, n, buf)
+
 (*
   This is still too verbose, but I can cut it down.
 *)
