@@ -1,59 +1,50 @@
 staload "array.sats"
-
-typedef Array (l:addr, a:t@ype, n:int) = [buf:array] array (l, a, n, buf)
+ 
+(*A normal array with a static one associated with it. *)
+typedef Array (a:t@ype, n:int) = [buf:array] array (a, n, buf)
 
 (* A fully sorted array *)
-typedef SortedArray (l:addr, a:t@ype, n:int) = [buf:array | sorted(buf, n-1)] array (l, a, n, buf)
+typedef SortedArray (a:t@ype, n:int) = 
+  [buf:array | sorted(buf, n-1)] array (a, n, buf)
 
-(* An only partially sorted with the first i elements sorted. *)
-typedef PartialSortedArray (l:addr, a:t@ype, i: int, n:int) = 
-  [buf:array | sorted(buf, i-1)] array (l, a, n, buf)
-
-(*
-  This is still too verbose, but I can cut it down.
-*)
-
+(* An array with the first i elements sorted. *)
+typedef PartialSortedArray (a:t@ype, i: int, n:int) = 
+  [buf:array | sorted(buf, i-1)] array (a, n, buf)
+  
 fun {a:t@ype}
-insertion_sort {l:addr} {buf:array} {n:nat} (
-  arr: array (l, a, n , buf), n: int n
-): [buf': array | sorted (buf', n-1)] array (l, a, n, buf') =
+insertion_sort {n:nat} (
+  ar: Array (a, n), n: int n
+): SortedArray (a, n) =
 if n <= 1 then
-  arr
+  ar
 else let
-  fun loop {buf:array} {i:pos | i <= n | sorted (buf, i-1)} .<n-i>. (
-    arr: array (l, a, n, buf), i: int i
-  ): [buf':array | sorted(buf', n-1)] array (l, a, n, buf') =
+  fun loop {i:pos | i <= n} .<n-i>. (
+    p: PartialSortedArray (a, i, n), i: int i
+  ): SortedArray (a, n) =
     if i = n then
-      arr
+      p
     else let
       //
       fun {a:t@ype}
-      inner_loop {j:int | ~1 <= j; j < i} .<j+1>. {buf:array |
-        (*
-          The meaning of this predicate is that the sub array i in [0,j] is sorted and
-          at i is less then or equal to an element k in (j+1,i]. This allows us to slide 
-          the current value into its sorted position and state the final array is indeed 
-          sorted from the interval i-1+1 = i
-        *)
-        sorted_split (buf, 0, j+1, i)
-      } (
-        arr: array (l, a, n, buf), j: int j
-      ): [buf':array | sorted (buf', i)] array (l, a , n, buf') =
+      inner_loop {j:int | ~1 <= j; j < i} .<j+1>.
+      {buf:array | sorted_split (buf, 0, j+1, i)} (
+        ar: array (a, n, buf), j: int j
+      ): PartialSortedArray (a , i+1, n) =
         if j = ~1 then
-          arr
-        else if arr[j] <= arr[j+1] then
-          arr
+          ar
+        else if ar[j] <= ar[j+1] then
+          ar
         else let
-          val next = swap (arr, j, j+1)
+          val ar = swap (ar, j, j+1)
         in
-          inner_loop (next, j-1)
+          inner_loop (ar, j-1)
         end
       //
-      val arr = inner_loop (arr, i-1)
+      val p = inner_loop (p, i-1)
     in
-      loop (arr, i+1)
+      loop (p, i+1)
     end
   //
 in
-  loop (arr, 1)
+  loop (ar, 1)
 end
