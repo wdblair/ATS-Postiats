@@ -80,13 +80,37 @@ jsonize_s2rt
 in
 //
 case+ s2t0 of
-| S2RTbas (s2tb) => jsonize_s2rtbas (s2tb)
-| S2RTfun (_, _) => jsonval_string ("s2rt_fun")
-| S2RTtup (s2ts) => jsonval_string ("s2rt_tup")
-| _(*unspecified*) => jsonval_string ("s2rt_anon")
+| S2RTbas (s2tb) => let
+  val name = jsonval_string ("s2rt_bas")
+  val srt = jsonize_s2rtbas (s2tb)
+in
+  jsonval_labval2 ("s2rt_name", name, "s2rt_args", srt)
+end
+| S2RTfun (args, res) => let
+  val name = jsonval_string ("s2rt_fun")
+  val args = JSONlist (list_of_list_vt (
+    list_map_fun<s2rt><jsonval> (args, jsonize_s2rt)
+  ))
+  val res = jsonize_s2rt (res)
+in
+  jsonval_labval3 ("s2rt_name", name, "s2rt_args", args, "s2rt_res", res)
+end
+| S2RTtup (s2ts) => let
+  val name = jsonval_string ("s2rt_tup")
+  val args = JSONlist (list_of_list_vt (
+    list_map_fun<s2rt><jsonval> (s2ts, jsonize_s2rt)
+  ))
+in
+  jsonval_labval2 ("s2rt_name", name, "s2rt_args", args)
+end
+| _(*unspecified*) => let
+  val name = jsonval_string ("s2rt_anon")
+in
+  jsonval_labval1 ("s2rt_name", name)
+end
 //
 end // end of [jsonize_s2rt]
-  
+
 (* ****** ****** *)
 
 implement

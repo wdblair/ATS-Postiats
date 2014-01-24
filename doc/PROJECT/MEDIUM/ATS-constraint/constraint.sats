@@ -102,10 +102,13 @@ datatype s2rt =
 | S2RTbool of ()
 | S2RTarray of ()
 | S2RTbitvec of (int(*width*))
-| S2RTfun of ((*void*))
+| S2RTfun of (s2rts (*args*), s2rt (*return*))
 | S2RTtup of ((*void*))
 | S2RTerr of ((*void*))
 | S2RTignored of ((*void*))
+
+where 
+s2rts = List0 (s2rt)
 
 (* ****** ****** *)
 
