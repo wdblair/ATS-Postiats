@@ -15,9 +15,11 @@ fun {a:t@ype}
 insertion_sort {n:nat} (
   ar: Array (a, n), n: int n
 ): SortedArray (a, n) =
+//
 if n <= 1 then
   ar
 else let
+  //
   fun loop {i:pos | i <= n} .<n-i>. (
     p: PartialSortedArray (a, i, n), i: int i
   ): SortedArray (a, n) =
