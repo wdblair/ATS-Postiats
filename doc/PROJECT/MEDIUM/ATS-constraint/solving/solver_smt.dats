@@ -331,7 +331,6 @@ in
             else if s2rt_is_bitvec (srt) then let
               val width = s2rt_bitvec_get_width (srt)
               val () = assertloc (width > 0)
-              val () = println! ("translating bitvec...", width)
               val bv = $SMT.make_bitvec_sort (width)
               val cst = $SMT.make_fresh_constant (bv)
               val () = $SMT.sort_free (bv)
