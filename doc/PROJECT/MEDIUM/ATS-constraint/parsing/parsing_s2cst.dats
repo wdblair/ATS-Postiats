@@ -37,6 +37,8 @@ staload FM =
 "libats/SATS/funmap_avltree.sats"
 staload _(*FM*) =
 "libats/DATS/funmap_avltree.dats"
+staload _ =
+"libats/DATS/qlist.dats"
 //
 typedef map = $FM.map (stamp, s2cst)
 //
@@ -70,6 +72,23 @@ val-~None_vt ((*void*)) = $effmask_ref ($FM.funmap_insert_opt (!p, k0, s2c0))
 in
   // nothing
 end // end of [the_s2cstmap_find]
+
+implement the_s2cstmap_listize 
+  () = let
+//
+val (vbox(pf) | p) = ref_get_viewptr (the_s2cstmap)
+val constants = $effmask_ref (list_of_list_vt {@(stamp,s2cst)} (
+  $FM.funmap_listize<stamp,s2cst> (!p)
+))
+//
+implement list_map$fopr<@(stamp, s2cst)><s2cst> (x) = x.1
+//
+//
+in
+  $effmask_ref ( list_of_list_vt {s2cst} (
+    list_map<@(stamp, s2cst)><s2cst> (constants)
+  ))
+end // end of [the_s2cstmap_listize]
 
 end // end of [local]
 

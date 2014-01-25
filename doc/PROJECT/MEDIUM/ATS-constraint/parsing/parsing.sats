@@ -77,7 +77,7 @@ fun parse_c3nstr_from_stdin (): c3nstr
 
 (* ****** ****** *)
 
-fun the_s2cstmap_listize (): List0 (s2cst)
+fun the_s2cstmap_listize (): List (s2cst)
 
 (* ****** ****** *)
 

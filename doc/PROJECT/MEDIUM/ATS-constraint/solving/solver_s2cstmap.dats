@@ -11,6 +11,7 @@
 (* ****** ****** *)
 
 staload "constraint.sats"
+staload "parsing/parsing.sats"
 staload "solving/smt.sats"
 staload "solving/solver.sats"
 
@@ -25,12 +26,19 @@ staload _ = "libats/DATS/funmap_list.dats"
 
 (* ****** ****** *)
 
+staload LinMap = "libats/SATS/linmap_avltree.sats"
+staload _ = "libats/DATS/linmap_avltree.dats"
+
+(* ****** ****** *)
+
 typedef s2cst_ftype = (&smtenv, s2explst) -<fun1> formula
 
 assume s2cfunmap = map (symbol, s2cst_ftype)
 
+vtypedef s2cdeclmap = $LinMap.map (s2cst, func_decl)
+
 implement 
-equal_key_key<symbol> (s0, s1) = 
+equal_key_key<symbol> (s0, s1) =
   compare_symbol_symbol (s0, s1) = 0
 
 local
@@ -40,6 +48,14 @@ in
     ref_make_viewptr (view@ (the_s2cfunmap) | addr@ (the_s2cfunmap))
 end
 
+local
+  var the_s2cdeclmap: s2cdeclmap = 
+    $LinMap.linmap_make_nil{symbol, func_decl} ()
+in
+  val the_s2cdeclmap =
+    ref_make_viewptr (view@ the_s2cdeclmap | addr@ (the_s2cdeclmap))
+end
+
 extern
 fun constraint3_initialize_map (map: &s2cfunmap): void
 
@@ -47,6 +63,43 @@ implement
 constraint3_initialize () = {
   val (pf, free | p) = $UN.ref_vtake {s2cfunmap} (the_s2cfunmap)
   val () = constraint3_initialize_map (!p)
+  (*
+    Fetch all the constants parsed for constraint solving and declare
+    those which do not have any interpretation.
+  *)
+  val constants = the_s2cstmap_listize ()
+  //
+  implement list_foreach$fwork<s2cst><void> (s2c, v) = {
+    val (macpf, macfpf | macp)  = 
+      $UN.ref_vtake (the_s2cfunmap)
+    val (decpf, decfpf | declp) =
+      $UN.ref_vtake (the_s2cdeclmap)
+    //
+    var res: s2cst_ftype
+    val name = s2cst_get_name (s2c)
+    val defined = funmap_search<symbol,s2cst_ftype> (!macp, name, res)
+    prval () = opt_clear (res)
+    //
+    val () = (
+      if defined then
+        ()
+      else let
+        val srt = s2cst_get_srt (s2c)
+      in
+        (* Declare a new function *)
+        if s2rt_is_fun (srt) then {
+          val name = symbol_get_string (name)
+          
+        }
+      end
+    ): void
+    //
+    prval () = macfpf (macpf)
+    prval () = decfpf (decpf)
+  }
+  //
+  val () = list_foreach<s2cst> (constants)
+  //
   prval () = free (pf)
 }
 

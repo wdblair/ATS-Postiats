@@ -32,7 +32,8 @@ PATSCC2=\
   $(PATSCC) \
   -atsccomp "$(CCOPT)" \
   -IIATS ../	\
-  -IIATS $(PATSHOME) -IIATS $(PATSHOME)/ccomp/runtime
+  -IIATS $(PATSHOME) -IIATS $(PATSHOME)/contrib \
+  -IIATS $(PATSHOME)/ccomp/runtime $(shell pkg-config --cflags json-c)
 
 ######
 

@@ -67,6 +67,8 @@ overload fprint with fprint_symbol
 
 fun symbol_make (string): symbol
 
+fun symbol_get_string (symbol): string
+
 (* ****** ****** *)
 //
 fun
@@ -121,6 +123,11 @@ fun s2rt_is_addr (s2rt): bool
 fun s2rt_is_bool (s2rt): bool
 fun s2rt_is_bitvec (s2rt): bool
 fun s2rt_is_array (s2rt): bool
+
+fun s2rt_is_fun (s2rt): bool
+
+fun s2rt_get_args (s2rt): s2rts
+fun s2rt_get_ret (s2rt): s2rt
 
 fun s2rt_bitvec_get_width (s2rt): int
 

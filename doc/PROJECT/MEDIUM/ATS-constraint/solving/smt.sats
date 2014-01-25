@@ -35,6 +35,7 @@
 absvtype solver = ptr
 
 absvtype formula = ptr
+absvtype func_decl = ptr
 absvtype sort = ptr
 
 (* ****** ****** *)
@@ -65,6 +66,10 @@ fun make_int_constant (
 
 fun make_fresh_constant (
   !sort
+): formula
+
+fun make_func_decl (
+  name: string, domain: List_vt (sort), range: sort
 ): formula
 
 (* ****** ****** *)

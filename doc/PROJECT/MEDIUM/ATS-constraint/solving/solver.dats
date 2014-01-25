@@ -298,7 +298,6 @@ case+ 0 of
       prerr ": please inspect the above reported error message(s) for information."
     ) // end of [val]
     val () = prerr_newline ()
-    val () = $ERR.abort {void} ()
   } // end of [_]
 //
 end // end of [c3nstr_solve]

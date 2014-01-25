@@ -21,6 +21,10 @@ implement symbol_make (x) = x
 
 (* ****** ****** *)
 
+implement symbol_get_string (x) = x
+
+(* ****** ****** *)
+
 implement
 fprint_symbol
   (out, sym) = fprint_string (out, sym)
