@@ -1,3 +1,3 @@
 staload "error.sats"
 
-// implement abort () = $raise FatalErrorException ()
+// implement abort {a} () = $raise FatalErrorException ()

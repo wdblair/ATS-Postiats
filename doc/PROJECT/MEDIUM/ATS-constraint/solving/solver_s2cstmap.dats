@@ -40,7 +40,28 @@ vtypedef s2cdeclmap = $LinMap.map (s2cst, func_decl)
 implement 
 equal_key_key<symbol> (s0, s1) =
   compare_symbol_symbol (s0, s1) = 0
+  
+implement
+$LinMap.equal_key_key<symbol> (s0, s1) =
+  compare_symbol_symbol (s0, s1) = 0
 
+implement
+$LinMap.compare_key_key<symbol> (s0, s1) =
+  compare_symbol_symbol (s0, s1)
+
+(*
+  This map keeps track of static constants that map to function macros.
+  For example, if someone gives a static instance of ~1, this is represented
+  as
+  
+  (app ~ 1)
+  
+  Which I can just simplify into
+  
+  -1 
+  
+  Using the API provided by the SMT Solver.
+*)
 local
   var the_s2cfunmap: s2cfunmap = funmap_make_nil{symbol,s2cst_ftype} ()
 in
@@ -48,6 +69,12 @@ in
     ref_make_viewptr (view@ (the_s2cfunmap) | addr@ (the_s2cfunmap))
 end
 
+
+(*
+  This map keeps track of static uninterpreted functions declared in ATS.
+  
+  Users can provide their own interpretations in a separate SMT Lib file.
+*)
 local
   var the_s2cdeclmap: s2cdeclmap = 
     $LinMap.linmap_make_nil{symbol, func_decl} ()
@@ -72,8 +99,6 @@ constraint3_initialize () = {
   implement list_foreach$fwork<s2cst><void> (s2c, v) = {
     val (macpf, macfpf | macp)  = 
       $UN.ref_vtake (the_s2cfunmap)
-    val (decpf, decfpf | declp) =
-      $UN.ref_vtake (the_s2cdeclmap)
     //
     var res: s2cst_ftype
     val name = s2cst_get_name (s2c)
@@ -86,16 +111,34 @@ constraint3_initialize () = {
       else let
         val srt = s2cst_get_srt (s2c)
       in
-        (* Declare a new function *)
+        (* Declare the new function *)
         if s2rt_is_fun (srt) then {
-          val name = symbol_get_string (name)
-          
+          val (decpf, decfpf | declp) = 
+            $UN.ref_vtake (the_s2cdeclmap)
+          val _args = s2rt_fun_get_args (srt)
+          //
+          implement list_map$fopr<s2rt><sort> (srt) = sort_make (srt)
+          //
+          val domain = list_map<s2rt><sort> (_args)
+          //
+          val _ret = s2rt_fun_get_ret (srt)
+          val range  = sort_make (_ret)
+          //
+          val decl =
+            make_func_decl (symbol_get_string (name), domain, range)
+          //
+          var res: func_decl
+          val replaced =
+            $LinMap.linmap_insert<symbol,func_decl>
+              (!declp, name, decl, res)
+          val () = assertloc (~replaced)
+          prval () = opt_unnone (res)
+          prval () = decfpf (decpf)
         }
       end
     ): void
     //
     prval () = macfpf (macpf)
-    prval () = decfpf (decpf)
   }
   //
   val () = list_foreach<s2cst> (constants)

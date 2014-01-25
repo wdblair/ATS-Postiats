@@ -56,6 +56,7 @@ staload UN = "prelude/SATS/unsafe.sats"
 assume solver = Z3_solver
 
 assume formula = Z3_ast
+assume func_decl = Z3_func_decl
 assume sort = Z3_sort
 
 local
@@ -135,6 +136,26 @@ end
 implement 
 make_fresh_constant (sort) =
     Z3_mk_fresh_const (!the_context, "postiats", sort)
+
+implement
+make_func_decl (name, domain, range) = let
+  val sym = Z3_mk_string_symbol (!the_context, name)
+  //
+  val n = g1int2uint (length (domain))
+  val (pf, gc | p) = array_ptr_alloc<sort> (u2sz (n))
+  val () = array_copy_from_list_vt<sort> (!p, domain)
+  //  
+  val decl = Z3_mk_func_decl (!the_context, sym, n, !p, range)
+  //
+  implement array_uninitize$clear<sort> (i, srt) = {
+    val () = Z3_sort_dec_ref (!the_context, srt)
+  }
+in
+  array_uninitize<sort> (!p, u2sz(n));
+  array_ptr_free{sort} (pf, gc | p);
+  Z3_sort_dec_ref (!the_context, range);
+  decl
+end
 
 implement 
 make_true () = Z3_mk_true (!the_context)
@@ -414,6 +435,12 @@ formula_free (wff) = Z3_dec_ref (!the_context, wff)
 
 implement 
 sort_free (srt) = Z3_sort_dec_ref (!the_context, srt)
+
+implement
+func_decl_dup (dec) = Z3_func_decl_inc_ref (!the_context, dec)
+
+implement
+func_decl_free (dec) = Z3_func_decl_dec_ref (!the_context, dec)
 
 (* ****** ****** *)
 

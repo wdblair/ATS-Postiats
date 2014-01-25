@@ -62,7 +62,25 @@ fun Z3_mk_fresh_const
 (
   ctx: !Z3_context, prfix: Z3_string, ty: !Z3_sort
 ) : Z3_ast = "mac#%" // end of [Z3_mk_fresh_const]
-  
+
+
+/*
+// Declare and create a function
+*/
+fun Z3_mk_func_decl {n:int}
+(
+  ctx: !Z3_context, s: Z3_symbol, n: uint n, domain: &(@[Z3_sort][n]), 
+  range: !Z3_sort
+) : Z3_func_decl = "mac#%" // end of [Z3_mk_func_decl]
+
+fun Z3_func_decl_inc_ref (
+  ctx: !Z3_context, decl: !Z3_func_decl
+): Z3_func_decl = "mac#%" // end of [Z3_func_decl_inc_ref]
+
+fun Z3_func_decl_dec_ref (
+  ctx: !Z3_context, decl: Z3_func_decl
+): void = "mac#%" // end of [Z3_func_decl_inc_ref]
+
 (* ****** ****** *)
 
 (* end of [z3_constapp.sats] *)

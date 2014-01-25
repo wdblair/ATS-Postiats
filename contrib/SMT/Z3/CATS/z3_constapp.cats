@@ -44,6 +44,37 @@ Z3_DECLARE_MK_AST(Z3_mk_fresh_const, Z3_string prefix, Z3_sort ty) {
 
 /* ****** ****** */
 
+ATSinline()
+Z3_func_decl
+atscntrb_Z3_mk_func_decl (Z3_context ctx, Z3_symbol s, uint n, void **domain, Z3_sort range) {
+  Z3_func_decl dec = Z3_mk_func_decl(ctx, s, n, (Z3_sort *)domain, range);
+  
+  Z3_error_code e = Z3_get_error_code(ctx);
+  if (e != Z3_OK) {
+    Z3_string msg = Z3_get_error_msg_ex(ctx, e);
+    fprintf(stderr, "Z3 Error: %s\n", msg);
+  }
+  Z3_inc_ref(ctx, Z3_func_decl_to_ast(ctx, dec));
+  return dec;
+}
+
+/* ****** ****** */
+
+ATSinline()
+Z3_func_decl
+atscntrb_Z3_func_decl_inc_ref (Z3_context ctx, Z3_func_decl d) {
+  Z3_inc_ref(ctx, Z3_func_decl_to_ast(ctx, d));
+  return d;
+}
+
+ATSinline()
+void
+atscntrb_Z3_func_decl_dec_ref (Z3_context ctx, Z3_func_decl d) {
+  Z3_dec_ref(ctx, Z3_func_decl_to_ast(ctx, d));
+}
+
+/* ****** ****** */
+
 #endif // end of [Z3_Z3_CONSTAPP_CATS]
 
 /* ****** ****** */

@@ -16,10 +16,10 @@ typedef stamp = stamp_t0ype
 (* ****** ****** *)
 
 (*
-  This is a bad hack. During parsing,  whenever we see a stamp we call
-  this function so the stamp counter can start above the highest stamp
-  in the environment. This ensures that with any new variables we add,
-  there will be no collision with other variables' stamps.
+  During parsing, whenever we see a stamp we call this function so the
+  stamp counter can start above  the highest stamp in the environment.
+  This ensures  that with any new  variables we add, there  will be no
+  collision with other variables' stamps.
 *)
 fun the_stamp_counter_parse_new (stamp): void
 
@@ -126,8 +126,9 @@ fun s2rt_is_array (s2rt): bool
 
 fun s2rt_is_fun (s2rt): bool
 
-fun s2rt_get_args (s2rt): s2rts
-fun s2rt_get_ret (s2rt): s2rt
+fun s2rt_fun_get_num_args (s2rt): int
+fun s2rt_fun_get_args (s2rt): s2rts
+fun s2rt_fun_get_ret (s2rt): s2rt
 
 fun s2rt_bitvec_get_width (s2rt): int
 

@@ -1,5 +1,5 @@
 (*
-** Implementing Untyped Functional PL
+** Implementing sorts
 *)
 
 (* ****** ****** *)
@@ -42,6 +42,12 @@ s2rt_is_array (srt) =
   case+ srt of
     | S2RTarray () => true
     | _ =>> false
+
+implement
+s2rt_is_fun (srt) =
+  case+ srt of
+    | S2RTfun (_, _) => true
+    | _ =>> false
     
 (* ****** ****** *)
 
@@ -50,6 +56,29 @@ s2rt_bitvec_get_width (srt) =
   case+ srt of
     | S2RTbitvec (width) => width
     | _ =>> ~1
+
+(* ****** ****** *)
+
+implement
+s2rt_fun_get_num_args (s2rt) = let
+  val- S2RTfun (args, _) = s2rt
+in
+  length (args)
+end
+
+implement
+s2rt_fun_get_args (s2rt) = let
+  val- S2RTfun (args, _) = s2rt
+in
+  args
+end
+
+implement
+s2rt_fun_get_ret (s2rt) = let
+  val- S2RTfun (_, ret) = s2rt
+in
+  ret
+end
 
 (* ****** ****** *)
 

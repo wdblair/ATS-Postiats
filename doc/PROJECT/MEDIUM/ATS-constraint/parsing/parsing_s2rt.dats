@@ -36,7 +36,7 @@ case+ name of
 //
 | "s2rt_bas" => let
   val- ~Some_vt (jsv) =
-    jsonval_get_field (jsv0, "s2rt_node")
+    jsonval_get_field (jsv0, "s2rt_args")
   val- JSONstring (srt) = jsv
   in
     case+ srt of
@@ -49,7 +49,7 @@ case+ name of
       | _ => S2RTignored ()
   end
 | "s2rt_fun" => let
-  val- ~Some_vt (jsv) = 
+  val- ~Some_vt (jsv) =
     jsonval_get_field (jsv0, "s2rt_args")
   val- JSONarray (args) = jsv
   //

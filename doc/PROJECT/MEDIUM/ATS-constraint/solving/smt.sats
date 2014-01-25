@@ -69,8 +69,8 @@ fun make_fresh_constant (
 ): formula
 
 fun make_func_decl (
-  name: string, domain: List_vt (sort), range: sort
-): formula
+  name: string, domain: List0_vt (sort), range: sort
+): func_decl
 
 (* ****** ****** *)
 
@@ -176,6 +176,10 @@ fun formula_dup (!formula): formula
 fun formula_free (formula): void
 
 fun sort_free (sort): void
+
+fun func_decl_dup (!func_decl): func_decl
+
+fun func_decl_free (func_decl): void
 
 (* ****** ****** *)
 

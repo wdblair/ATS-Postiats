@@ -183,26 +183,11 @@ in
     }
   }
   
-  fun
-  sort_of_s2rt (type: s2rt): sort =
-      if s2rt_is_int (type) || s2rt_is_addr (type) then
-        $SMT.make_int_sort ()
-      else if s2rt_is_bitvec (type) then let
-        val width = s2rt_bitvec_get_width (type)
-        val () = assertloc (width > 0)
-      in
-        $SMT.make_bitvec_sort (width)
-      end
-      else if s2rt_is_array (type) then
-        $SMT.make_array_sort ()
-      else
-        $SMT.make_bool_sort ()
-  
   implement smtenv_add_svar (env, s2v) = let
     val type = s2var_get_srt (s2v)
     val () = fprintln! (stdout_ref, "Adding svar: ", s2v, " type: ", type)
     //
-    val smt_type = sort_of_s2rt (type)
+    val smt_type = sort_make (type)
     //
     val stamp = s2var_get_stamp (s2v)
     val id = stamp_get_int (stamp)
@@ -212,7 +197,7 @@ in
     )
     //
     val fresh = $SMT.make_int_constant (id, smt_type)
-    val () = $SMT.sort_free(smt_type)
+    val () = $SMT.sort_free (smt_type)
     var res: formula?
     val found =
       $TreeMap.linmap_insert<s2var, formula> (
@@ -237,10 +222,6 @@ in
       $raise FatalErrorException () where {
         val () = println! ("SMT formula not found for s2var")
       }
-      (*
-        The C code from the following wouldn't compile:
-        abort {formula} ()
-      *)
     else let
       val ptr1 = cptr2ptr {formula} (ptr)
       val (pf, free | p) = $UN.ptr1_vtake {formula} (ptr1)
@@ -250,6 +231,20 @@ in
       variable
     end
   end
+  
+  implement sort_make (type) =
+    if s2rt_is_int (type) || s2rt_is_addr (type) then
+      $SMT.make_int_sort ()
+    else if s2rt_is_bitvec (type) then let
+        val width = s2rt_bitvec_get_width (type)
+        val () = assertloc (width > 0)
+      in
+        $SMT.make_bitvec_sort (width)
+      end
+    else if s2rt_is_array (type) then
+      $SMT.make_array_sort ()
+    else
+      $SMT.make_bool_sort ()
   
   implement formula_make (env, s2e) = let
     val out = stdout_ref
