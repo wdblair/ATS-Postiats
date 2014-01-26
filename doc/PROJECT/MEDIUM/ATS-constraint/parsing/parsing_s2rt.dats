@@ -45,6 +45,8 @@ case+ name of
       | "bool" => S2RTbool ()
       //
       | "array" => S2RTarray ()
+      | "stampseq" => S2RTarray ()
+      | "infseq" => S2RTarray ()
       | "bit8" => S2RTbitvec (8)
       | _ => S2RTignored ()
   end

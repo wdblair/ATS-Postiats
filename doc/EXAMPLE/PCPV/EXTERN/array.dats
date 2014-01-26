@@ -9,7 +9,7 @@ staload "./array.sats"
 
 (* ****** ****** *)
 
-staload "./infseq.sats"
+staload "./stampseq.sats"
 
 (* ****** ****** *)
 
@@ -17,7 +17,7 @@ local
 
 prfun
 lemma
-  {l:addr}{xs:infseq}
+  {l:addr}{xs:stmsq}
   {n:int}{i:nat | i <= n} .<i>.
 (
   pf: array_v(l, xs, n), i: int (i)
