@@ -46,9 +46,9 @@ ATSCNTRB_SML_Z3_Z3_HEADER
 //
 (* ****** ****** *)
 
-(* This is a bit of a hack *)
-fun Z3_parse_smtlib2_string (
-  !Z3_context, Z3_string
-): Z3_ast
+fun Z3_parse_smtlib2_file {n:int} (
+  !Z3_context, Z3_string, uint, ptr, ptr, uint n, &(@[Z3_symbol][n]),
+  &(@[Z3_func_decl][n])
+): Z3_ast = "mac#%"
 
 (* end of [z3_parser.sats] *)

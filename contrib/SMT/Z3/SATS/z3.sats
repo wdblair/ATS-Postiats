@@ -221,6 +221,10 @@ fun Z3_interrupt (ctx: !Z3_context): void = "mac#%"
 
 (* ****** ****** *)
 
+#include "./z3_parser.sats"
+
+(* ****** ****** *)
+
 (*
 #include "./z3_interlog.sats"
 *)

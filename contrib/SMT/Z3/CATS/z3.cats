@@ -105,6 +105,10 @@ atscntrb_Z3_inc_ref
 
 /* ****** ****** */
 
+#include "z3_parser.cats"
+
+/* ****** ****** */
+
 #include "z3_numerals.cats"
 
 /* ****** ****** */

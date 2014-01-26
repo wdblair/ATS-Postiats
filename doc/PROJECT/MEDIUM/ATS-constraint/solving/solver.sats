@@ -87,7 +87,15 @@ fun sort_make (s2rt): sort
 
 (* ****** ****** *)
 
+fun smtlib2_assert_file (file: string): void
+
+(* ****** ****** *)
+
 fun c3nstr_solve (c3t: c3nstr): void
+
+(* ****** ****** *)
+
+fun the_s2cdeclmap_listize (): List0_vt (@(string, func_decl))
 
 (* ****** ****** *)
 

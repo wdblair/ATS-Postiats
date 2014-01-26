@@ -367,9 +367,21 @@ end // end of [local]
 
 (* ****** ******  *)
 
+implement
+smtlib2_assert_file (file) = let
+  val decl = the_s2cdeclmap_listize ()
+  val conj = $SMT.parse_smtlib2_file (file, decl)
+  val solv = $SMT.the_solver_get ()
+in
+  $SMT.assert (solv, conj);
+  $SMT.delete_solver (solv)
+end
+
+(* ****** ******  *)
+
 (*
-  If someone wants to add a function to extend the power of the statics,
-  it will be implemented here. TODO: put these functions in their own file.
+  If someone wants to add a function macro, it will be implemented here.
+  TODO: put these functions in their own file.
 *)
 
 (* ****** ******  *)

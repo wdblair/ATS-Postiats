@@ -76,7 +76,7 @@ end
   Users can provide their own interpretations in a separate SMT Lib file.
 *)
 local
-  var the_s2cdeclmap: s2cdeclmap = 
+  var the_s2cdeclmap: s2cdeclmap =
     $LinMap.linmap_make_nil{symbol, func_decl} ()
 in
   val the_s2cdeclmap =
@@ -102,7 +102,8 @@ constraint3_initialize () = {
     //
     var res: s2cst_ftype
     val name = s2cst_get_name (s2c)
-    val defined = funmap_search<symbol,s2cst_ftype> (!macp, name, res)
+    val () = println! (symbol_get_string(name))
+    val defined = funmap_search<symbol, s2cst_ftype> (!macp, name, res)
     prval () = opt_clear (res)
     //
     val () = (
@@ -113,7 +114,7 @@ constraint3_initialize () = {
       in
         (* Declare the new function *)
         if s2rt_is_fun (srt) then {
-          val (decpf, decfpf | declp) = 
+          val (decpf, decfpf | declp) =
             $UN.ref_vtake (the_s2cdeclmap)
           val _args = s2rt_fun_get_args (srt)
           //
@@ -146,6 +147,47 @@ constraint3_initialize () = {
   prval () = free (pf)
 }
 
+local
+
+fun 
+formula_make_uninterp_opt
+  (env: &smtenv, s2c: s2cst, s2es: s2explst): Option_vt (formula) = let
+  val (pf, fpf | p) = $UN.ref_vtake (the_s2cdeclmap)
+  val func = s2cst_get_name (s2c)
+  val [l:addr] ptr = 
+    $LinMap.linmap_search_ref<symbol, func_decl> (!p, func)
+in
+  if iseqz{func_decl} (ptr) then
+    None_vt{formula} () where {
+      prval () = fpf (pf)
+    }
+  else let
+    val ptr1 = cptr2ptr {func_decl} (ptr)
+    val (funcpf, funcfpf | func) = $UN.ptr1_vtake {func_decl} (ptr1)
+    val func_decl = func_decl_dup (!func)
+    prval () = funcfpf (funcpf)
+    //
+    fun loop {n:int} (
+      env: &smtenv, xs: list(s2exp, n)
+    ): list_vt(formula, n) =
+      case+ xs of
+        | list_nil () => list_vt_nil{formula} ()
+        | list_cons (x, xs) => let
+          val f = formula_make (env, x)
+        in 
+          list_vt_cons{formula} (f, loop(env, xs)) 
+        end
+    //
+    val args = loop (env, s2es)
+    val app = make_app (func_decl, args)
+    prval () = fpf (pf)
+  in
+    Some_vt{formula} (app)
+  end
+end // end of [formula_make_uninterp_opt]
+
+in
+
 implement
 formula_make_s2cst_s2explst
   (env, s2c, s2es) = let
@@ -157,13 +199,49 @@ formula_make_s2cst_s2explst
     case+ opt of
       | ~Some_vt f => $effmask_ref f (env, s2es)
       | ~None_vt _ => let
-        val function = s2c
-        val args = s2es
-        val app  = $effmask_ref s3ubexp_app (function, args)
+        val opt = $effmask_ref (formula_make_uninterp_opt (env, s2c, s2es))
       in
-        $effmask_ref formula_from_substitution (env, app)
+        case+ opt of 
+          | ~Some_vt app => app
+          | ~None_vt _ => let
+            val function = s2c
+            val args = s2es
+            val app  = $effmask_ref s3ubexp_app (function, args)
+          in
+            $effmask_ref formula_from_substitution (env, app)
+          end
       end
   end // end of [formula_make_s2cst_s2explst]
+
+end // end of [local]
+
+implement
+the_s2cdeclmap_listize () = let
+  vtypedef keyval = @(string, func_decl)
+  val (pf, fpf | p) =
+    $UN.ref_vtake{$LinMap.map(symbol, func_decl)} (the_s2cdeclmap)
+    
+  var xss : List0_vt (keyval) = list_vt_nil {keyval} ()
+  //
+  implement 
+  $LinMap.linmap_foreach$fwork<symbol,func_decl><void> (k, v, vv) = {
+    val (lpf, lfpf | l) = $UN.ptr1_vtake{List0_vt(keyval)} (addr@ xss)
+    //
+    val dec = func_decl_dup (v)
+    val key = symbol_get_string (k)
+    val tup = @(key, dec)
+    val () = !l := list_vt_cons {keyval} (tup, !l)
+    //
+    prval () = lfpf (lpf)
+  }
+  val () =
+    $LinMap.linmap_foreach<symbol,func_decl> (!p)
+  prval () = fpf (pf)
+in
+  xss
+end
+
+(* ****** ****** *)
 
 implement 
 constraint3_initialize_map (map) = {

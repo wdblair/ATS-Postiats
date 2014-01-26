@@ -68,10 +68,22 @@ fun make_fresh_constant (
   !sort
 ): formula
 
-fun make_func_decl (
+fun 
+make_func_decl (
   name: string, domain: List0_vt (sort), range: sort
 ): func_decl
 
+fun
+make_app (
+  f: func_decl, args: List0_vt (formula)
+): formula
+
+(* ****** ****** *)
+
+fun 
+parse_smtlib2_file
+  (file:string, decl: List0_vt(@(string, func_decl))): formula
+  
 (* ****** ****** *)
 
 // Prop Logic and Equality

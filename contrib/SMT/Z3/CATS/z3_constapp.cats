@@ -75,6 +75,12 @@ atscntrb_Z3_func_decl_dec_ref (Z3_context ctx, Z3_func_decl d) {
 
 /* ****** ****** */
 
+Z3_DECLARE_MK_AST(Z3_mk_app, Z3_func_decl f, uint n, void **args) {
+  Z3_BODY_MK_AST(Z3_mk_app, f, n, (Z3_ast const *)args)
+}
+
+/* ****** ****** */
+
 #endif // end of [Z3_Z3_CONSTAPP_CATS]
 
 /* ****** ****** */

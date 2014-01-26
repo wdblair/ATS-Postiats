@@ -81,6 +81,11 @@ fun Z3_func_decl_dec_ref (
   ctx: !Z3_context, decl: Z3_func_decl
 ): void = "mac#%" // end of [Z3_func_decl_inc_ref]
 
+fun Z3_mk_app {n:int}
+(
+  ctx: !Z3_context, f: Z3_func_decl, n: uint n, arguments: &(@[Z3_ast][n])
+): Z3_ast = "mac#%"
+
 (* ****** ****** *)
 
 (* end of [z3_constapp.sats] *)

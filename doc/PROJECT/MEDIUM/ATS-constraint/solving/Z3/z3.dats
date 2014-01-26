@@ -157,6 +157,23 @@ in
   decl
 end
 
+implement
+make_app (f, args) = let
+  val n = g1int2uint (length (args))
+  val (pf, gc | p) = array_ptr_alloc<formula> (u2sz (n))
+  val () = array_copy_from_list_vt<formula> (!p, args)
+  val app = Z3_mk_app (!the_context, f, n, !p)
+  //
+  implement
+  array_uninitize$clear<formula> (i, f) = {
+    val () = Z3_dec_ref (!the_context, f)
+  }
+in
+  array_uninitize<formula> (!p, u2sz (n));
+  array_ptr_free{formula} (pf, gc | p);
+  app
+end
+
 implement 
 make_true () = Z3_mk_true (!the_context)
 
@@ -562,4 +579,48 @@ in
   Z3_dec_ref (!the_context, i);
   Z3_dec_ref (!the_context, v);
   store
+end
+
+(* ****** ****** *)
+
+implement
+parse_smtlib2_file (file, ds) = let
+  vtypedef keyval = @(string, func_decl)
+  val n = g1int2uint (length (ds))
+  //
+  implement 
+  list_vt_map$fopr<keyval><Z3_symbol> (x) = let
+    val () = println! x.0
+    val sym = Z3_mk_string_symbol (!the_context, x.0)
+
+  in
+    sym
+  end
+  //
+  val names = list_vt_map<keyval><Z3_symbol> (ds)
+  //
+  implement
+  list_vt_mapfree$fopr<keyval><func_decl> (x) = x.1
+  //
+  val decls = list_vt_mapfree<keyval><func_decl> (ds)
+  //
+  val (nm_pf, nm_gc | nm) = array_ptr_alloc<Z3_symbol> (u2sz (n))
+  val (de_pf, de_gc | de) = array_ptr_alloc<func_decl> (u2sz (n))
+  //
+  val () = array_copy_from_list_vt<Z3_symbol> (!nm, names)
+  val () = array_copy_from_list_vt<func_decl> (!de, decls)
+  //
+  val null = the_null_ptr
+  val conj = Z3_parse_smtlib2_file
+    (!the_context, file, 0u, null, null, n, !nm, !de)
+  //
+  implement
+  array_uninitize$clear<func_decl> (i, dec) =
+    Z3_func_decl_dec_ref (!the_context, dec)
+  //
+in
+  array_uninitize<func_decl> (!de, u2sz (n));
+  array_ptr_free (nm_pf, nm_gc | nm);
+  array_ptr_free (de_pf, de_gc | de);
+  conj
 end
