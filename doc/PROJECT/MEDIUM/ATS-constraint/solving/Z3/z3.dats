@@ -590,9 +590,7 @@ parse_smtlib2_file (file, ds) = let
   //
   implement 
   list_vt_map$fopr<keyval><Z3_symbol> (x) = let
-    val () = println! x.0
     val sym = Z3_mk_string_symbol (!the_context, x.0)
-
   in
     sym
   end

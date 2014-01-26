@@ -102,7 +102,6 @@ constraint3_initialize () = {
     //
     var res: s2cst_ftype
     val name = s2cst_get_name (s2c)
-    val () = println! (symbol_get_string(name))
     val defined = funmap_search<symbol, s2cst_ftype> (!macp, name, res)
     prval () = opt_clear (res)
     //
