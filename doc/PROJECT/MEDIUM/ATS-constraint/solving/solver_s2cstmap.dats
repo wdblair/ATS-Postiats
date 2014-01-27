@@ -310,6 +310,7 @@ constraint3_initialize_map (map) = {
     ins (map, "array_select", f_array_select);
     ins (map, "array_store", f_array_store);
     ins (map, "array_swap", f_array_swap);
+    ins (map, "stampseq_swap_at", f_array_swap);
     //
     ins (map, "stampseq_get_at", f_array_select);
     ins (map, "stampseq_set_at", f_array_store);

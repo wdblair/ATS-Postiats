@@ -46,7 +46,7 @@ overload - with sub_ptr_int
 dataview
 array_v
   (addr, stmsq, int) =
-  | {l:addr}{xs:stmsq}
+  | {l:addr}
     array_v_nil (l, nil, 0) of ()
   | {l:addr}{xs:stmsq}{x:stamp}{n:int}
     array_v_cons (l, cons (x, xs), n+1) of (T(x) @ l, array_v (l+1, xs, n))
@@ -116,11 +116,11 @@ fun array_set_at
 
 fun array_ptrswap
   {l:addr}
-  {xs:stmsq}{x:stamp}
-  {n:int}{i,j:nat | i < n}
+  {xs:stmsq}
+  {n:int}{i,j:nat | i < n; j < n}
 (
   pf: !array_v(l, xs, n) >> array_v (l, swap_at(xs, i, j), n) | p1: ptr(l+i), p2: ptr(l+j)
-) : void // end of [array_ptrswap
+) : void // end of [array_ptrswap]
 
 (* ****** ****** *)
 
