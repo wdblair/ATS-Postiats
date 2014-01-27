@@ -155,7 +155,6 @@ case+ s3is of
 | list_cons (s3i, s3is) => (
   case+ s3i of
   | S3ITMsvar (s2v) => let
-      val () = fprintln! (stdout_ref, "Adding Svar: ", s2v)
       val () = smtenv_add_svar (env, s2v)
 
     in
