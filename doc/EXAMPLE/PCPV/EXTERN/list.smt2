@@ -15,3 +15,5 @@
     (= (select (stampseq_append A m B n) i ) 
       (ite (< i m) (select A i) (select B (- i m)))))))
 
+
+
