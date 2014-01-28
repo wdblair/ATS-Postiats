@@ -1,5 +1,10 @@
+
 (assert (forall ((A (Array Int Int)) (i Int))
   (=> (< i 0) (= (select A i) 0))))
+
+
+(assert (forall ((i Int))
+  (= (select stampseq_nil i) 0)))
 
 ;; cons
 
