@@ -1,5 +1,15 @@
+;; sing and nil
+
+(declare-const undef Int)
+
 (assert (forall ((A (Array Int Int)) (i Int))
-  (=> (< i 0) (= (select A i) 0))))
+  (=> (< i 0) (= (select A i) undef))))
+
+(assert (forall ((i Int))
+  (= (select stampseq_nil i) undef)))
+
+(assert (forall ((x Int))
+  (= (stampseq_sing x) (store stampseq_nil 0 x))))
 
 ;; cons
 
@@ -20,19 +30,3 @@
           x
           (select A (- j 1)))
          )))))
-
-;; sorted
-
-(assert (forall ((A (Array Int Int)) (n Int))
-  (=> (< n 0) (= (stampseq_sorted A n) true))))
-
-(assert (forall ((A (Array Int Int)) (n Int))
-  (=> (= n 0) (= (stampseq_sorted A n) true))))
-
-(assert (forall ((A (Array Int Int)) (n Int))
-  (=> (= n 1) (= (stampseq_sorted A n) true))))
-
-(assert (forall ((A (Array Int Int)) (i Int) (j Int) (n Int))
-  (=> (< 1 n)
-    (= (stampseq_sorted A n)
-      (=> (<= 0 i j (- n 1)) (<= (select A i) (select A j)))))))

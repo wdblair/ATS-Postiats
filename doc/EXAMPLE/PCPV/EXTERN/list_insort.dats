@@ -35,6 +35,12 @@ SORTED_cons
   {xs:stmsq}{n:pos}
   {x <= select(xs,0)}
   (pf: SORTED (xs, n)): SORTED (cons(x, xs), n+1)
+extern
+praxi
+SORTED_uncons
+  {x:stamp}
+  {xs:stmsq}{n:pos}
+  (pf: SORTED (cons(x, xs), n)): [x <= select(xs,0)] SORTED (xs, n-1)
 //
 extern
 praxi
@@ -58,20 +64,21 @@ fun insord
 (* ****** ****** *)
 
 implement
-insord (pf | x0, xs) =
+insord {x0} (pf | x0, xs) =
 (
 case+ xs of
 | list_nil () =>
-    #[0 | (SORTED_sing() | list_cons (x0, list_nil))]
-| list_cons (x, xs1) =>
+    #[0 | (SORTED_sing{x0}() | list_cons (x0, list_nil))]
+| list_cons {xs1}{x} (x, xs1) =>
   (
     if x0 <= x
       then
-        #[0 | (SORTED_cons (pf) | list_cons (x0, xs))]
+        #[0 | (SORTED_cons{x0} (pf) | list_cons (x0, xs))]
       else let
-        val [i:int] (pfres | ys1) = insord (pf | x0, xs1)
+        prval (pfs) = SORTED_uncons {x}{xs1} (pf)
+        val [i:int] (pfres | ys1) = insord {x0} (pfs | x0, xs1)
       in
-        #[i+1 | (SORTED_cons (pfres) | list_cons (x, ys1))]
+        #[i+1 | (SORTED_cons{x} (pfres) | list_cons (x, ys1))]
       end // end of [if]
     // end of [if]
   )
