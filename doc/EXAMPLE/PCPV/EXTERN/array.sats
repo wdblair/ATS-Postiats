@@ -43,6 +43,11 @@ overload - with sub_ptr_int
 //
 (* ****** ****** *)
 
+fun ptr_offset 
+  {l:addr}{i:nat} (ptr (l+i)):<> int (i)
+
+(* ****** ****** *)
+
 dataview
 array_v
   (addr, stmsq, int) =

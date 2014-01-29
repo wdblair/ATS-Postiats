@@ -11,6 +11,6 @@ the statics due to the limitation of the previous constraint solver.
 - array: constraints with static arrays. The first example I want to work
 with is quick sort. If we can have a proveably correct implementation in far fewer
 ATS lines as before, we can demonstrate the usefulness of more powerful
-statics. From the paper, "What's Decidable About Arrays?" there are some 
+statics. From the paper, "What's Decidable About Arrays?" there are also some 
 interesting examples about shared memory between processes expressed using
 arrays.

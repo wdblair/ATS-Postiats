@@ -642,6 +642,35 @@ in
   end
   
   implement
+  f_partitioned_left_array (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+  val a      = formula_make (env, s2e1)
+  val pindex = formula_make (env, s2e2)
+  val n      = formula_make (env, s2e3) // pivot is stored in last spot.
+  //
+  val i = Int ("i")
+  in
+    ForAll (^i,
+     ((Int(0) <= ^i) And (^i < pindex))
+        ==> (Select (^a, i) <= Select (a, n)))
+  end
+  
+  implement
+  f_partitioned_right_array (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: _ = s2es
+    val a      = formula_make (env, s2e1)
+    val i      = formula_make (env, s2e2)
+    val pindex = formula_make (env, s2e3)
+    val n      = formula_make (env, s2e4) //pivot is stored in last spot
+    //
+    val j = Int("j")
+  in
+    ForAll (^j, 
+      ((pindex <= ^j) And (^j < i))
+        ==> (Select (^a, n) <= Select (a, j)))
+  end
+  
+  implement
   f_partitioned_array (env, s2es) = let
     val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: _ = s2es
     val a     = formula_make (env, s2e1)

@@ -22,9 +22,9 @@
     (store (store a i (select a j)) j tmp)))
 
 (define-fun partitioned-left
-    ((a (Array Int Int)) (l Int) (pindex Int) (p Int)) Bool
+    ((a (Array Int Int)) (pindex Int) (p Int)) Bool
       (forall ((i Int))
-        (=> (and (<= l i ) (< i pindex)) (<= (select a i) (select a p)))))
+        (=> (and (<= 0 i ) (< i pindex)) (<= (select a i) (select a p)))))
 
 (define-fun partitioned-right
     ((a (Array Int Int)) (u Int) (pindex Int) (p Int)) Bool
@@ -36,21 +36,22 @@
 (declare-fun i () Int)
 
 (assert (<= 0 start pindex i))
+(assert (= 0 start))
 (assert (<= i stop))
 
 ;; This is our base case
 ;; pindex = start
 ;; i = start
 (push 1)
-(assert (not (partitioned-left buffer start start stop)))
-(assert (not (partitioned-right buffer start start stop)))
+(assert (not (partitioned-left buffer 0 stop)))
+(assert (not (partitioned-right buffer 0 0 stop)))
 (check-sat)
 (pop 1)
 
 (push 1)
 
 ;; loop function invariant
-(assert (partitioned-left buffer start pindex stop))
+(assert (partitioned-left buffer pindex stop))
 (assert (partitioned-right buffer i pindex stop))
 
 (push 1)
@@ -60,7 +61,7 @@
 (assert (<= (select buffer i) (select buffer stop)))
 
 (push 1)
-(assert (not (partitioned-left (swap buffer i pindex) start (+ pindex 1) stop)))
+(assert (not (partitioned-left (swap buffer i pindex) (+ pindex 1) stop)))
 (assert (not (partitioned-right (swap buffer i pindex) (+ i 1) (+ pindex 1) stop)))
 (check-sat)
 (pop 2)
@@ -72,7 +73,7 @@
 (assert (> (select buffer i) (select buffer stop)))
 
 (push 1)
-(assert (not (partitioned-left buffer start pindex stop)))
+(assert (not (partitioned-left buffer pindex stop)))
 (assert (not (partitioned-right buffer (+ i 1) pindex stop)))
 (check-sat)
 (pop 2)

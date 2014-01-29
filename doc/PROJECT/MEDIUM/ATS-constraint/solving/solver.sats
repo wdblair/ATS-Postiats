@@ -189,12 +189,6 @@ fun f_eq_bv_bv : s2cstmap_ftype
 
 (* ****** ****** *)
 
-(* 
-  These are pretty application specific and have verbose
-  definitions. It might be easier on the user to be able
-  to defin them in SMT-LIB syntax.
-*)
-
 fun f_partitioned_array : s2cstmap_ftype
 fun f_sorted_array : s2cstmap_ftype
 fun f_sorted_split_array : s2cstmap_ftype

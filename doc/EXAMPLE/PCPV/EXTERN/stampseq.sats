@@ -115,4 +115,26 @@ stadef sorted = stampseq_sorted
 
 (* ****** ****** *)
 
+stacst stampseq_partitioned : (stampseq, int, int, int) -> bool
+stadef partitioned 
+  (xs:stampseq, p: int, n:int) =  stampseq_partitioned (xs, 0, p, n-1)
+  
+(* ****** ****** *)
+
+stacst
+stampseq_partitioned_left :
+  (stampseq, int (*pindex*), int(*pivot*)) -> bool
+
+stadef part_left (xs: stampseq, pindex: int, pivot: int) =
+  stampseq_partitioned_left (xs, pindex, pivot)
+
+stacst
+stampseq_partitioned_right :
+  (stampseq, int (*i*), int (*pindex*), int(*pivot*)) -> bool
+  
+stadef part_right (xs: stampseq, i: int, pindex: int, pivot: int) =
+  stampseq_partitioned_right (xs, i, pindex, pivot)
+  
+(* ****** ****** *)
+
 (* end of stampseq.sats] *)
