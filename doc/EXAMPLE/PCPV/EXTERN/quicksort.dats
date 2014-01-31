@@ -89,7 +89,6 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
   //
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 
-
 extern
 fun rand_int {n:nat} (int n): [s:nat | s < n] int s
 
@@ -101,23 +100,22 @@ PARTED_make
   {l:addr}
   {n,p:nat | p < n}
   {xs:stmsq | partitioned (xs, p, n)}
-(): PARTED(l, xs, p, n)
+(!array_v (l, xs, n), int p): PARTED(l, xs, p, n)
 
 extern
 praxi quicksort_lemma 
-  {pivot:stamp}
   {l:addr}
-  {xs:stmsq}
-  {p,n:nat | p < n}
+  {xs:stmsq} {p,n:nat | p < n}
   {ls,rs:stmsq | sorted (ls, p); sorted(rs, n - p -1)} (
-  PARTED(l, xs, p, n), 
+  PARTED(l, xs, p, n),
   !array_v (l, ls, p),
-  !T(pivot) @ l+p,
+  !T(select(xs, p)) @ l+p,
   !array_v (l+p+1, rs, n - p - 1)
 ): [
-  sorted (append (ls, cons(pivot, rs)))
+  sorted (append (ls, p, cons(select(xs, p), rs), n - p), n)
 ] void
 
+(* ****** ****** *)
 
 fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
   pf: array_v (l, xs, n) | p: ptr l, n: int n
@@ -128,20 +126,18 @@ fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
     (pf | ())
   else let
     val pivot = rand_int (n)
-    val [p:int] [ys:stmsq] (pf | pi) = partition (pf | p, pivot, n)
-    (*
-      Obtain a prop stating the array was partitioned at p
-    *)
-    val parted = PARTED_make {l}{n,p}{ys}()
-    (* 
-      Break into two different views
-    *)
+    val (pf | pi) = partition (pf | p, pivot, n)
+    val parted = PARTED_make (pf, pi)
+    //
     prval (left, right) = array_v_split (pf, pi)
-    (*
-      Uncons the pivot
-    *)
-    prval array_v_cons (pfp, right) = right
-    prval () = quicksort_lemma (parted, left, pfp, right)
+    prval array_v_cons (pfpiv, right) = right
+    //
+    val (left  | ()) = quicksort (left | p, pi)
+    val (right | ()) = quicksort (right | (p+pi+1) , n - pi - 1)
+    //
+    prval () = quicksort_lemma (parted, left, pfpiv, right)
+    //
+    prval (pf) = array_v_unsplit (left, array_v_cons (pfpiv, right))
   in
     (pf | ())
   end
