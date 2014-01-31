@@ -103,16 +103,16 @@ PARTED_make
 (!array_v (l, xs, n), int p): PARTED(l, xs, p, n)
 
 extern
-praxi quicksort_lemma 
+praxi partitioned_lemma 
   {l:addr}
   {xs:stmsq} {p,n:nat | p < n}
-  {ls,rs:stmsq | sorted (ls, p); sorted(rs, n - p -1)} (
+  {ls,rs:stmsq} (
   PARTED(l, xs, p, n),
   !array_v (l, ls, p),
   !T(select(xs, p)) @ l+p,
   !array_v (l+p+1, rs, n - p - 1)
 ): [
-  sorted (append (ls, p, cons(select(xs, p), rs), n - p), n)
+  lte (ls, p, select(xs, p)); lte (select(xs, p), rs, n - p - 1)
 ] void
 
 (* ****** ****** *)
@@ -133,9 +133,9 @@ fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
     prval array_v_cons (pfpiv, right) = right
     //
     val (left  | ()) = quicksort (left | p, pi)
-    val (right | ()) = quicksort (right | (p+pi+1) , n - pi - 1)
+    val (right | ()) = quicksort (right | (p+pi+1), n - pi - 1)
     //
-    prval () = quicksort_lemma (parted, left, pfpiv, right)
+    prval () = partitioned_lemma (parted, left, pfpiv, right)
     //
     prval (pf) = array_v_unsplit (left, array_v_cons (pfpiv, right))
   in

@@ -95,7 +95,7 @@ stacst lte_stamp_stampseq
 
 (* ****** ****** *)
 
-stadef lt = lt_stamp_stampseq; stadef lte = lt_stamp_stampseq
+stadef lt = lt_stamp_stampseq; stadef lte = lte_stamp_stampseq
 
 (* ****** ****** *)
 

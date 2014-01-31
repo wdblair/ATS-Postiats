@@ -319,6 +319,9 @@ constraint3_initialize_map (map) = {
     ins (map, "stampseq_partitioned_left", f_partitioned_left_array);
     ins (map, "stampseq_partitioned_right", f_partitioned_right_array);
     ins (map, "stampseq_partitioned", f_partitioned_array);
+    //
+    ins (map, "lte_stamp_stampseq", f_lte_stamp_stampseq);
+    ins (map, "lte_stampseq_stamp", f_lte_stampseq_stamp);
   end
 }
 

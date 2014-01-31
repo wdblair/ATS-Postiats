@@ -759,5 +759,33 @@ in
   in
     Store (Store (^a, ^j, Select(^a, ^i)), i, Select (a, j))
   end
+
+  implement 
+  f_lte_stamp_stampseq (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+    val stmp = formula_make (env, s2e1)
+    val seq  = formula_make (env, s2e2)
+    val n    = formula_make (env, s2e3)
+    //
+    val i = Int("i")
+  in
+    ForAll (^i,
+      ((Int(0) <= ^i) And (^i < n)) ==>
+        (stmp <= Select (seq, i)))
+  end
+
+  implement 
+  f_lte_stampseq_stamp (env, s2es) = let
+    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+    val seq  = formula_make (env, s2e1)
+    val n    = formula_make (env, s2e2)
+    val stmp = formula_make (env, s2e3)
+    //
+    val i = Int("i")
+  in
+    ForAll (^i,
+      ((Int(0) <= ^i) And (^i < n)) ==>
+        (Select (seq, i) <= stmp))
+  end
   
 end // end of [local]
