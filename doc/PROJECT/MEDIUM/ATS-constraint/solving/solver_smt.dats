@@ -704,15 +704,14 @@ in
   
   implement
   f_sorted_array (env, s2es) = let
-    val- s2e1 :: s2e2 :: s2e3 :: _ = s2es
+    val- s2e1 :: s2e2 :: _ = s2es
     val a     = formula_make (env, s2e1)
-    val start = formula_make (env, s2e2)
-    val stop  = formula_make (env, s2e3)
+    val len  = formula_make (env, s2e2)
     //
   in
-    Sorted (a, start, stop)
+    Sorted (a, Int(0), len - Int(1))
   end
-
+  
   implement
   f_sorted_split_array (env, s2es) = let
     val- s2e1 :: s2e2 :: s2e3 :: s2e4 :: _ = s2es

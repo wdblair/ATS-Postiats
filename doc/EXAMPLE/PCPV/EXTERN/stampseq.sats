@@ -137,4 +137,4 @@ stadef part_right (xs: stampseq, i: int, pindex: int, pivot: int) =
   
 (* ****** ****** *)
 
-(* end of stampseq.sats] *)
+(* end of [stampseq.sats] *)

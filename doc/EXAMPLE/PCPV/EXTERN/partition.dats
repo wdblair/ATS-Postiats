@@ -52,7 +52,6 @@ termination metric to enforce the loop to terminate.
 
 *)
 
-
 implement
 partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
   val pi = p + pivot
@@ -89,3 +88,60 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
     end
   //
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
+
+
+extern
+fun rand_int {n:nat} (int n): [s:nat | s < n] int s
+
+absprop PARTED (l:addr, xs: stmsq, p:int, n:int)
+
+extern
+praxi 
+PARTED_make 
+  {l:addr}
+  {n,p:nat | p < n}
+  {xs:stmsq | partitioned (xs, p, n)}
+(): PARTED(l, xs, p, n)
+
+extern
+praxi quicksort_lemma 
+  {pivot:stamp}
+  {l:addr}
+  {xs:stmsq}
+  {p,n:nat | p < n}
+  {ls,rs:stmsq | sorted (ls, p); sorted(rs, n - p -1)} (
+  PARTED(l, xs, p, n), 
+  !array_v (l, ls, p),
+  !T(pivot) @ l+p,
+  !array_v (l+p+1, rs, n - p - 1)
+): [
+  sorted (append (ls, cons(pivot, rs)))
+] void
+
+
+fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
+  pf: array_v (l, xs, n) | p: ptr l, n: int n
+): [ys:stmsq | sorted (ys, n)] (
+  array_v (l, ys, n) | void
+) =
+  if n <= 1 then
+    (pf | ())
+  else let
+    val pivot = rand_int (n)
+    val [p:int] [ys:stmsq] (pf | pi) = partition (pf | p, pivot, n)
+    (*
+      Obtain a prop stating the array was partitioned at p
+    *)
+    val parted = PARTED_make {l}{n,p}{ys}()
+    (* 
+      Break into two different views
+    *)
+    prval (left, right) = array_v_split (pf, pi)
+    (*
+      Uncons the pivot
+    *)
+    prval array_v_cons (pfp, right) = right
+    prval () = quicksort_lemma (parted, left, pfp, right)
+  in
+    (pf | ())
+  end

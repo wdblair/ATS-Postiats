@@ -315,6 +315,7 @@ constraint3_initialize_map (map) = {
     ins (map, "stampseq_get_at", f_array_select);
     ins (map, "stampseq_set_at", f_array_store);
     //
+    ins (map, "stampseq_sorted", f_sorted_array);
     ins (map, "stampseq_partitioned_left", f_partitioned_left_array);
     ins (map, "stampseq_partitioned_right", f_partitioned_right_array);
     ins (map, "stampseq_partitioned", f_partitioned_array);
