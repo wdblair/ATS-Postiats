@@ -15,22 +15,20 @@
 
 void swap (int *a, int *b) {
   int tmp = *a;
-
+  
   *a = *b;
   *b = tmp;
 }
 
 int partition (int *ar, int p, int n) {
-  int *pn;
-  int *pi;
-  int *pindex;
+  int *pn, *pi, *pindex, xn;
 
   pn = ar + (n - 1);
   pi = ar + p;
   
   swap (pi, pn);
 
-  int xn = *pn;
+  xn = *pn;
   
   for(pi = ar, pindex = ar; pi != pn; pi++)
     if (*pi < xn)

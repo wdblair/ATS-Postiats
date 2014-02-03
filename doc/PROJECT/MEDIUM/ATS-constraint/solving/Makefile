@@ -1,56 +1,50 @@
 #
 # A simple Makefile
 #
-# TODO: put together a template for this project
 
 ######
 
-CCOPT=gcc -std=c99 -D_XOPEN_SOURCE -D_GNU_SOURCE 
+include \
+$(PATSHOME)/share/atsmake-pre.mk
 
 ######
 
-ifeq ("$(PATSHOME)","")
-  PATSHOMEQ="$(ATSHOME)"
-else
-  PATSHOMEQ="$(PATSHOME)"
-endif
-
-ifeq ("$(PATSHOMERELOC)","")
-  PATSHOMERELOCQ="$(ATSHOMERELOC)"
-else
-  PATSHOMERELOCQ="$(PATSHOMERELOC)"
-endif
+PATSCC := $(PATSCC) -IATS ../
 
 ######
 
-PATSCC=$(PATSHOMEQ)/bin/patscc
-PATSOPT=$(PATSHOMEQ)/bin/patsopt
+CFLAGS += $(shell pkg-config --cflags json-c)
 
 ######
 
-PATSCC2=\
-  $(PATSCC) \
-  -atsccomp "$(CCOPT)" \
-  -IIATS ../	\
-  -IIATS $(PATSHOME) -IIATS $(PATSHOME)/contrib \
-  -IIATS $(PATSHOME)/ccomp/runtime $(shell pkg-config --cflags json-c)
+LDFLAGS :=
+LDFLAGS += -lgc
+LDFLAGS += -L$(PATSHOMEQ)/ccomp/atslib/lib
+LDFLAGS += -latslib
+LDFLAGS += $(shell pkg-config --libs json-c)
 
 ######
 
-all:: solver.o
+all:: solving.o
 
 ######
 
-solver.o: \
-  solver_sats.o \
-  smt_sats.o    \
-  smt_ML_sats.o \
-  solver_dats.o \
-  error_sats.o  \
-  error_dats.o  \
-  solver_smt_dats.o \
-  solver_s2cstmap_dats.o \
-  solver_dynload_dats.o ; ld -r -o $@ $^
+SOURCES_SATS += \
+  solver.sats \
+  smt.sats \
+  smt_ML.sats \
+  error.sats
+
+SOURCES_DATS += \
+  solver.dats \
+  error.dats \
+  solver_smt.dats \
+  solver_s2cstmap.dats \
+  solver_dynload.dats
+
+######
+
+MYTARGET=MYTARGET
 
 ######
 #
@@ -58,24 +52,20 @@ DATSMEMALLOC=-DATS_MEMALLOC_GCBDW
 #
 ######
 
-%_sats.o: %.sats ; $(PATSCC) -IIATS ../ -c $<
-
-%_dats.o: %_dats.c ; $(PATSCC2) $(DATSMEMALLOC) -c $<
-%_dats.c: %.dats solver.sats ; $(PATSCC2) -ccats $<
+include $(PATSHOME)/share/atsmake-post.mk
 
 ######
 
-RMF=rm -f
+OBJECTS :=
+OBJECTS += $(MYTARGET_SATS_O)
+OBJECTS += $(MYTARGET_DATS_O)
 
 ######
 
-clean:: ; $(RMF) *~
-clean:: ; $(RMF) *_?ats.c
-clean:: ; $(RMF) *_?ats.o
+solving.o: $(OBJECTS) ; ld -r -o $@ $^
 
 ######
 
-cleanall:: clean
 cleanall:: ; $(RMF) solver.o
 
 ###### end of [Makefile] ######

@@ -50,16 +50,23 @@ OBJECTS += $(MYTARGET_DATS_O)
 
 ######
 
-all:: constraint.o
-cleanall:: ; $(RMF) constraint.o
+all:: patsolve
+cleanall:: ; $(RMF) patsolve constraint.o
 
 ######
 
 constraint.o: $(OBJECTS) ; ld -r -o $@ $^
 
+patsolve: constraint.o
+	make -C parsing
+	make -C solving
+	make -C solving/Z3
+	cp solving/Z3/patsolve ./patsolve
+
 ######
 
 cleanall:: ; make -C parsing cleanall
-#cleanall:: ; make -C solving cleanall
+cleanall:: ; make -C solving cleanall
+cleanall:: ; make -C solving/Z3 cleanall
 
 ###### end of [Makefile] ######
