@@ -104,9 +104,9 @@ in
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
     env.variables.statics := 
-      $TreeMap.linmap_make_nil {s2var,formula} ();
+      $TreeMap.linmap_make_nil ();
     env.variables.substitutes := 
-      $ListMap.linmap_make_nil {s3ubexp, s2var} ();
+      $ListMap.linmap_make_nil ();
     env.sorts.integer := $SMT.make_int_sort ();
     env.sorts.boolean := $SMT.make_bool_sort ();
     env.err := 0;
@@ -114,7 +114,7 @@ in
 
   implement smtenv_free (env) = let
    val map = env.variables.statics
-   val statics = $TreeMap.linmap_listize<s2var,formula> (map)
+   val statics = $TreeMap.linmap_listize (map)
    //
    viewtypedef binding = @(s2var, formula)
    //
@@ -153,11 +153,11 @@ in
   
   implement smtenv_find_substitution (env, sub) = let
     val optv = 
-      $ListMap.linmap_search_opt<s3ubexp, s2var> (env.variables.substitutes, sub)
+      $ListMap.linmap_search_opt (env.variables.substitutes, sub)
   in
     case+ optv of
-      | ~Some_vt (s2v) => Some {s2var} (s2v)
-      | ~None_vt () => None {s2var} ()
+      | ~Some_vt (s2v) => Some (s2v)
+      | ~None_vt () => None ()
   end
 
   implement smtenv_make_substitution (env, exp, s2v) = {
@@ -193,38 +193,38 @@ in
     val id = stamp_get_int (stamp)
     val () = if log_smt then
       println! ("Variables: ",
-        $TreeMap.linmap_size<s2var, formula> (env.variables.statics)
+        $TreeMap.linmap_size (env.variables.statics)
     )
     //
     val fresh = $SMT.make_int_constant (id, smt_type)
     val () = $SMT.sort_free (smt_type)
     var res: formula?
     val found =
-      $TreeMap.linmap_insert<s2var, formula> (
+      $TreeMap.linmap_insert (
         env.variables.statics, s2v, fresh, res
       )
   in
       if found then let
-        prval () = opt_unsome {formula} (res)
+        prval () = opt_unsome (res)
       in
         $SMT.formula_free (res)
       end
       else {
-        prval () = opt_unnone {formula} (res)
+        prval () = opt_unnone (res)
       }
   end
   
   implement smtenv_get_var_exn (env, s2v) = let
     val [l:addr] ptr =
-      $TreeMap.linmap_search_ref<s2var, formula> (env.variables.statics, s2v)
+      $TreeMap.linmap_search_ref (env.variables.statics, s2v)
   in
-    if iseqz{formula} (ptr) then
+    if iseqz (ptr) then
       $raise FatalErrorException () where {
         val () = println! ("SMT formula not found for s2var")
       }
     else let
-      val ptr1 = cptr2ptr {formula} (ptr)
-      val (pf, free | p) = $UN.ptr1_vtake {formula} (ptr1)
+      val ptr1 = cptr2ptr (ptr)
+      val (pf, free | p) = $UN.ptr1_vtake (ptr1)
       val variable = $SMT.formula_dup (!ptr1)
       prval () = free (pf)
     in
@@ -382,6 +382,10 @@ end
 (*
   If someone wants to add a function macro, it will be implemented here.
   TODO: put these functions in their own file.
+  
+  TODO: use an SMT Lib 2 parser to collect the more complicated functions (like sorted)
+  from an SMT-Lib 2 file so the user doesn't have to recompile their constraint solver
+  to refine their statics.
 *)
 
 (* ****** ******  *)

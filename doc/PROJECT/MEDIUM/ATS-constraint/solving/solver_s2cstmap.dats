@@ -102,7 +102,7 @@ constraint3_initialize () = {
     //
     var res: s2cst_ftype
     val name = s2cst_get_name (s2c)
-    val defined = funmap_search<symbol, s2cst_ftype> (!macp, name, res)
+    val defined = funmap_search (!macp, name, res)
     prval () = opt_clear (res)
     //
     val () = (
@@ -113,8 +113,7 @@ constraint3_initialize () = {
       in
         (* Declare the new function *)
         if s2rt_is_fun (srt) then {
-          val (decpf, decfpf | declp) =
-            $UN.ref_vtake (the_s2cdeclmap)
+          val (decpf, decfpf | declp) = $UN.ref_vtake (the_s2cdeclmap)
           val _args = s2rt_fun_get_args (srt)
           //
           implement list_map$fopr<s2rt><sort> (srt) = sort_make (srt)
@@ -129,8 +128,7 @@ constraint3_initialize () = {
           //
           var res: func_decl
           val replaced =
-            $LinMap.linmap_insert<symbol,func_decl>
-              (!declp, name, decl, res)
+            $LinMap.linmap_insert (!declp, name, decl, res)
           val () = assertloc (~replaced)
           prval () = opt_unnone (res)
           prval () = decfpf (decpf)
@@ -141,7 +139,7 @@ constraint3_initialize () = {
     prval () = macfpf (macpf)
   }
   //
-  val () = list_foreach<s2cst> (constants)
+  val () = list_foreach (constants)
   //
   prval () = free (pf)
 }
@@ -154,14 +152,14 @@ formula_make_uninterp_opt
   val (pf, fpf | p) = $UN.ref_vtake (the_s2cdeclmap)
   val func = s2cst_get_name (s2c)
   val [l:addr] ptr = 
-    $LinMap.linmap_search_ref<symbol, func_decl> (!p, func)
+    $LinMap.linmap_search_ref (!p, func)
 in
-  if iseqz{func_decl} (ptr) then
-    None_vt{formula} () where {
+  if iseqz (ptr) then
+    None_vt () where {
       prval () = fpf (pf)
     }
   else let
-    val ptr1 = cptr2ptr {func_decl} (ptr)
+    val ptr1 = cptr2ptr (ptr)
     val (funcpf, funcfpf | func) = $UN.ptr1_vtake {func_decl} (ptr1)
     val func_decl = func_decl_dup (!func)
     prval () = funcfpf (funcpf)
@@ -174,14 +172,14 @@ in
         | list_cons (x, xs) => let
           val f = formula_make (env, x)
         in 
-          list_vt_cons{formula} (f, loop(env, xs)) 
+          list_vt_cons (f, loop(env, xs))
         end
     //
     val args = loop (env, s2es)
     val app = make_app (func_decl, args)
     prval () = fpf (pf)
   in
-    Some_vt{formula} (app)
+    Some_vt (app)
   end
 end // end of [formula_make_uninterp_opt]
 
@@ -190,9 +188,9 @@ in
 implement
 formula_make_s2cst_s2explst
   (env, s2c, s2es) = let
-  val (vbox pf | p) = ref_get_viewptr{s2cfunmap} (the_s2cfunmap)
+  val (vbox pf | p) = ref_get_viewptr (the_s2cfunmap)
   val sym = s2c.name
-  val opt = $effmask_ref funmap_search_opt<symbol,s2cst_ftype> (!p, sym)
+  val opt = $effmask_ref funmap_search_opt (!p, sym)
   //
   in
     case+ opt of
@@ -217,10 +215,8 @@ end // end of [local]
 implement
 the_s2cdeclmap_listize () = let
   vtypedef keyval = @(string, func_decl)
-  val (pf, fpf | p) =
-    $UN.ref_vtake{$LinMap.map(symbol, func_decl)} (the_s2cdeclmap)
-    
-  var xss : List0_vt (keyval) = list_vt_nil {keyval} ()
+  val (pf, fpf | p) = $UN.ref_vtake (the_s2cdeclmap)
+  var xss : List0_vt (keyval) = list_vt_nil ()
   //
   implement 
   $LinMap.linmap_foreach$fwork<symbol,func_decl><void> (k, v, vv) = {
@@ -229,12 +225,11 @@ the_s2cdeclmap_listize () = let
     val dec = func_decl_dup (v)
     val key = symbol_get_string (k)
     val tup = @(key, dec)
-    val () = !l := list_vt_cons {keyval} (tup, !l)
+    val () = !l := list_vt_cons (tup, !l)
     //
     prval () = lfpf (lpf)
   }
-  val () =
-    $LinMap.linmap_foreach<symbol,func_decl> (!p)
+  val () = $LinMap.linmap_foreach (!p)
   prval () = fpf (pf)
 in
   xss
@@ -250,7 +245,7 @@ constraint3_initialize_map (map) = {
   ): void = let
     val sym = symbol_make (key)
   in
-    funmap_insert_any<symbol, tfun> (map, sym, f)
+    funmap_insert_any (map, sym, f)
   end
   val () = begin
     ins (map, "neg_bool", f_neg_bool);
