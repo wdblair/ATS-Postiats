@@ -54,6 +54,10 @@ fun Z3_mk_int_sort (
   ctx: !Z3_context
 ): Z3_sort = "mac#%"
 
+fun Z3_mk_real_sort (
+  ctx: !Z3_context
+): Z3_sort = "mac#%"
+
 fun Z3_mk_array_sort (
   ctx: !Z3_context, domain: !Z3_sort, range: !Z3_sort
 ): Z3_sort = "mac#%"

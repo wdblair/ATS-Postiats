@@ -170,6 +170,18 @@ fun f_min_int_int : s2cstmap_ftype
 
 fun f_ifint_bool_int_int : s2cstmap_ftype
 
+fun f_mul_rat_rat : s2cstmap_ftype
+
+fun f_div_rat_rat : s2cstmap_ftype
+
+fun f_add_rat_rat : s2cstmap_ftype
+
+fun f_sub_rat_rat : s2cstmap_ftype
+
+fun f_gte_rat_rat : s2cstmap_ftype
+
+fun f_is_int_int : s2cstmap_ftype
+
 (*
   I haven't implemented classes yet...
 *)

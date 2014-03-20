@@ -356,6 +356,16 @@ in
   phi
 end
 
+implement
+is_int (num) = let
+  val phi = Z3_is_int (!the_context, num)
+  val () = begin
+    Z3_dec_ref(!the_context, num);
+  end
+in
+  phi
+end
+
 (* ****** ****** *)
 
 implement

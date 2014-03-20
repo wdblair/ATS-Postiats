@@ -290,6 +290,13 @@ constraint3_initialize_map (map) = {
     ins (map, "eq_addr_addr", f_eq_int_int);
     ins (map, "neq_addr_addr", f_neq_int_int);
     //
+    ins (map, "mul_rat_rat", f_mul_rat_rat);
+    ins (map, "div_rat_rat", f_div_rat_rat);
+    ins (map, "add_rat_rat", f_add_rat_rat);
+    ins (map, "sub_rat_rat", f_sub_rat_rat);
+    ins (map, "gte_rat_rat", f_gte_rat_rat);
+    ins (map, "is_int_int", f_is_int_int);
+    //
     // ins (map, "lte_cls_cls", f_lte_cls_cls);
     //
     ins (map, "bit8_of_int", f_bv8_of_int);

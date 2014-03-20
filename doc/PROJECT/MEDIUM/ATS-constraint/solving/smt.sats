@@ -56,6 +56,8 @@ fun make_int_sort (): sort
 
 fun make_bool_sort (): sort
 
+fun make_real_sort (): sort
+
 fun make_bitvec_sort (width: int): sort
 
 fun make_array_sort (): sort
@@ -134,6 +136,8 @@ fun make_numeral_uninterpreted (
 ): formula
 
 overload make_numeral with make_numeral_uninterpreted
+
+fun is_int (formula): formula
 
 fun make_negate (formula): formula
 

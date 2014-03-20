@@ -88,4 +88,8 @@ fun Z3_mk_unary_minus (
 
 (* ****** ****** *)
 
+fun Z3_is_int (
+  ctx: !Z3_context, num: !Z3_ast
+): Z3_ast = "mac#%"
+
 (* end of [z3_arithmetic.sats] *)

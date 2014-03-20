@@ -490,6 +490,38 @@ in
     n / d
   end // end of [f_idiv_int_int]
 
+  implement f_mul_rat_rat (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val p = formula_make (env, s2e1)
+    val q = formula_make (env, s2e2)
+  in
+    p * q
+  end // end of [f_mul_rat_rat]
+  
+  implement f_div_rat_rat (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val n = formula_make (env, s2e1)
+    val d = formula_make (env, s2e2)
+  in
+    n / d
+  end // end of [f_div_rat_rat]
+
+  implement f_add_rat_rat (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val b = formula_make (env, s2e2)
+  in
+    a + b
+  end // end of [f_add_rat_rat]
+
+  implement f_sub_rat_rat (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val a = formula_make (env, s2e1)
+    val b = formula_make (env, s2e2)
+  in
+    a - b
+  end // end of [f_sub_rat_rat]
+  
   implement f_lt_int_int (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
     val small = formula_make (env, s2e1)
@@ -537,6 +569,22 @@ in
   in
     Not (lhs = rhs)
   end // end of [f_neq_int_int]
+  
+  implement f_is_int_int (env, s2es) = let
+    val- s2e1 :: _ = s2es
+    val num = formula_make (env, s2e1)
+  in  
+    $SMT.is_int (num)
+  end // end of [f_is_int_int]
+
+  implement f_gte_rat_rat (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val great = formula_make (env, s2e1)
+    val small = formula_make (env, s2e2)
+  in
+    great >= small
+  end // end of [f_gte_rat_rat]
+    
   
   implement f_abs_int (env, s2es) = let
     val- s2e1 :: _ = s2es
