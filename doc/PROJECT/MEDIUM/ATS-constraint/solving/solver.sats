@@ -5,6 +5,9 @@
 staload "constraint.sats"
 staload "solving/smt.sats"
 
+(**
+  These types will hopefully be removed soon.
+*)
 datatype s3ubexp =
   | S3UBsizeof of (s2zexp)
   | S3UBcst of (s2cst)
@@ -169,6 +172,10 @@ fun f_max_int_int : s2cstmap_ftype
 fun f_min_int_int : s2cstmap_ftype
 
 fun f_ifint_bool_int_int : s2cstmap_ftype
+
+fun f_rat_int : s2cstmap_ftype
+
+fun f_rat_int_int : s2cstmap_ftype
 
 fun f_mul_rat_rat : s2cstmap_ftype
 

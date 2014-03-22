@@ -290,6 +290,10 @@ constraint3_initialize_map (map) = {
     ins (map, "eq_addr_addr", f_eq_int_int);
     ins (map, "neq_addr_addr", f_neq_int_int);
     //
+    (** Rational Constructors *)
+    ins (map, "Rational", f_rat_int);
+    ins (map, "RationalDiv", f_rat_int_int);
+    //
     ins (map, "mul_rat_rat", f_mul_rat_rat);
     ins (map, "div_rat_rat", f_div_rat_rat);
     ins (map, "add_rat_rat", f_add_rat_rat);

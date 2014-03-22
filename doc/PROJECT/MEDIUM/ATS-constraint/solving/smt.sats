@@ -137,8 +137,6 @@ fun make_numeral_uninterpreted (
 
 overload make_numeral with make_numeral_uninterpreted
 
-fun is_int (formula): formula
-
 fun make_negate (formula): formula
 
 fun make_add2 (formula, formula): formula
@@ -168,6 +166,14 @@ fun make_bv_add2 (formula, formula): formula
 fun make_bv_land2 (formula, formula): formula
 
 fun make_bv_eq (formula, formula): formula
+
+(* ****** ****** *)
+
+// Reals
+
+fun make_real_from_int (formula): formula
+
+fun is_int (formula): formula
 
 (* ****** ****** *)
 

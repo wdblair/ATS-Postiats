@@ -83,8 +83,12 @@ Z3_DECLARE_MK_AST(Z3_mk_unary_minus, Z3_ast num) {
   Z3_BODY_MK_AST(Z3_mk_unary_minus, num)
 }
 
-Z3_DECLARE_MK_AST(Z3_is_int, Z3_ast num) {
-  Z3_BODY_MK_AST(Z3_is_int, num)
+Z3_DECLARE_MK_AST(Z3_mk_is_int, Z3_ast num) {
+  Z3_BODY_MK_AST(Z3_mk_is_int, num)
+}
+
+Z3_DECLARE_MK_AST(Z3_mk_int2real, Z3_ast num) {
+  Z3_BODY_MK_AST(Z3_mk_int2real, num)
 }
 
 /* ****** ****** */

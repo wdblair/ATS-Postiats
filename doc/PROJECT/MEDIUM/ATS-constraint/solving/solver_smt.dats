@@ -490,6 +490,21 @@ in
     n / d
   end // end of [f_idiv_int_int]
 
+  implement f_rat_int (env, s2es) = let
+    val- s2e1 :: _ = s2es
+    val n = formula_make (env, s2e1)
+  in
+    $SMT.make_real_from_int (n)
+  end // end of [f_rat_int]
+  
+  implement f_rat_int_int (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+    val p = formula_make (env, s2e1)
+    val q = formula_make (env, s2e2)
+  in
+    p / q
+  end // end of [f_rat_int_int]
+  
   implement f_mul_rat_rat (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
     val p = formula_make (env, s2e1)

@@ -358,7 +358,7 @@ end
 
 implement
 is_int (num) = let
-  val phi = Z3_is_int (!the_context, num)
+  val phi = Z3_mk_is_int (!the_context, num)
   val () = begin
     Z3_dec_ref(!the_context, num);
   end
@@ -412,6 +412,18 @@ make_bv_from_int (n, i) = let
   end
 in
   bv
+end
+
+(* ****** ****** *)
+
+implement
+make_real_from_int (i) = let
+  val q = Z3_mk_int2real (!the_context, i)
+  val () = begin
+    Z3_dec_ref (!the_context, i)
+  end
+in
+  q
 end
 
 (* ****** ****** *)
