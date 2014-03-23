@@ -7,6 +7,10 @@ staload "solving/smt.sats"
 
 (**
   These types will hopefully be removed soon.
+  
+  S3UBsizeof - Make sizeof an uninterpreted function in Z3
+  S3UBcst - remove, not needed
+  S3UBapp - remove, not needed
 *)
 datatype s3ubexp =
   | S3UBsizeof of (s2zexp)
@@ -29,7 +33,8 @@ absviewt@ype smtenv_viewtype = @{
   },
   sorts= @{
     integer= ptr,
-    boolean= ptr
+    boolean= ptr,
+    real= ptr
   },
   err= int
 }

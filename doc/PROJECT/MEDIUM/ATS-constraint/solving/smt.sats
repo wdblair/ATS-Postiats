@@ -66,6 +66,10 @@ fun make_int_constant (
   id: int, _: !sort
 ): formula
 
+fun make_real (
+  num: formula, den: formula
+): formula
+
 fun make_fresh_constant (
   !sort
 ): formula

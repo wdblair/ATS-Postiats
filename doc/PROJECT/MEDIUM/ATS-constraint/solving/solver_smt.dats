@@ -92,7 +92,8 @@ local
     },
     sorts = @{
       integer= sort,
-      boolean= sort
+      boolean= sort,
+      real= sort
     },
     err= int 
   }
@@ -109,6 +110,7 @@ in
       $ListMap.linmap_make_nil ();
     env.sorts.integer := $SMT.make_int_sort ();
     env.sorts.boolean := $SMT.make_bool_sort ();
+    env.sorts.real := $SMT.make_real_sort ();
     env.err := 0;
   end
 
@@ -133,6 +135,7 @@ in
       $ListMap.linmap_free (env.variables.substitutes);
       $SMT.sort_free (env.sorts.integer);
       $SMT.sort_free (env.sorts.boolean);
+      $SMT.sort_free (env.sorts.real);
       $SMT.delete_solver (env.smt)
    end
 
@@ -235,6 +238,8 @@ in
   implement sort_make (type) =
     if s2rt_is_int (type) || s2rt_is_addr (type) then
       $SMT.make_int_sort ()
+    else if s2rt_is_rat (type) then
+      $SMT.make_real_sort ()
     else if s2rt_is_bitvec (type) then let
         val width = s2rt_bitvec_get_width (type)
         val () = assertloc (width > 0)
@@ -269,14 +274,16 @@ in
             equal_string_s2cst ("false_bool", s2c) =>
               $SMT.make_false ()
         | _ => let
-          val srt   = s2cst_get_srt (s2c)
+          val srt    = s2cst_get_srt (s2c)
           val stamp = s2cst_get_stamp (s2c)
           val id    = stamp_get_int (stamp)
         in
            if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
-            $SMT.make_int_constant (id, env.sorts.integer)
-           else if s2rt_is_bool (srt) then let
-            in $SMT.make_int_constant (id, env.sorts.boolean) end
+              $SMT.make_int_constant (id, env.sorts.integer)
+           else if s2rt_is_bool (srt) then
+              $SMT.make_int_constant (id, env.sorts.boolean)
+           else if s2rt_is_rat (srt) then
+              $SMT.make_int_constant (id, env.sorts.real)
            else let
               val s3ub = s3ubexp_cst (s2c)
            in 

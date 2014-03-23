@@ -111,6 +111,10 @@ implement
 make_bool_sort () =
   Z3_mk_bool_sort (!the_context)
 
+implement
+make_real_sort () = 
+  Z3_mk_real_sort (!the_context)
+
 implement 
 make_bitvec_sort (width) =
   Z3_mk_bv_sort (!the_context, g0int2uint(width))
@@ -312,7 +316,7 @@ in
   phi
 end
 
-implement 
+implement
 make_mul2 (l, r) = let
   val phi = Z3_mk_mul2 (!the_context, l, r)
   val () = begin

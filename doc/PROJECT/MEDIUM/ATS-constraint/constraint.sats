@@ -103,6 +103,7 @@ datatype s2rt =
 | S2RTaddr of ()
 | S2RTbool of ()
 | S2RTarray of ()
+| S2RTrat of ()
 | S2RTbitvec of (int(*width*))
 | S2RTfun of (s2rts (*args*), s2rt (*return*))
 | S2RTtup of ((*void*))
@@ -123,6 +124,7 @@ fun s2rt_is_addr (s2rt): bool
 fun s2rt_is_bool (s2rt): bool
 fun s2rt_is_bitvec (s2rt): bool
 fun s2rt_is_array (s2rt): bool
+fun s2rt_is_rat (s2rt): bool
 
 fun s2rt_is_fun (s2rt): bool
 
