@@ -631,8 +631,8 @@ parse_smtlib2_file (file, ds) = let
   val (nm_pf, nm_gc | nm) = array_ptr_alloc<Z3_symbol> (u2sz (n))
   val (de_pf, de_gc | de) = array_ptr_alloc<func_decl> (u2sz (n))
   //
-  val () = array_copy_from_list_vt<Z3_symbol> (!nm, names)
-  val () = array_copy_from_list_vt<func_decl> (!de, decls)
+  val () = array_copy_from_list_vt (!nm, names)
+  val () = array_copy_from_list_vt (!de, decls)
   //
   val null = the_null_ptr
   val conj = Z3_parse_smtlib2_file

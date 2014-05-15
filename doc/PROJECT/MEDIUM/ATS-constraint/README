@@ -21,7 +21,7 @@ someone could extend the statics beyond basic arithmetic in any direction
 comprehended by an automated deduction system. For example, providing a
 static interface for arithmetic over fixed width integers could give us
 the power to verify properties of embedded systems that make heavy use
-of bitwise operations. To support formulas involving a completely new sort
+of bitwise operators. To support formulas involving a completely new sort
 (bitvectors) as opposed to our integers and booleans would take considerable
 effort. Instead, we elect to export constraints in a text format so that we
 may leverage state of the art formal methods tools. For example, SMT solvers
