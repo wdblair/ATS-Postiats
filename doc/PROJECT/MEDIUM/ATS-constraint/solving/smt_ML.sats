@@ -46,7 +46,10 @@ staload "solving/smt.sats"
   
   ^ is a prefix operator to increment the reference count of a linear term,
   and to obtain a new reference to it.
+  
+  In actual code, this looks a little messy.
 *)
+
 symintr ^
 
 overload ^ with formula_dup

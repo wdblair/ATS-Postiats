@@ -401,6 +401,14 @@ local
 
 staload "solving/smt_ML.sats"
 
+(** 
+  Define some convenient fixity rules.
+*)
+prefix 62 ^ //copy or duplicate
+infixl ( && ) And
+infixl ( || ) Or
+infix 30 ==>
+
 in
 
   #define :: list_cons
