@@ -12,7 +12,7 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 
-implement
+implement {a}
 list_vt_nth (xs, i) = let
 //
 val+list_vt_cons (x, xs) = xs
@@ -23,14 +23,15 @@ end // end of [list_vt_nth]
 
 (* ****** ****** *)
 
-implement
+implement {a}
 list_vt_append
   {xs,ys}{m,n}(xs, ys) = let
 //
 fun loop
   {xs:stmsq}{m:nat} .<m>.
 (
-  xs: &list_vt (xs, m) >> list_vt (append(xs,m,ys,n), m+n), ys:  list_vt (ys, n)
+  xs: &list_vt (a, xs, m) >> list_vt (a, append(xs,m,ys,n), m+n),
+  ys:  list_vt (a, ys, n)
 ) :<!wrt> void = let
 in
 //

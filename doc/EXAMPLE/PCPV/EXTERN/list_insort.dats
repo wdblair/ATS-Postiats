@@ -1,3 +1,24 @@
+staload _ = "prelude/DATS/integer.dats"
+
+(**
+  Check the orderedness of a list
+*)
+fun
+ordered (xs: List0(int)): bool = let
+  fun loop (y: int, ys: List0(int)): bool =
+    case+ ys of
+      | list_nil () => true
+      | list_cons (z, zss) =>
+        if y > z then
+          false
+        else
+          loop (z, zss)
+in
+    case+ xs of 
+      | list_nil () => true
+      | list_cons (x, xss) => loop (x, xss)
+end // end of [ordered]
+
 (* ****** ****** *)
 
 staload "./list.sats"
@@ -5,12 +26,7 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 
-(*
-dataprop
-LTE (x0:stamp,xs:stmsq,n:int) = {lte (x0, xs, n)} LTE of ()
-dataprop
-LTE2 (xs:stmsq, m: int, ys:stmsq, n: int) = {a:stamp} LTE2 of (LTE (a, xs, m) -> LTE (a, ys, n))
-*)
+assume T(a:t@ype, xs:stamp) = a
 
 (* ****** ****** *)
 
@@ -51,25 +67,25 @@ SORTED_uncons
 (* ****** ****** *)
 //
 extern
-fun insord
+fun {a:t@ype} insord
   {x0:stamp}
   {xs:stmsq}{n:nat}
 (
-  pf: SORTED(xs, n) | x0: T(x0), xs: list (xs, n)
+  pf: SORTED(xs, n) | x0: T(a, x0), xs: list (a, xs, n)
 ) : [i:nat]
 (
-  SORTED (insert(xs, i, x0), n+1) | list (insert(xs, i, x0), n+1)
+  SORTED (insert(xs, i, x0), n+1) | list (a, insert(xs, i, x0), n+1)
 )
 //
 (* ****** ****** *)
 
-implement
+implement {a}
 insord {x0} (pf | x0, xs) =
 (
 case+ xs of
 | list_nil () =>
     #[0 | (SORTED_sing{x0}() | list_cons (x0, list_nil))]
-| list_cons {xs1}{x} (x, xs1) =>
+| list_cons {..} {xs1}{x} (x, xs1) =>
   (
     if x0 <= x
       then
@@ -87,11 +103,11 @@ case+ xs of
 (* ****** ****** *)
 
 extern
-fun sort
+fun {a:t@ype} sort
   {xs:stmsq}{n:int}
-  (xs: list (xs, n)): [ys:stmsq] (SORTED (ys, n) | list (ys, n))
+  (xs: list (a, xs, n)): [ys:stmsq] (SORTED (ys, n) | list (a, ys, n))
 
-implement
+implement {a}
 sort (xs) =
 (
 case+ xs of
@@ -103,5 +119,31 @@ case+ xs of
 ) (* end of [sort] *)
 
 (* ****** ****** *)
+
+implement main0 () = let
+  val xs = $list{int} (10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+  val xs = list_stampseq_of_list (xs)
+  (** 
+    Need to implement a comparison operator
+  *)
+  extern
+  castfn _t {a:t@ype} {xs:stamp} (T(a, xs)): a
+  //
+  implement lte_T_T<int> {x1,x2} (x, y) =
+    let
+      val lt = _t{int}(x) <= _t{int}(y)
+      extern castfn bless (
+        bool
+      ): bool (x1 <= x2)
+  in
+      bless (lt)
+  end
+  //
+  val (pfsorted | xs) = sort<int> (xs)
+
+  val xs = list_of_list_stampseq{int} (xs)
+in
+  assert(ordered (xs))
+end // end of [main0]
 
 (* end of [list_insort.dats] *)

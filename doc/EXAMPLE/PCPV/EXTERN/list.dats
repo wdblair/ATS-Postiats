@@ -12,7 +12,7 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 
-implement
+implement {a}
 list_nth (xs, i) = let
 //
 val+list_cons (x, xs) = xs
@@ -23,7 +23,7 @@ end // end of [list_nth]
 
 (* ****** ****** *)
 
-implement
+implement {a}
 list_append
   (xs1, xs2) = let
 in

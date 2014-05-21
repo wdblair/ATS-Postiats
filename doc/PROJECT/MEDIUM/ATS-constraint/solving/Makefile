@@ -66,6 +66,6 @@ solving.o: $(OBJECTS) ; ld -r -o $@ $^
 
 ######
 
-cleanall:: ; $(RMF) solver.o
+cleanall:: ; $(RMF) solving.o
 
 ###### end of [Makefile] ######
