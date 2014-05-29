@@ -9,20 +9,20 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 //
-abstype T(x:stamp)
+abst@ype T(a:t@ype, x:stamp)
 //
 (* ****** ****** *)
 //
-fun lt_T_T
-  {x1,x2:stamp} (T(x1), T(x2)): bool (x1 < x2)
-fun lte_T_T
-  {x1,x2:stamp} (T(x1), T(x2)): bool (x1 <= x2)
-fun gt_T_T
-  {x1,x2:stamp} (T(x1), T(x2)): bool (x1 > x2)
-fun gte_T_T
-  {x1,x2:stamp} (T(x1), T(x2)): bool (x1 >= x2)
-fun compare_T_T
-  {x1,x2:stamp} (T(x1), T(x2)): int (sgn(x1-x2))
+fun {a:t@ype} lt_T_T
+  {x1,x2:stamp} (T(a, x1), T(a, x2)): bool (x1 < x2)
+fun {a:t@ype} lte_T_T
+  {x1,x2:stamp} (T(a, x1), T(a, x2)): bool (x1 <= x2)
+fun {a:t@ype} gt_T_T
+  {x1,x2:stamp} (T(a, x1), T(a, x2)): bool (x1 > x2)
+fun {a:t@ype} gte_T_T
+  {x1,x2:stamp} (T(a, x1), T(a, x2)): bool (x1 >= x2)
+fun {a:t@ype} compare_T_T
+  {x1,x2:stamp} (T(a, x1), T(a, x2)): int (sgn(x1-x2))
 //
 overload < with lt_T_T
 overload <= with lte_T_T
@@ -43,6 +43,16 @@ overload - with sub_ptr_int
 //
 (* ****** ****** *)
 
+(**
+  This variant of ptr_get is missing from 
+  the prelude and just using the "!" operator
+  does not find the right view
+*)
+fun {a:t0p}
+ptr_get0{l:addr}
+  (pf: !INV(a) @ l | p: ptr l):<> a
+// end of [ptr_get0]
+
 fun ptr_offset 
   {l:addr}{i:nat} (ptr (l+i)):<> int (i)
 
@@ -50,81 +60,83 @@ fun ptr_offset
 
 dataview
 array_v
-  (addr, stmsq, int) =
+  (a:t@ype, addr, stmsq, int) =
   | {l:addr}
-    array_v_nil (l, nil, 0) of ()
+    array_v_nil (a, l, nil, 0) of ()
   | {l:addr}{xs:stmsq}{x:stamp}{n:int}
-    array_v_cons (l, cons (x, xs), n+1) of (T(x) @ l, array_v (l+1, xs, n))
+    array_v_cons (a, l, cons (x, xs), n+1) of (
+      T(a, x) @ l, array_v (a, l+sizeof(a), xs, n)
+    )
 // end of [array_v]
 
 (* ****** ****** *)
 
 prfun
 array_v_split
-  {l:addr}{xs:stmsq}
+  {a:t@ype}{l:addr}{xs:stmsq}
   {n:int}{i:nat | i <= n}
 (
-  pf: array_v(l, xs, n), i: int (i)
+  pf: array_v(a, l, xs, n), i: int (i)
 ) : (
-  array_v (l, take(xs, i), i)
-, array_v (l+i, drop(xs, i), n-i)
+  array_v (a, l, take(xs, i), i)
+, array_v (a, l + sizeof(a)*i, drop(xs, i), n-i)
 ) (* end of [array_v_split] *)
 
 (* ****** ****** *)
 
 prfun
 array_v_unsplit
-  {l:addr}
+  {a:t@ype}{l:addr}
   {xs1,xs2:stmsq}
   {n1,n2:int}
 (
-  pf1: array_v(l, xs1, n1)
-, pf2: array_v(l+n1, xs2, n2)
+  pf1: array_v(a, l, xs1, n1)
+, pf2: array_v(a, l+sizeof(a)*n1, xs2, n2)
 ) :
 (
-  array_v (l, append (xs1, n1, xs2, n2), n1+n2)
+  array_v (a, l, append (xs1, n1, xs2, n2), n1+n2)
 ) (* end of [array_v_unsplit] *)
 
 (* ****** ****** *)
 
 fun array_ptrget
-  {l:addr}{xs:stmsq}
+  {a:t@ype}{l:addr}{xs:stmsq}
   {n:int}{i:nat | i < n}
-  (pf: !array_v(l, xs, n) | p: ptr(l+i)) : T(select(xs, i))
+  (pf: !array_v(a, l, xs, n) | p: ptr(l+i*sizeof(a))) : T(a, select(xs, i))
 // end of [array_ptrget]
 
 fun array_ptrset
-  {l:addr}
+  {a:t@ype}{l:addr}
   {xs:stmsq}{x:stamp}
   {n:int}{i:nat | i < n}
 (
-  pf: !array_v(l, xs, n) >> array_v (l, update (xs, i, x), n) | p: ptr(l+i), x: T(x)
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, update (xs, i, x), n) | p: ptr(l+sizeof(a)*i), x: T(a, x)
 ) : void // end of [array_ptrset]
 
 (* ****** ****** *)
 //
-fun array_get_at
+fun {a:t@ype} array_get_at
   {l:addr}{xs:stmsq}
   {n:int}{i:nat | i < n}
-  (pf: !array_v(l, xs, n) | p: ptr(l), i: int i) : T(select(xs, i))
+  (pf: !array_v(a, l, xs, n) | p: ptr(l), i: int i) : T(a, select(xs, i))
 // end of [array_get_at]
 //
-fun array_set_at
+fun {a:t@ype} array_set_at
   {l:addr}
   {xs:stmsq}{x:stamp}
   {n:int}{i:nat | i < n}
 (
-  pf: !array_v(l, xs, n) >> array_v (l, update(xs, i, x), n) | p: ptr(l), i: int i, x: T(x)
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, update(xs, i, x), n) | p: ptr(l), i: int i, x: T(a, x)
 ) : void // end of [array_set_at]
 //
 (* ****** ****** *)
 
 fun array_ptrswap
-  {l:addr}
+  {a:t@ype}{l:addr}
   {xs:stmsq}
   {n:int}{i,j:nat | i < n; j < n}
 (
-  pf: !array_v(l, xs, n) >> array_v (l, swap_at(xs, i, j), n) | p1: ptr(l+i), p2: ptr(l+j)
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | p1: ptr(l+sizeof(a)*i), p2: ptr(l+sizeof(a)*j)
 ) : void // end of [array_ptrswap]
 
 (* ****** ****** *)

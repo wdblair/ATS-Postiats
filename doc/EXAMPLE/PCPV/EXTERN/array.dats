@@ -13,17 +13,19 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 
+implement {a} ptr_get0 (pf | p) = !p
+
 local
 
 prfun
 lemma
-  {l:addr}{xs:stmsq}
+  {l:addr}{a:t@ype}{xs:stmsq}
   {n:int}{i:nat | i <= n} .<i>.
 (
-  pf: array_v(l, xs, n), i: int (i)
+  pf: array_v(a, l, xs, n), i: int (i)
 ) : (
-  array_v (l, take(xs, i), i)
-, array_v (l+i, drop(xs, i), n-i)
+  array_v (a, l, take(xs, i), i)
+, array_v (a, l+sizeof(a)*i, drop(xs, i), n-i)
 ) = let
 in
 //
@@ -48,16 +50,19 @@ end // end of [local]
 
 (* ****** ****** *)
 
+staload _ = "prelude/DATS/integer.dats"
+staload _ = "prelude/DATS/pointer.dats"
 
-implement
-array_get_at
+implement {a}
+array_get_at {l}{xs}{n}{i}
   (pf | p, i) = x where
 {
 //
-prval (pf1, pf2) = array_v_split (pf, i)
-prval array_v_cons (pf21, pf22) = pf2
+prval (pf1, pf2) = array_v_split{a}{l}{xs}{n}{i} (pf, i)
+prval array_v_cons {a} {l1} (pf21, pf22) = pf2
 //
-val x = !(p+i)
+val pi = ptr_add (p, i)
+val x = ptr_get0 (pf21 | pi)
 //
 prval ((*void*)) =
   pf := array_v_unsplit (pf1, array_v_cons (pf21, pf22))
