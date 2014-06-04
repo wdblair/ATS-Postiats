@@ -49,6 +49,16 @@ case+ name of
       | "stampseq" => S2RTarray ()
       | "infseq" => S2RTarray ()
       | "bit8" => S2RTbitvec (8)
+      //
+      (** 
+         As far as the constraint solver is concerned, there
+         shouldn't be any difference between a non linear and
+         linear unboxed type. 
+      *)
+      | "t@ype" => S2RTt0ype ()
+      // patsopt doesn't seem consistent for flat types.
+      | "viewt0ype" => S2RTt0ype ()
+      //
       | _ => S2RTignored ()
   end
 | "s2rt_fun" => let

@@ -62,6 +62,8 @@ fun make_bitvec_sort (width: int): sort
 
 fun make_array_sort (): sort
 
+fun make_abstract_sort (symbol: string): sort
+
 fun make_int_constant (
   id: int, _: !sort
 ): formula

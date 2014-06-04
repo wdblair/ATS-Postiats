@@ -54,6 +54,12 @@ s2rt_is_fun (srt) =
   case+ srt of
     | S2RTfun (_, _) => true
     | _ =>> false
+
+implement
+s2rt_is_t0ype (srt) =
+  case+ srt of
+    | S2RTt0ype () => true
+    | _ =>> false
     
 (* ****** ****** *)
 
@@ -62,7 +68,7 @@ s2rt_bitvec_get_width (srt) =
   case+ srt of
     | S2RTbitvec (width) => width
     | _ =>> ~1
-
+    
 (* ****** ****** *)
 
 implement
@@ -101,6 +107,7 @@ case+ s2t0 of
 | S2RTrat () => fprint (out, "S2RTrat()")
 | S2RTbitvec (width) => fprint! (out, "S2RTbitvec(", width, ")")
 | S2RTarray () => fprint (out, "S2RTarray()")
+| S2RTt0ype () => fprint (out, "S2RTt0ype()")
 //
 | S2RTfun (args, ret) => fprint (out, "S2RTfun()")
 | S2RTtup () => fprint (out, "S2RTtup()")

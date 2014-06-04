@@ -107,6 +107,7 @@ datatype s2rt =
 | S2RTbitvec of (int(*width*))
 | S2RTfun of (s2rts (*args*), s2rt (*return*))
 | S2RTtup of ((*void*))
+| S2RTt0ype of ((*void*))
 | S2RTerr of ((*void*))
 | S2RTignored of ((*void*))
 
@@ -125,6 +126,7 @@ fun s2rt_is_bool (s2rt): bool
 fun s2rt_is_bitvec (s2rt): bool
 fun s2rt_is_array (s2rt): bool
 fun s2rt_is_rat (s2rt): bool
+fun s2rt_is_t0ype (s2rt): bool
 
 fun s2rt_is_fun (s2rt): bool
 

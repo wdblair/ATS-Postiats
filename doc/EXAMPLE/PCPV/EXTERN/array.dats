@@ -50,19 +50,18 @@ end // end of [local]
 
 (* ****** ****** *)
 
-staload _ = "prelude/DATS/integer.dats"
-staload _ = "prelude/DATS/pointer.dats"
+typedef _T(a:t@ype) = [x:stamp] T(a:t@ype, x)
 
 implement {a}
-array_get_at {l}{xs}{n}{i}
+array_get_at
   (pf | p, i) = x where
 {
 //
-prval (pf1, pf2) = array_v_split{a}{l}{xs}{n}{i} (pf, i)
-prval array_v_cons {a} {l1} (pf21, pf22) = pf2
+prval (pf1, pf2) = array_v_split (pf, i)
+prval array_v_cons (pf21, pf22) = pf2
 //
-val pi = ptr_add (p, i)
-val x = ptr_get0 (pf21 | pi)
+val pi = add_ptr_int<a> (p, i)
+val x = ptr_get0<a> (pf21 | pi)
 //
 prval ((*void*)) =
   pf := array_v_unsplit (pf1, array_v_cons (pf21, pf22))

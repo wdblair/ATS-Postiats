@@ -100,8 +100,8 @@ end // end of [make_solver]
 
 implement 
 delete_solver (solve) = {
-    val _ = Z3_solver_dec_ref (!the_context, solve)
-}
+  val _ = Z3_solver_dec_ref (!the_context, solve)
+} // end of [delete_solver]
 
 implement 
 make_int_sort () =
@@ -128,6 +128,13 @@ in
   Z3_sort_dec_ref (!the_context, int);
   Z3_sort_dec_ref (!the_context, int');
   array
+end
+
+implement
+make_abstract_sort (name) = let
+  val sym = Z3_mk_string_symbol (!the_context, name)
+in
+  Z3_mk_uninterpreted_sort (!the_context, sym)
 end
 
 implement 

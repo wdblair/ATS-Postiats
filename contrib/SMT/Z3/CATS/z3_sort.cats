@@ -90,7 +90,19 @@ atscntrb_Z3_mk_array_sort(Z3_context ctx, Z3_sort domain, Z3_sort range) {
   return ty;
 }
 
+ATSinline()
+Z3_sort
+atscntrb_Z3_mk_uninterpreted_sort(Z3_context ctx, Z3_symbol s) {
+  Z3_sort ty = Z3_mk_uninterpreted_sort(ctx, s);
 
+  Z3_error_code e = Z3_get_error_code(ctx);
+  if (e != Z3_OK) {
+    Z3_string msg = Z3_get_error_msg_ex(ctx, e);
+    fprintf(stderr, "Z3 Error: %s\n", msg);
+  }
+  Z3_inc_ref(ctx, Z3_sort_to_ast(ctx, ty));
+  return ty;
+}
 
 ATSinline()
 Z3_sort

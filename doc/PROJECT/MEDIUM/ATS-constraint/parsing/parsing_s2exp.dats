@@ -76,6 +76,11 @@ fun parse_S2Emetdec (jsonval): s2exp_node
 (* ****** ****** *)
 
 extern
+fun parse_S2Esizeof (jsonval): s2exp_node
+
+(* ****** ****** *)
+
+extern
 fun parse_S2Eignored (jsonval): s2exp_node
 
 (* ****** ****** *)
@@ -110,6 +115,8 @@ case+ name of
 | "S2Eapp" => parse_S2Eapp (jsv2)
 //
 | "S2Emetdec" => parse_S2Emetdec (jsv2)
+//
+| "S2Esizeof" => parse_S2Esizeof (jsv2)
 //
 | _(*rest*) => let
     val () =
@@ -231,6 +238,20 @@ val s2e = parse_s2exp (jsvs[0])
 //
 in
   S2Emetdec (s2e)
+end // end of [parse_S2Emetdec]
+
+(* ****** ****** *)
+
+implement
+parse_S2Esizeof
+  (jsv0) = let
+//
+val-JSONarray(jsvs) = jsv0
+val () = assertloc (length(jsvs) >= 1)
+val s2e = parse_s2exp (jsvs[0])
+//
+in
+  S2Esizeof (s2e)
 end // end of [parse_S2Emetdec]
 
 (* ****** ****** *)

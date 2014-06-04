@@ -248,9 +248,11 @@ in
       end
     else if s2rt_is_array (type) then
       $SMT.make_array_sort ()
+    else if s2rt_is_t0ype (type) then
+      $SMT.make_abstract_sort ("t@ype")
     else
       $SMT.make_bool_sort ()
-  
+      
   implement formula_make (env, s2e) = let
     val out = stdout_ref
   in
@@ -313,17 +315,16 @@ in
       in
         formula_make (env, s2e_met)
       end // end of [S3Emetdec]
-      (*
-        Ignore size of for now, taking s2zexp_make_s2exp
-        out of the default typechecker seems a little tricky
-        right now
       | S2Esizeof (s2exp) => let
-        val s2ze = s2zexp_make_s2exp (s2exp)
-        val s3ub = s3ubexp_sizeof (s2ze)
+        #define :: list_vt_cons
+        #define nil list_vt_nil
+        val a = $SMT.make_abstract_sort ("t@ype")
+        val sizeof = $SMT.make_func_decl ("sizeof", a :: nil, $SMT.make_int_sort())
+        val args = formula_make (env, s2exp)
+        
       in
-        formula_from_substitution (env, s3ub)
+        $SMT.make_app (sizeof, args :: nil)
       end
-      *)
       | _ => let
         val srt = s2e.s2exp_srt
         val stub = (

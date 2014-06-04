@@ -9,7 +9,7 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 //
-abst@ype T(a:t@ype, x:stamp)
+abst@ype T(a:t@ype, x:stamp) = a
 //
 (* ****** ****** *)
 //
@@ -33,10 +33,10 @@ overload compare with compare_T_T
 //
 (* ****** ****** *)
 //
-fun add_ptr_int
-  {l:addr}{i:int} (ptr l, int i):<> ptr (l+i)
-fun sub_ptr_int
-  {l:addr}{i:int} (ptr l, int i):<> ptr (l-i)
+fun {a:t@ype} add_ptr_int
+  {l:addr}{i:int} (ptr l, int i):<> ptr (l+sizeof(a)*i)
+fun {a:t@ype} sub_ptr_int
+  {l:addr}{i:int} (ptr l, int i):<> ptr (l-sizeof(a)*i)
 //
 overload + with add_ptr_int
 overload - with sub_ptr_int
@@ -48,9 +48,9 @@ overload - with sub_ptr_int
   the prelude and just using the "!" operator
   does not find the right view
 *)
-fun {a:t0p}
-ptr_get0{l:addr}
-  (pf: !INV(a) @ l | p: ptr l):<> a
+fun {a:t@ype}
+ptr_get0{l:addr}{x:stamp}
+  (pf: !INV(T(a,x)) @ l | p: ptr l):<> T(a,x)
 // end of [ptr_get0]
 
 fun ptr_offset 
