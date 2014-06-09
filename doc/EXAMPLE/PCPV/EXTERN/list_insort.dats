@@ -26,8 +26,7 @@ staload "./stampseq.sats"
 
 (* ****** ****** *)
 
-assume T(a:t@ype, xs:stamp) = a
-
+// 
 (* ****** ****** *)
 
 absprop SORTED (xs:stmsq, n:int)
@@ -65,6 +64,10 @@ SORTED_uncons
   (pf: SORTED (cons(x, xs), n)): [x <= select(xs,0)] SORTED (xs, n-1)
 //
 (* ****** ****** *)
+
+// assume T(a:t@ype, xs:stamp) = a
+
+(* ****** ****** *)
 //
 extern
 fun {a:t@ype} insord
@@ -80,7 +83,7 @@ fun {a:t@ype} insord
 (* ****** ****** *)
 
 implement {a}
-insord {x0} (pf | x0, xs) =
+insord {x0}{xs}{n} (pf | x0, xs) =
 (
 case+ xs of
 | list_nil () =>
@@ -89,7 +92,7 @@ case+ xs of
   (
     if x0 <= x
       then
-        #[0 | (SORTED_cons{x0} (pf) | list_cons (x0, xs))]
+        #[0 | (SORTED_cons{x0}{xs} (pf) | list_cons (x0, xs))]
       else let
         prval (pfs) = SORTED_uncons {x}{xs1} (pf)
         val [i:int] (pfres | ys1) = insord {x0} (pfs | x0, xs1)
@@ -143,7 +146,8 @@ implement main0 () = let
 
   val xs = list_of_list_stampseq{int} (xs)
 in
-  assert(ordered (xs))
+  assert(ordered (xs));
+  println! ("sort test passes!")
 end // end of [main0]
 
 (* end of [list_insort.dats] *)
