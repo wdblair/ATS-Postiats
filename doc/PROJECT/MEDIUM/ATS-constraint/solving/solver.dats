@@ -48,28 +48,6 @@ end // end of [local]
 
 (* ****** ****** *)
 
-implement 
-s3ubexp_get_srt (sub) =
-  case+ sub of
-    | S3UBsizeof (_) => S2RTint ()
-    | S3UBcst (s2c) => s2cst_get_srt (s2c)
-    | S3UBapp (s2c, s2es) => S2RTignored ()
-
-implement
-s3ubexp_syneq (s0, s1) = 
-  case+ (s0, s1) of 
-    | (S3UBcst (s2c0), S3UBcst (s2c1)) => s2c0 = s2c1
-    (* Not supporting unknown functions or size of right now. *)
-    | (_, _) =>> false
-
-implement
-s3ubexp_app (s2c, s2es) = S3UBapp (s2c, s2es)
-
-implement
-s3ubexp_cst (s2c) = S3UBcst (s2c)
-
-(* ****** ****** *)
-
 extern
 fun c3nstr_solve_main 
   (env: &smtenv, c3t: c3nstr, unsolved : &uint, error: &int): int

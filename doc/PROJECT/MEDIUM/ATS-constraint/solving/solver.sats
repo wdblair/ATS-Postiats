@@ -5,41 +5,10 @@
 staload "constraint.sats"
 staload "solving/smt.sats"
 
-(**
-  These types will hopefully be removed soon.
-  
-  S3UBsizeof - Make sizeof an uninterpreted function to Z3
-  S3UBcst - remove, not needed
-  S3UBapp - remove, not needed
-*)
-datatype s3ubexp =
-  | S3UBsizeof of (s2zexp)
-  | S3UBcst of (s2cst)
-  | S3UBapp of (s2cst, s2explst)
-  
-fun s3ubexp_get_srt (s3ubexp): s2rt
-
-fun s3ubexp_syneq (s3ubexp, s3ubexp): bool
-
-fun s3ubexp_sizeof (s2zexp): s3ubexp
-fun s3ubexp_cst (s2cst): s3ubexp
-fun s3ubexp_app (s2cst, s2explst): s3ubexp
-
 absviewt@ype smtenv_viewtype = @{
   smt= ptr,
   variables= @{
-    statics= ptr,
-    substitutes= ptr
-  },
-  (**
-    TODO: Remove these pointers, they add overhead
-    to introducing new sorts into the constraint
-    solver.
-  *)
-  sorts= @{
-    integer= ptr,
-    boolean= ptr,
-    real= ptr
+    statics= ptr
   },
   err= int
 }
@@ -50,11 +19,6 @@ fun smtenv_nil (env: &smtenv? >> smtenv): void
 fun smtenv_free (env: &smtenv >> smtenv?): void
 
 absview smtenv_push_v
-
-fun formula_from_substitution (env: &smtenv, sub: s3ubexp): formula
-
-fun smtenv_find_substitution (env: &smtenv, sub: s3ubexp): Option (s2var)
-fun smtenv_make_substitution (env: &smtenv, sub: s3ubexp, s2v: s2var): void
 
 fun smtenv_push (env: &smtenv): (smtenv_push_v | void)
 fun smtenv_pop  (pf: smtenv_push_v | env: &smtenv): void

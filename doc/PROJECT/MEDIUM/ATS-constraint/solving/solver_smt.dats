@@ -77,23 +77,14 @@ local
   
   implement $TreeMap.compare_key_key<s2var> (k1, k2) =
     $effmask_all compare_s2var_s2var (k1, k2)
-  
-  implement $ListMap.equal_key_key<s3ubexp> (s1, s2) =
-    $effmask_all s3ubexp_syneq (s1, s2)
-    
+      
   viewtypedef smtenv_struct = @{
     smt= solver,
     variables= @{
       (* 
         Map static variables to their respective SMT formulas
       *)
-      statics= $TreeMap.map (s2var, formula),
-      substitutes= $ListMap.map (s3ubexp, s2var)
-    },
-    sorts = @{
-      integer= sort,
-      boolean= sort,
-      real= sort
+      statics= $TreeMap.map (s2var, formula)
     },
     err= int 
   }
@@ -106,11 +97,6 @@ in
     env.smt := $SMT.make_solver ();
     env.variables.statics := 
       $TreeMap.linmap_make_nil ();
-    env.variables.substitutes := 
-      $ListMap.linmap_make_nil ();
-    env.sorts.integer := $SMT.make_int_sort ();
-    env.sorts.boolean := $SMT.make_bool_sort ();
-    env.sorts.real := $SMT.make_real_sort ();
     env.err := 0;
   end
 
@@ -132,43 +118,8 @@ in
    //
    in 
       release_vars (env.smt, statics);
-      $ListMap.linmap_free (env.variables.substitutes);
-      $SMT.sort_free (env.sorts.integer);
-      $SMT.sort_free (env.sorts.boolean);
-      $SMT.sort_free (env.sorts.real);
       $SMT.delete_solver (env.smt)
    end
-
-  implement formula_from_substitution (env, s3ub) = let
-    val srt = s3ubexp_get_srt (s3ub)
-    val opt = smtenv_find_substitution (env, s3ub)
-  in 
-    case+ opt of 
-      | Some (s2v) => smtenv_get_var_exn (env, s2v)
-      | None () => let
-        val s2v = s2var_make_srt (srt)
-        val _ = smtenv_make_substitution (env, s3ub, s2v)
-        val _ = smtenv_add_svar (env, s2v)
-       in
-          smtenv_get_var_exn (env, s2v)
-       end
-  end
-  
-  implement smtenv_find_substitution (env, sub) = let
-    val optv = 
-      $ListMap.linmap_search_opt (env.variables.substitutes, sub)
-  in
-    case+ optv of
-      | ~Some_vt (s2v) => Some (s2v)
-      | ~None_vt () => None ()
-  end
-
-  implement smtenv_make_substitution (env, exp, s2v) = {
-    var res : s2var
-    val _ = 
-      $ListMap.linmap_insert (env.variables.substitutes, exp, s2v, res)
-    prval () = opt_clear (res)
-  }
   
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")
@@ -259,17 +210,32 @@ in
     val out = stdout_ref
   in
     case+ s2e.s2exp_node of
-      | S2Eint i =>
-        $SMT.make_numeral (i, env.sorts.integer)
+      | S2Eint i => let
+        val type = $SMT.make_int_sort ()
+        val I = $SMT.make_numeral (i, type)
+      in
+        $SMT.sort_free (type);
+        I
+      end
       //
-      | S2Eintinf i =>
-        $SMT.make_numeral (i, env.sorts.integer)
+      | S2Eintinf i => let
+        val type= $SMT.make_int_sort ()
+        val I = $SMT.make_numeral (i, type)
+      in
+        $SMT.sort_free (type);
+        I      
+      end
       //
       | S2Evar s2v => smtenv_get_var_exn (env, s2v)
       | S2Ecst s2c => (case+ s2c of
         | _ when
-            equal_string_s2cst ("null_addr", s2c) =>
-              $SMT.make_numeral (0, env.sorts.integer)
+            equal_string_s2cst ("null_addr", s2c) => let
+              val type = $SMT.make_int_sort ()
+              val null = $SMT.make_numeral (0, type)
+            in
+              $SMT.sort_free (type);
+              null
+            end
         //
         | _ when
             equal_string_s2cst ("true_bool", s2c) =>

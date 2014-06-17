@@ -1,5 +1,5 @@
 (*
-  Implementing the map that translates static functions
+  Implementing the map that translates applying static functions
   into formulas understood by the underlying SMT solver.
 *)
 
@@ -15,7 +15,7 @@ staload "parsing/parsing.sats"
 staload "solving/smt.sats"
 staload "solving/solver.sats"
 
-staload ERR = "solving/error.sats"
+staload Error = "solving/error.sats"
 
 staload UN = "prelude/SATS/unsafe.sats"
 
@@ -97,7 +97,7 @@ constraint3_initialize () = {
   val constants = the_s2cstmap_listize ()
   //
   implement list_foreach$fwork<s2cst><void> (s2c, v) = {
-    val (macpf, macfpf | macp)  = 
+    val (macpf, macfpf | macp)  =
       $UN.ref_vtake (the_s2cfunmap)
     //
     var res: s2cst_ftype
@@ -151,7 +151,7 @@ formula_make_uninterp_opt
   (env: &smtenv, s2c: s2cst, s2es: s2explst): Option_vt (formula) = let
   val (pf, fpf | p) = $UN.ref_vtake (the_s2cdeclmap)
   val func = s2cst_get_name (s2c)
-  val [l:addr] ptr = 
+  val [l:addr] ptr =
     $LinMap.linmap_search_ref (!p, func)
 in
   if iseqz (ptr) then
@@ -200,13 +200,14 @@ formula_make_s2cst_s2explst
       in
         case+ opt of 
           | ~Some_vt app => app
-          | ~None_vt _ => let
-            val function = s2c
-            val args = s2es
-            val app  = $effmask_ref s3ubexp_app (function, args)
-          in
-            $effmask_ref formula_from_substitution (env, app)
-          end
+          (** 
+            Instead of failing, we should just make an uninterpreted
+            function in the underlying SMT solver.
+          *)
+          | ~None_vt _ => $raise $Error.FatalErrorException () where {
+            val _ = $effmask_ref 
+              fprintln! (stderr_ref, "Function definition not found!")
+          }
       end
   end // end of [formula_make_s2cst_s2explst]
 

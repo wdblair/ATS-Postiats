@@ -52,8 +52,6 @@ termination metric to enforce the loop to terminate.
 
 *)
 
-macdef succ1 = ptr1_succ
-
 implement {a}
 partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
   val pi = add_ptr_int<a>(p , pivot)
@@ -91,28 +89,28 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       else
         loop {ps} {i+1,pind} (pf | add_ptr_int<a>(pi,1), pind)
     end
-  // end of [loop] 
+  // end of [loop]
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 
 extern
 fun rand_int {n:nat} (int n): [s:nat | s < n] int s
 
-absprop PARTED (a:t@ype, l:addr, xs: stmsq, p:int, n:int)
+absprop Parted (a:t@ype, l:addr, xs: stmsq, p:int, n:int)
 
 extern
 praxi 
-PARTED_make 
+Parted_make 
   {l:addr}{a:t@ype}
   {n,p:nat | p < n}
   {xs:stmsq | partitioned (xs, p, n)}
-(!array_v (a, l, xs, n), int p): PARTED(a, l, xs, p, n)
+(!array_v (a, l, xs, n), int p): Parted(a, l, xs, p, n)
 
 extern
 praxi partitioned_lemma
   {l:addr}{a:t@ype}
   {xs:stmsq} {p,n:nat | p < n}
   {ls,rs:stmsq} (
-  PARTED(a, l, xs, p, n),
+  Parted(a, l, xs, p, n),
   !array_v (a, l, ls, p),
   !T(a, select(xs, p)) @ l+p*sizeof(a),
   !array_v (a, l+((p+1)*sizeof(a)), rs, n - p - 1)
@@ -133,7 +131,7 @@ quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
   else let
     val pivot = rand_int (n)
     val (pf | pi) = partition (pf | p, pivot, n)
-    val parted = PARTED_make (pf, pi)
+    val parted = Parted_make (pf, pi)
     //
     prval (left, right) = array_v_split (pf, pi)
     prval array_v_cons (pfpiv, right) = right
