@@ -11,14 +11,14 @@ staload "./stampseq.sats"
 (* ****** ****** *)
 
 extern
-fun insord
+fun {a:t@ype} insord
   {l:addr}
   {xs:stmsq}
   {n,n1:int}
   {i:nat | i <= n1; n1 < n; sorted(remove(xs, i), n1)}
 (
-  pf: array_v (l, xs, n) | p: ptr(l+i), i: int(i)
-) : [ys:stmsq | sorted(ys, n1+1)] (array_v (l, ys, n) | void)
+  pf: array_v (a, l, xs, n) | p: ptr(l+i*sizeof(a)), i: int(i)
+) : [ys:stmsq | sorted(ys, n1+1)] (array_v (a, l, ys, n) | void)
 
 (* ****** ****** *)
 

@@ -221,10 +221,12 @@ in
     val [l:addr] ptr =
       $TreeMap.linmap_search_ref (env.variables.statics, s2v)
   in
-    if iseqz (ptr) then
-      $raise FatalErrorException () where {
-        val () = println! ("SMT formula not found for s2var")
-      }
+    if iseqz (ptr) then let
+      val () = fprintln! (stderr_ref, "warning: adding s2var: ", s2v)
+      val () = smtenv_add_svar (env, s2v)
+    in
+      smtenv_get_var_exn (env, s2v)
+    end
     else let
       val ptr1 = cptr2ptr (ptr)
       val (pf, free | p) = $UN.ptr1_vtake (ptr1)
@@ -276,21 +278,14 @@ in
             equal_string_s2cst ("false_bool", s2c) =>
               $SMT.make_false ()
         | _ => let
-          val srt    = s2cst_get_srt (s2c)
+          val ats_srt = s2cst_get_srt (s2c)
+          val smt_srt = sort_make (ats_srt)
           val stamp = s2cst_get_stamp (s2c)
           val id    = stamp_get_int (stamp)
+          val c = $SMT.make_int_constant (id, smt_srt)
         in
-           if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
-              $SMT.make_int_constant (id, env.sorts.integer)
-           else if s2rt_is_bool (srt) then
-              $SMT.make_int_constant (id, env.sorts.boolean)
-           else if s2rt_is_rat (srt) then
-              $SMT.make_int_constant (id, env.sorts.real)
-           else let
-              val s3ub = s3ubexp_cst (s2c)
-           in 
-              formula_from_substitution (env, s3ub)
-           end
+          $SMT.sort_free (smt_srt);
+          c
         end
       )
       | S2Eeqeq (l, r) => let
@@ -327,25 +322,13 @@ in
       end
       | _ => let
         val srt = s2e.s2exp_srt
-        val stub = (
-            if s2rt_is_int (srt) orelse s2rt_is_addr (srt) then
-              $SMT.make_fresh_constant (env.sorts.integer)
-            //
-            else if s2rt_is_bitvec (srt) then let
-              val width = s2rt_bitvec_get_width (srt)
-              val () = assertloc (width > 0)
-              val bv = $SMT.make_bitvec_sort (width)
-              val cst = $SMT.make_fresh_constant (bv)
-              val () = $SMT.sort_free (bv)
-            in cst end
-            //
-            else
-              $SMT.make_fresh_constant (env.sorts.boolean)
-        ): formula
+        val smt_sort = sort_make (srt)
+        val stub = $SMT.make_fresh_constant (smt_sort)
         (* TODO: Make this error mean something to calling functions *)
         val _ = env.err := env.err + 1
         val _ = fprintln! (out, "warning(3): formula_make: s2e =:", s2e)
       in
+        $SMT.sort_free (smt_sort);
         stub
       end // end of [_]
    end // end of [formula_make]

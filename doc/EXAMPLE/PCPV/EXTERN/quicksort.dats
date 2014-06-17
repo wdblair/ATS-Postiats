@@ -13,14 +13,14 @@ staload "array.sats"
   the original array, but this example is verbose enough :D
 *)
 extern
-fun
+fun {a:t@ype}
 partition {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
-  array_v (l, xs, n) | p: ptr l, int pivot, int n
+  array_v (a, l, xs, n) | p: ptr l, int pivot, int n
 ): [p:nat | p < n]
-   [ys: stmsq | partitioned (ys, p, n); 
+   [ys: stmsq | partitioned (ys, p, n);
     select(xs, pivot) == select (ys, p)]
-  (array_v (l, ys, n) | int p)
-
+  (array_v (a, l, ys, n) | int p)
+  
 (*
 
 We first swap the desired pivot to the last spot in the array. Then we
@@ -52,39 +52,43 @@ termination metric to enforce the loop to terminate.
 
 *)
 
-implement
+macdef succ1 = ptr1_succ
+
+
+implement {a}
 partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
-  val pi = p + pivot
-  val pn = p + (n - 1)
-  val () = array_ptrswap {l}{..}{..}{pivot, n-1} (pf | pi, pn)
-  val xn = array_ptrget {l}{..}{..}{n-1} (pf | pn)
+  val pi = add_ptr_int<a>(p , pivot)
+  val pn = add_ptr_int<a>(p , (n - 1))
+  val () = array_ptrswap<a> {l}{..}{..}{pivot, n-1} (pf | pi, pn)
+  val xn = array_ptrget<a> {l}{..}{..}{n-1} (pf | pn)
   //
   fun loop {ps:stmsq} {i, pind: nat | pind <= i; i <= n-1 |
     part_left (ps, pind, n-1);
     part_right (ps, i, pind, n-1);
     select (ps, n-1) == select (xs, pivot)
   } .<n-i>. (
-    pf: array_v (l, ps, n) | pi: ptr (l+i), pind: ptr (l+pind)
-  ): [ys:stmsq] 
+    pf: array_v (a, l, ps, n) | 
+      pi: ptr (l+i*sizeof(a)), pind: ptr (l+pind*sizeof(a))
+  ): [ys:stmsq]
      [p:nat | p < n;
       partitioned (ys, p, n); select (ys, p) == select (xs, pivot)] (
-    array_v (l, ys, n) | int p
+    array_v (a, l, ys, n) | int p
   ) =
     if pi = pn then let
-      val () = array_ptrswap {l}{..}{..}{pind,n-1}(pf | pind, pn)
+      val () = array_ptrswap<a>{l}{..}{..}{pind,n-1}(pf | pind, pn)
     in 
-      (pf | ptr_offset{l}{pind}(pind))
+      (pf | ptr_offset<a>{l}{pind}(pind)
     end
     else let
-      val xi = array_ptrget {l}{..}{..}{i} (pf | pi)
+      val xi = array_ptrget<a> {l}{..}{..}{i} (pf | pi)
     in
       if xi < xn then let
-          val () = array_ptrswap {l}{..}{..}{i, pind}(pf | pi, pind)
+          val () = array_ptrswap<a> {l}{..}{..}{i, pind}(pf | pi, pind)
         in
-          loop {swap_at(ps,i,pind)}{i+1, pind+1} (pf | pi+1, pind+1)
+          loop {swap_at(ps,i,pind)}{i+1, pind+1} (pf | add_ptr_int<a>(pi,1), add_ptr_int<a>(pind, 1))
         end
       else
-        loop {ps} {i+1,pind} (pf | pi+1, pind)
+        loop {ps} {i+1,pind} (pf | add_ptr_int<a>(pi,1), pind)
     end
   //
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
@@ -92,35 +96,36 @@ in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 extern
 fun rand_int {n:nat} (int n): [s:nat | s < n] int s
 
-absprop PARTED (l:addr, xs: stmsq, p:int, n:int)
+absprop PARTED (a:t@ype, l:addr, xs: stmsq, p:int, n:int)
 
 extern
 praxi 
 PARTED_make 
-  {l:addr}
+  {l:addr}{a:t@ype}
   {n,p:nat | p < n}
   {xs:stmsq | partitioned (xs, p, n)}
-(!array_v (l, xs, n), int p): PARTED(l, xs, p, n)
+(!array_v (a, l, xs, n), int p): PARTED(a, l, xs, p, n)
 
 extern
-praxi partitioned_lemma 
-  {l:addr}
+praxi partitioned_lemma
+  {l:addr}{a:t@ype}
   {xs:stmsq} {p,n:nat | p < n}
   {ls,rs:stmsq} (
-  PARTED(l, xs, p, n),
-  !array_v (l, ls, p),
-  !T(select(xs, p)) @ l+p,
-  !array_v (l+p+1, rs, n - p - 1)
+  PARTED(a, l, xs, p, n),
+  !array_v (a, l, ls, p),
+  !T(a, select(xs, p)) @ l+p*sizeof(a),
+  !array_v (a, l+((p+1)*sizeof(a)), rs, n - p - 1)
 ): [
   lte (ls, p, select(xs, p)); lte (select(xs, p), rs, n - p - 1)
 ] void
 
 (* ****** ****** *)
 
-fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
-  pf: array_v (l, xs, n) | p: ptr l, n: int n
+fun {a:t@ype}
+quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
+  pf: array_v (a, l, xs, n) | p: ptr l, n: int n
 ): [ys:stmsq | sorted (ys, n)] (
-  array_v (l, ys, n) | void
+  array_v (a, l, ys, n) | void
 ) =
   if n <= 1 then
     (pf | ())
@@ -133,7 +138,9 @@ fun quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
     prval array_v_cons (pfpiv, right) = right
     //
     val (left  | ()) = quicksort (left | p, pi)
-    val (right | ()) = quicksort (right | (p+pi+1), n - pi - 1)
+    val nxt = add_ptr_int<a> (p, pi)
+    val (right | ()) = quicksort (right | add_ptr_int<a>(nxt, 1), n - pi - 1)
+    
     //
     prval () = partitioned_lemma (parted, left, pfpiv, right)
     //

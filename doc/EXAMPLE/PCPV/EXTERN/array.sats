@@ -37,6 +37,8 @@ fun {a:t@ype} add_ptr_int
   {l:addr}{i:int} (ptr l, int i):<> ptr (l+sizeof(a)*i)
 fun {a:t@ype} sub_ptr_int
   {l:addr}{i:int} (ptr l, int i):<> ptr (l-sizeof(a)*i)
+fun {a:t@ype} succ_ptr_t0ype
+  {l:addr} (ptr l):<> ptr (l+sizeof(a))
 //
 overload + with add_ptr_int
 overload - with sub_ptr_int
@@ -53,8 +55,8 @@ ptr_get0{l:addr}{x:stamp}
   (pf: !INV(T(a,x)) @ l | p: ptr l):<> T(a,x)
 // end of [ptr_get0]
 
-fun ptr_offset 
-  {l:addr}{i:nat} (ptr (l+i)):<> int (i)
+fun {a:t@ype} ptr_offset 
+  {l:addr}{i:nat} (ptr (l+i*sizeof(a))):<> int (i)
 
 (* ****** ****** *)
 
@@ -99,8 +101,8 @@ array_v_unsplit
 
 (* ****** ****** *)
 
-fun array_ptrget
-  {a:t@ype}{l:addr}{xs:stmsq}
+fun {a:t@ype} array_ptrget
+  {l:addr}{xs:stmsq}
   {n:int}{i:nat | i < n}
   (pf: !array_v(a, l, xs, n) | p: ptr(l+i*sizeof(a))) : T(a, select(xs, i))
 // end of [array_ptrget]
@@ -131,12 +133,12 @@ fun {a:t@ype} array_set_at
 //
 (* ****** ****** *)
 
-fun array_ptrswap
-  {a:t@ype}{l:addr}
+fun{a:t@ype} array_ptrswap
+  {l:addr}
   {xs:stmsq}
   {n:int}{i,j:nat | i < n; j < n}
 (
-  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | p1: ptr(l+sizeof(a)*i), p2: ptr(l+sizeof(a)*j)
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a))
 ) : void // end of [array_ptrswap]
 
 (* ****** ****** *)

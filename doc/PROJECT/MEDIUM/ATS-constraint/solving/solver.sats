@@ -1,4 +1,4 @@
-(*
+(**
   A generic wrapper around an SMT solver for solving ATS constraints.
 *)
 
@@ -31,6 +31,11 @@ absviewt@ype smtenv_viewtype = @{
     statics= ptr,
     substitutes= ptr
   },
+  (**
+    TODO: Remove these pointers, they add overhead
+    to introducing new sorts into the constraint
+    solver.
+  *)
   sorts= @{
     integer= ptr,
     boolean= ptr,

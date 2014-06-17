@@ -52,13 +52,19 @@ case+ name of
       //
       (** 
          As far as the constraint solver is concerned, there
-         shouldn't be any difference between a non linear and
+         shouldn't be any difference between a non-linear and
          linear unboxed type. 
       *)
       | "t@ype" => S2RTt0ype ()
       // patsopt doesn't seem consistent for flat types.
       | "viewt0ype" => S2RTt0ype ()
       //
+      | "type" => S2RTignored () where {
+        val () = fprintln! (stderr_ref, "type encountered!")
+      }
+      | "viewtype" =>  S2RTignored () where {
+        val () = fprintln! (stderr_ref, "viewtype encountered!")
+      }
       | _ => S2RTignored ()
   end
 | "s2rt_fun" => let
