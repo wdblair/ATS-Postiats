@@ -54,7 +54,6 @@ termination metric to enforce the loop to terminate.
 
 macdef succ1 = ptr1_succ
 
-
 implement {a}
 partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
   val pi = add_ptr_int<a>(p , pivot)
@@ -71,13 +70,13 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       pi: ptr (l+i*sizeof(a)), pind: ptr (l+pind*sizeof(a))
   ): [ys:stmsq]
      [p:nat | p < n;
-      partitioned (ys, p, n); select (ys, p) == select (xs, pivot)] (
+      partitioned(ys, p, n); select (ys, p) == select (xs, pivot)] (
     array_v (a, l, ys, n) | int p
   ) =
-    if pi = pn then let
+    if eq_ptr_int<a>{l}{i,n-1} (pi, pn) then let
       val () = array_ptrswap<a>{l}{..}{..}{pind,n-1}(pf | pind, pn)
     in 
-      (pf | ptr_offset<a>{l}{pind}(pind)
+      (pf | ptr_offset<a>{l}{pind}(pind))
     end
     else let
       val xi = array_ptrget<a> {l}{..}{..}{i} (pf | pi)
@@ -85,12 +84,14 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       if xi < xn then let
           val () = array_ptrswap<a> {l}{..}{..}{i, pind}(pf | pi, pind)
         in
-          loop {swap_at(ps,i,pind)}{i+1, pind+1} (pf | add_ptr_int<a>(pi,1), add_ptr_int<a>(pind, 1))
+          loop {swap_at(ps,i,pind)}{i+1, pind+1} (
+            pf | add_ptr_int<a>(pi,1), add_ptr_int<a>(pind, 1)
+          )
         end
       else
         loop {ps} {i+1,pind} (pf | add_ptr_int<a>(pi,1), pind)
     end
-  //
+  // end of [loop] 
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 
 extern

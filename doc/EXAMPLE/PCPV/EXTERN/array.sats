@@ -42,6 +42,9 @@ fun {a:t@ype} succ_ptr_t0ype
 //
 overload + with add_ptr_int
 overload - with sub_ptr_int
+
+fun {a:t@ype} eq_ptr_int
+  {l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j)
 //
 (* ****** ****** *)
 
