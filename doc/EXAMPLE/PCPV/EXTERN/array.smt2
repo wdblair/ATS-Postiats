@@ -1,4 +1,3 @@
-
 (assert (forall ((A (Array Int Int)) (i Int))
   (=> (< i 0) (= (select A i) 0))))
 
@@ -28,6 +27,6 @@
 
 ;; append
 (assert (forall ((A (Array Int Int)) (B (Array Int Int)) (m Int) (n Int) (i Int))
-  (=> (>= i 0)
-    (= (select (stampseq_append A m B n) i ) 
+  (=> (and (>= i 0) (>= m 0) (>= n 0))
+    (= (select (stampseq_append A m B n) i )
       (ite (< i m) (select A i) (select B (- i m)))))))

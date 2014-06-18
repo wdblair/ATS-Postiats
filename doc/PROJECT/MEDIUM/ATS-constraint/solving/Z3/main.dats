@@ -1,5 +1,5 @@
 (*
-  A constraint solver built on top of the Z3 SMT solver.
+  A constraint solver using Z3.
 *)
 #include
 "share/atspre_define.hats"

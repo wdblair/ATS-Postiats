@@ -50,7 +50,42 @@ end // end of [local]
 
 (* ****** ****** *)
 
-typedef _T(a:t@ype) = [x:stamp] T(a:t@ype, x)
+(**
+
+Z3 Can't solve this one on its own, but
+with an append prop it should be easy.
+
+local
+
+prfun
+lemma
+  {a:t@ype}{l:addr}{xs,ys:stmsq}
+  {m,n:nat} .<m+n>.
+(
+  xs: array_v(a, l, xs, m),
+  ys: array_v(a, l+sizeof(a)*m, ys, n)
+) : (
+  array_v (a, l, append(xs, m, ys, n), m+n)
+) = 
+  case+ xs of
+    | array_v_nil () => ys
+    | array_v_cons (x, xss) => let
+      val tail = array_v_unsplit (xss, ys)
+    in
+      array_v_cons (x, tail)
+    end
+// end of [lemma]
+
+in (* in-of-local *)
+
+primplement
+array_v_unsplit (xs, ys) = lemma (xs, ys)
+
+end // end of [local]
+
+*)
+    
+(* ****** ****** *)
 
 implement {a}
 array_get_at

@@ -1,6 +1,8 @@
 staload "stampseq.sats"
 staload "array.sats"
 
+staload _ = "array.dats"
+
 (*
   Partition an array by a pivot chosen by the user. The static types
   provide the following guarantees:
@@ -20,7 +22,19 @@ partition {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
    [ys: stmsq | partitioned (ys, p, n);
     select(xs, pivot) == select (ys, p)]
   (array_v (a, l, ys, n) | int p)
-  
+
+// assume T(a:t@ype, x: stamp) = a
+
+fun {a:t@ype}
+compare_ptr_ptr {p,q:addr}{x,y:stamp} (
+  pfp: !T(a,x) @ p, pfq: !T(a,y) @ q | p: ptr p, q: ptr q
+): int (sgn(x - y)) = let
+  val x = ptr_get0<a>(pfp | p)
+  val y = ptr_get0<a>(pfq | q)
+in
+  compare (x, y)
+end
+
 (*
 
 We first swap the desired pivot to the last spot in the array. Then we
@@ -77,17 +91,36 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       (pf | ptr_offset<a>{l}{pind}(pind))
     end
     else let
-      val xi = array_ptrget<a> {l}{..}{..}{i} (pf | pi)
+      (**
+        Though the following is fairly verbose, I really
+        like how programming with theorem proving is used
+        here to prove that:
+          -  my pointer arithmetic is correct
+          -  the result accomplishes the goal of the algorithm 
+              (i.e. the array that lies at address l is a partitioned array)
+      *)
+      //
+      prval (front, last) = array_v_split (pf, n-1)
+      prval array_v_cons (pfn , ns) = last
+      prval (pff, pfis) = array_v_split (front, ptr_offset<a>{l}{i}(pi))
+      prval array_v_cons (pfi, pfiss) = pfis
+      //
+      val sgn = compare_ptr_ptr (pfi, pfn | pi, pn)
+      //
+      prval front = array_v_unsplit (pff, array_v_cons(pfi, pfiss))
+      prval last = array_v_cons (pfn, ns)
+      prval () = pf := array_v_unsplit (front, last)
+      //
     in
-      if xi < xn then let
-          val () = array_ptrswap<a> {l}{..}{..}{i, pind}(pf | pi, pind)
+      if sgn < 0 then let
+          val () = array_ptrswap<a>{l}{..}{..}{i, pind}(pf | pi, pind)
         in
           loop {swap_at(ps,i,pind)}{i+1, pind+1} (
-            pf | add_ptr_int<a>(pi,1), add_ptr_int<a>(pind, 1)
+            pf | add_ptr_int<a>(pi,1), succ_ptr_t0ype<a>(pind)
           )
         end
       else
-        loop {ps} {i+1,pind} (pf | add_ptr_int<a>(pi,1), pind)
+        loop {ps} {i+1,pind} (pf | succ_ptr_t0ype<a>(pi), pind)
     end
   // end of [loop]
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
@@ -131,15 +164,14 @@ quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
   else let
     val pivot = rand_int (n)
     val (pf | pi) = partition (pf | p, pivot, n)
-    val parted = Parted_make (pf, pi)
+    prval parted = Parted_make (pf, pi)
     //
     prval (left, right) = array_v_split (pf, pi)
     prval array_v_cons (pfpiv, right) = right
     //
     val (left  | ()) = quicksort (left | p, pi)
     val nxt = add_ptr_int<a> (p, pi)
-    val (right | ()) = quicksort (right | add_ptr_int<a>(nxt, 1), n - pi - 1)
-    
+    val (right | ()) = quicksort (right | succ_ptr_t0ype<a>(nxt), n - pi - 1)
     //
     prval () = partitioned_lemma (parted, left, pfpiv, right)
     //
@@ -147,3 +179,23 @@ quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
   in
     (pf | ())
   end
+  
+(* ****** ****** *)
+  
+(**
+  We can use the templated version above to implement a function
+  in the standard C Library while also verifying its functional 
+  correctness.
+  
+  We make use of local template instantiation
+  in order to support this.
+*)
+
+typedef compare_fn(a:t@ype) = {l1,l2:addr} {x1,x2:stamp}
+  (T(a, x1) @ l1, T(a, x2) @ l2 | ptr (l1), ptr (l2)) -> int (sgn(x1-x2))
+
+extern
+fun libc_qsort {a:t@ype}{l:addr}{xs:stmsq}{n:int} (
+  pf: array_v (a, l, xs, n) | 
+    ptr l, size_t (n), size_t (sizeof(a)), compare_fn (a)
+): void = "#ext"

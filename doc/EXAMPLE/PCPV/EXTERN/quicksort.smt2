@@ -13,9 +13,9 @@
   (=> (> i 0) (= (select (stampseq_cons x A) i) (select A (- i 1))))))
 
 ;; take
-;;(assert (forall ((A (Array Int Int)) (i Int) (j Int))
-;;  (=> (<= 0 j)
-;;    (= (select (stampseq_take A i) j) (ite (< j i) (select A j) 0)))))
+(assert (forall ((A (Array Int Int)) (i Int) (j Int))
+  (=> (<= 0 j)
+    (= (select (stampseq_take A i) j) (ite (< j i) (select A j) 0)))))
 
 ;; drop
 (assert (forall ((A (Array Int Int)) (i Int) (j Int))

@@ -819,5 +819,5 @@ in
       ((Int(0) <= ^i) And (^i < n)) ==>
         (Select (seq, i) <= stmp))
   end
-  
+
 end // end of [local]
