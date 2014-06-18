@@ -17,11 +17,11 @@ staload _ = "array.dats"
 extern
 fun {a:t@ype}
 partition {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
-  array_v (a, l, xs, n) | p: ptr l, int pivot, int n
+  array_v (a, l, xs, n) | p: ptr l, size_t (pivot), size_t (n)
 ): [p:nat | p < n]
    [ys: stmsq | partitioned (ys, p, n);
     select(xs, pivot) == select (ys, p)]
-  (array_v (a, l, ys, n) | int p)
+  (array_v (a, l, ys, n) | size_t (p))
 
 // assume T(a:t@ype, x: stamp) = a
 
@@ -78,12 +78,12 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
     part_right (ps, i, pind, n-1);
     select (ps, n-1) == select (xs, pivot)
   } .<n-i>. (
-    pf: array_v (a, l, ps, n) | 
+    pf: array_v (a, l, ps, n) |
       pi: ptr (l+i*sizeof(a)), pind: ptr (l+pind*sizeof(a))
   ): [ys:stmsq]
      [p:nat | p < n;
       partitioned(ys, p, n); select (ys, p) == select (xs, pivot)] (
-    array_v (a, l, ys, n) | int p
+    array_v (a, l, ys, n) | size_t (p)
   ) =
     if eq_ptr_int<a>{l}{i,n-1} (pi, pn) then let
       val () = array_ptrswap<a>{l}{..}{..}{pind,n-1}(pf | pind, pn)
@@ -95,8 +95,9 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
         Though the following is fairly verbose, I really
         like how programming with theorem proving is used
         here to prove that:
-          -  my pointer arithmetic is correct
-          -  the result accomplishes the goal of the algorithm 
+        
+          -  my pointer arithmetic is safe
+          -  the result accomplishes the goal of the algorithm
               (i.e. the array that lies at address l is a partitioned array)
       *)
       //
@@ -116,7 +117,7 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
           val () = array_ptrswap<a>{l}{..}{..}{i, pind}(pf | pi, pind)
         in
           loop {swap_at(ps,i,pind)}{i+1, pind+1} (
-            pf | add_ptr_int<a>(pi,1), succ_ptr_t0ype<a>(pind)
+            pf | succ_ptr_t0ype<a>(pi), succ_ptr_t0ype<a>(pind)
           )
         end
       else
@@ -126,7 +127,7 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 
 extern
-fun rand_int {n:nat} (int n): [s:nat | s < n] int s
+fun rand_int {n:nat} (size_t (n)): [s:nat | s < n] size_t (s)
 
 absprop Parted (a:t@ype, l:addr, xs: stmsq, p:int, n:int)
 
@@ -136,7 +137,7 @@ Parted_make
   {l:addr}{a:t@ype}
   {n,p:nat | p < n}
   {xs:stmsq | partitioned (xs, p, n)}
-(!array_v (a, l, xs, n), int p): Parted(a, l, xs, p, n)
+(!array_v (a, l, xs, n), size_t (p)): Parted(a, l, xs, p, n)
 
 extern
 praxi partitioned_lemma
@@ -155,7 +156,7 @@ praxi partitioned_lemma
 
 fun {a:t@ype}
 quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
-  pf: array_v (a, l, xs, n) | p: ptr l, n: int n
+  pf: array_v (a, l, xs, n) | p: ptr l, n: size_t (n)
 ): [ys:stmsq | sorted (ys, n)] (
   array_v (a, l, ys, n) | void
 ) =
@@ -196,6 +197,6 @@ typedef compare_fn(a:t@ype) = {l1,l2:addr} {x1,x2:stamp}
 
 extern
 fun libc_qsort {a:t@ype}{l:addr}{xs:stmsq}{n:int} (
-  pf: array_v (a, l, xs, n) | 
+  pf: array_v (a, l, xs, n) |
     ptr l, size_t (n), size_t (sizeof(a)), compare_fn (a)
 ): void = "#ext"

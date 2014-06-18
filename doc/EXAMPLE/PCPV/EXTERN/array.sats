@@ -34,9 +34,9 @@ overload compare with compare_T_T
 (* ****** ****** *)
 //
 fun {a:t@ype} add_ptr_int
-  {l:addr}{i:int} (ptr l, int i):<> ptr (l+sizeof(a)*i)
+  {l:addr}{i:int} (ptr l, size_t (i)):<> ptr (l+sizeof(a)*i)
 fun {a:t@ype} sub_ptr_int
-  {l:addr}{i:int} (ptr l, int i):<> ptr (l-sizeof(a)*i)
+  {l:addr}{i:int} (ptr l, size_t (i)):<> ptr (l-sizeof(a)*i)
 fun {a:t@ype} succ_ptr_t0ype
   {l:addr} (ptr l):<> ptr (l+sizeof(a))
 //
@@ -59,7 +59,7 @@ ptr_get0{l:addr}{x:stamp}
 // end of [ptr_get0]
 
 fun {a:t@ype} ptr_offset 
-  {l:addr}{i:nat} (ptr (l+i*sizeof(a))):<> int (i)
+  {l:addr}{i:nat} (ptr (l+i*sizeof(a))):<> size_t (i)
 
 (* ****** ****** *)
 
@@ -81,7 +81,7 @@ array_v_split
   {a:t@ype}{l:addr}{xs:stmsq}
   {n:int}{i:nat | i <= n}
 (
-  pf: array_v(a, l, xs, n), i: int (i)
+  pf: array_v(a, l, xs, n), i: size_t (i)
 ) : (
   array_v (a, l, take(xs, i), i)
 , array_v (a, l + sizeof(a)*i, drop(xs, i), n-i)
@@ -123,7 +123,7 @@ fun array_ptrset
 fun {a:t@ype} array_get_at
   {l:addr}{xs:stmsq}
   {n:int}{i:nat | i < n}
-  (pf: !array_v(a, l, xs, n) | p: ptr(l), i: int i) : T(a, select(xs, i))
+  (pf: !array_v(a, l, xs, n) | p: ptr(l), i: size_t (i)) : T(a, select(xs, i))
 // end of [array_get_at]
 //
 fun {a:t@ype} array_set_at
@@ -131,7 +131,7 @@ fun {a:t@ype} array_set_at
   {xs:stmsq}{x:stamp}
   {n:int}{i:nat | i < n}
 (
-  pf: !array_v(a, l, xs, n) >> array_v (a, l, update(xs, i, x), n) | p: ptr(l), i: int i, x: T(a, x)
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, update(xs, i, x), n) | p: ptr(l), i: size_t (i), x: T(a, x)
 ) : void // end of [array_set_at]
 //
 (* ****** ****** *)

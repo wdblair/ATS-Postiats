@@ -22,7 +22,7 @@ lemma
   {l:addr}{a:t@ype}{xs:stmsq}
   {n:int}{i:nat | i <= n} .<i>.
 (
-  pf: array_v(a, l, xs, n), i: int (i)
+  pf: array_v(a, l, xs, n), i: size_t (i)
 ) : (
   array_v (a, l, take(xs, i), i)
 , array_v (a, l+sizeof(a)*i, drop(xs, i), n-i)
