@@ -33,18 +33,15 @@ overload compare with compare_T_T
 //
 (* ****** ****** *)
 //
-fun {a:t@ype} add_ptr_int
-  {l:addr}{i:int} (ptr l, size_t (i)):<> ptr (l+sizeof(a)*i)
-fun {a:t@ype} sub_ptr_int
-  {l:addr}{i:int} (ptr l, size_t (i)):<> ptr (l-sizeof(a)*i)
-fun {a:t@ype} succ_ptr_t0ype
-  {l:addr} (ptr l):<> ptr (l+sizeof(a))
+fun {} add_ptr_int
+  {a:t@ype}{l:addr}{i:int} (ptr l, size_t (i)):<> ptr (l+sizeof(a)*i)
+fun {} succ_ptr_t0ype
+  {a:t@ype} {l:addr} (ptr l):<> ptr (l+sizeof(a))
 //
 overload + with add_ptr_int
-overload - with sub_ptr_int
 
-fun {a:t@ype} eq_ptr_int
-  {l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j)
+fun {} eq_ptr_int
+  {a:t@ype}{l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j)
 //
 (* ****** ****** *)
 
@@ -58,8 +55,8 @@ ptr_get0{l:addr}{x:stamp}
   (pf: !INV(T(a,x)) @ l | p: ptr l):<> T(a,x)
 // end of [ptr_get0]
 
-fun {a:t@ype} ptr_offset 
-  {l:addr}{i:nat} (ptr (l+i*sizeof(a))):<> size_t (i)
+fun {} ptr_offset
+  {a:t@ype}{l:addr}{i:nat} (ptr l, ptr (l+i*sizeof(a))):<> size_t (i)
 
 (* ****** ****** *)
 
@@ -110,8 +107,8 @@ fun {a:t@ype} array_ptrget
   (pf: !array_v(a, l, xs, n) | p: ptr(l+i*sizeof(a))) : T(a, select(xs, i))
 // end of [array_ptrget]
 
-fun array_ptrset
-  {a:t@ype}{l:addr}
+fun {a:t@ype} array_ptrset
+  {l:addr}
   {xs:stmsq}{x:stamp}
   {n:int}{i:nat | i < n}
 (
@@ -136,7 +133,8 @@ fun {a:t@ype} array_set_at
 //
 (* ****** ****** *)
 
-fun{a:t@ype} array_ptrswap
+fun {} array_ptrswap
+  {a:t@ype}
   {l:addr}
   {xs:stmsq}
   {n:int}{i,j:nat | i < n; j < n}
@@ -153,10 +151,10 @@ fun{a:t@ype} array_ptrswap
   worked on, stored in a variable sz. When the user goes to sort
   this list, they just do:
   
-  implement sizeof_t0ype<a>() = sz
+  implement sizeof_t0ype() = sz
 *)
-fun {a:t@ype}
-sizeof_t0ype ():<> size_t (sizeof(a))
+fun {}
+sizeof_t0ype {a:t@ype} ():<> size_t (sizeof(a))
 
 (* ****** ****** *)
 

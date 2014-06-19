@@ -15,19 +15,45 @@ staload "./stampseq.sats"
 
 implement {a} ptr_get0 (pf | p) = !p
 
+implement {} add_ptr_int{a}{l}{i} (p, i) =
+  add_ptr_bsz (p, sizeof_t0ype{a}() * i)
+
+implement {} succ_ptr_t0ype{a} (p) =
+  add_ptr_bsz (p, sizeof_t0ype{a}())
+
+extern
+fun sub_ptr_ptr {p,q:addr} (ptr p, ptr q):<> size_t (p - q)
+
 (**
-  By default, just use the sizeof function
-  given by ATS.
+  TODO: Incorporate this lemma to the SMT solver, this is true for all
+  types.
 *)
-implement {a} sizeof_t0ype () = sizeof<a>
+extern
+praxi sizeof_lemma {a:t@ype}(): [sizeof(a) > 0] void
 
-implement {a} add_ptr_int {l}{i} (p, i) =
-  add_ptr_bsz (p, sizeof_t0ype<a>() * i)
+(**
+Z3 can't decide this one interestingly enough...
 
-implement {a} succ_ptr_t0ype (p) =
-  add_ptr_bsz (p, sizeof_t0ype<a>())
+extern
+fun div_size_size {n,p:nat} (size_t n, size_t p):<> size_t (n/p)
+
+implement {} ptr_offset {a}{l}{i} (p, pi) = let
+  prval () = sizeof_lemma {a}()
+  val offs = sub_ptr_ptr{l+sizeof(a)*i,l}(pi, p)
+in
+  div_size_size (offs, sizeof_t0ype{a}())
+end
+*)
 
 
+extern
+fun offset_size {a:t@ype}{l:addr}{i:nat} (
+  ptr l, ptr (l+sizeof(a)*i), size_t (sizeof(a))
+):<> size_t i = "mac#"
+
+implement {} ptr_offset {a}{l}{i} (p, pi) =   
+  offset_size{a} (p, pi, sizeof_t0ype{a}())
+ 
 local
 
 prfun
@@ -65,8 +91,8 @@ end // end of [local]
 
 (**
 
-Z3 Can't solve this one on its own, but
-with an append prop it should be easy.
+Z3 can't solve this one which is strange considering
+both the list an livt_vt functions are appended fine.
 
 local
 
@@ -97,7 +123,7 @@ array_v_unsplit (xs, ys) = lemma (xs, ys)
 end // end of [local]
 
 *)
-    
+
 (* ****** ****** *)
 
 implement {a}
@@ -108,7 +134,7 @@ array_get_at
 prval (pf1, pf2) = array_v_split (pf, i)
 prval array_v_cons (pf21, pf22) = pf2
 //
-val pi = add_ptr_int<a> (p, i)
+val pi = add_ptr_int<>{a} (p, i)
 val x = ptr_get0<a> (pf21 | pi)
 //
 prval ((*void*)) =

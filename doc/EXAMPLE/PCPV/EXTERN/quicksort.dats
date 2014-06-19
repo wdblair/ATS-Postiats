@@ -1,7 +1,21 @@
 staload "stampseq.sats"
 staload "array.sats"
 
+staload _ = "prelude/DATS/integer.dats"
 staload _ = "array.dats"
+
+#define DYNLOAD_FLAG 0
+#define STALOAD_FLAG 0
+
+%{^
+/**
+   TODO: put this in a CATS file.
+ */
+inline size_t offset_size (void *base, void *p, size_t sz) {
+    size_t offs = (size_t)(p - base);
+    return offs / sz;
+};
+%}
 
 (**
   Of course, this code is a bit messy right with function
@@ -21,8 +35,8 @@ staload _ = "array.dats"
   the original array, but this example is verbose enough :D
 *)
 extern
-fun {a:t@ype}
-partition {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
+fun {}
+partition{a:t@ype} {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
   array_v (a, l, xs, n) | p: ptr l, size_t (pivot), size_t (n)
 ): [p:nat | p < n]
    [ys: stmsq | partitioned (ys, p, n);
@@ -31,15 +45,20 @@ partition {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
 
 // assume T(a:t@ype, x: stamp) = a
 
-fun {a:t@ype}
-compare_ptr_ptr {p,q:addr}{x,y:stamp} (
+extern
+fun {}
+compare_ptr_ptr {a:t@ype} {p,q:addr}{x,y:stamp} (
   pfp: !T(a,x) @ p, pfq: !T(a,y) @ q | p: ptr p, q: ptr q
-): int (sgn(x - y)) = let
+): int (sgn(x - y))
+
+(**
+implement {a} compare_ptr_ptr (pfp, pfq | p, q) = let
   val x = ptr_get0<a>(pfp | p)
   val y = ptr_get0<a>(pfq | q)
 in
   compare (x, y)
 end
+*)
 
 (*
 
@@ -72,12 +91,11 @@ termination metric to enforce the loop to terminate.
 
 *)
 
-implement {a}
-partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
-  val pi = add_ptr_int<a>(p , pivot)
-  val pn = add_ptr_int<a>(p , (n - 1))
-  val () = array_ptrswap<a> {l}{..}{..}{pivot, n-1} (pf | pi, pn)
-  val xn = array_ptrget<a> {l}{..}{..}{n-1} (pf | pn)
+implement{}
+partition {a}{l}{xs}{pivot,n} (pf | p, pivot, n) = let
+  val pi = add_ptr_int{a}(p, pivot)
+  val pn = add_ptr_int{a}(p, (n - 1))
+  val () = array_ptrswap{a}{l}{..}{..}{pivot, n-1} (pf | pi, pn)
   //
   fun loop {ps:stmsq} {i, pind: nat | pind <= i; i <= n-1 |
     part_left (ps, pind, n-1);
@@ -91,10 +109,10 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       partitioned(ys, p, n); select (ys, p) == select (xs, pivot)] (
     array_v (a, l, ys, n) | size_t (p)
   ) =
-    if eq_ptr_int<a>{l}{i,n-1} (pi, pn) then let
-      val () = array_ptrswap<a>{l}{..}{..}{pind,n-1}(pf | pind, pn)
+    if eq_ptr_int{a}{l}{i,n-1} (pi, pn) then let
+      val () = array_ptrswap{a}{l}{..}{..}{pind,n-1}(pf | pind, pn)
     in 
-      (pf | ptr_offset<a>{l}{pind}(pind))
+      (pf | ptr_offset{a}{l}{pind}(p, pind))
     end
     else let
       (**
@@ -114,7 +132,7 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       //
       prval (front, last) = array_v_split (pf, n-1)
       prval array_v_cons (pfn , ns) = last
-      prval (pff, pfis) = array_v_split (front, ptr_offset<a>{l}{i}(pi))
+      prval (pff, pfis) = array_v_split (front, ptr_offset{a}{l}{i}(p,pi))
       prval array_v_cons (pfi, pfiss) = pfis
       //
       val sgn = compare_ptr_ptr (pfi, pfn | pi, pn)
@@ -125,14 +143,14 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       //
     in
       if sgn < 0 then let
-          val () = array_ptrswap<a>{l}{..}{..}{i, pind}(pf | pi, pind)
+          val () = array_ptrswap{a}{l}{..}{..}{i, pind}(pf | pi, pind)
         in
           loop {swap_at(ps,i,pind)}{i+1, pind+1} (
-            pf | succ_ptr_t0ype<a>(pi), succ_ptr_t0ype<a>(pind)
+            pf | succ_ptr_t0ype{a}(pi), succ_ptr_t0ype{a}(pind)
           )
         end
       else
-        loop {ps} {i+1,pind} (pf | succ_ptr_t0ype<a>(pi), pind)
+        loop {ps} {i+1,pind} (pf | succ_ptr_t0ype{a}(pi), pind)
     end
   // end of [loop]
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
@@ -165,8 +183,8 @@ praxi partitioned_lemma
 
 (* ****** ****** *)
 
-fun {a:t@ype}
-quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
+fun {}
+quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
   pf: array_v (a, l, xs, n) | p: ptr l, n: size_t (n)
 ): [ys:stmsq | sorted (ys, n)] (
   array_v (a, l, ys, n) | void
@@ -182,8 +200,8 @@ quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
     prval array_v_cons (pfpiv, right) = right
     //
     val (left  | ()) = quicksort (left | p, pi)
-    val nxt = add_ptr_int<a> (p, pi)
-    val (right | ()) = quicksort (right | succ_ptr_t0ype<a>(nxt), n - pi - 1)
+    val nxt = add_ptr_int{a}(p, pi)
+    val (right | ()) = quicksort (right | succ_ptr_t0ype{a}(nxt), n - pi - 1)
     //
     prval () = partitioned_lemma (parted, left, pfpiv, right)
     //
@@ -204,10 +222,44 @@ quicksort {l:addr} {xs:stmsq} {n:nat} .<n>. (
 *)
 
 typedef compare_fn(a:t@ype) = {l1,l2:addr} {x1,x2:stamp}
-  (T(a, x1) @ l1, T(a, x2) @ l2 | ptr (l1), ptr (l2)) -> int (sgn(x1-x2))
+  (!T(a, x1) @ l1, !T(a, x2) @ l2 | ptr (l1), ptr (l2)) -> int (sgn(x1-x2))
 
 extern
-fun libc_qsort {a:t@ype}{l:addr}{xs:stmsq}{n:int} (
+fun libc_qsort {a:t@ype} {l:addr}{xs:stmsq}{n:nat} (
   pf: array_v (a, l, xs, n) |
     ptr l, size_t (n), size_t (sizeof(a)), compare_fn (a)
-): void = "#ext"
+): [ys:stmsq | sorted (ys, n)] (
+  array_v (a, l, ys, n) | void
+) = "ext#"
+
+local
+
+  (**
+    These are a couple of "unsafe" features we use to make
+    quicksort available.
+  *)
+
+  extern
+  praxi lemma {a,b:t@ype} (): [sizeof(a) == sizeof(b)] void
+
+  extern
+  castfn bless_cmp {a,b:t@ype} (compare_fn(a)): compare_fn(b)
+
+  in
+
+  implement libc_qsort {a} (pf | p, n, sz, cmp) = let
+    implement sizeof_t0ype<>{b} () = let
+      prval () = lemma{a,b} ()
+    in
+      sz
+    end
+    implement compare_ptr_ptr<> {b} (pfx, pfy | px, py) = let
+      val cmp0 = bless_cmp{a,b} (cmp)
+    in
+      cmp0 (pfx, pfy | px, py)
+    end
+  in
+    quicksort (pf | p, n)
+  end
+
+end

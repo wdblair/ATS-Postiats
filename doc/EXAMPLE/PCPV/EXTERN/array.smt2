@@ -30,3 +30,4 @@
   (=> (and (>= i 0) (>= m 0) (>= n 0))
     (= (select (stampseq_append A m B n) i )
       (ite (< i m) (select A i) (select B (- i m)))))))
+    

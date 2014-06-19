@@ -47,9 +47,9 @@ build:: quicksort_build
 
 quicksort_build: quicksort.dats quicksort.smt2 quicksort
 	sed 's/\/\/ assume/assume/g' $< | $(PATSOPT) --constraint-ignore -o quicksort_dats.c -d
-	$(CC) -std=c99 -D_XOPEN_SOURCE -DATS_MEMALLOC_LIBC \
+	$(CC) -c -std=c99 -D_XOPEN_SOURCE -DATS_MEMALLOC_LIBC \
 	-I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
-	-I $(PATSHOME) quicksort_dats.c -o $@
+	-I $(PATSHOME) quicksort_dats.c -o quicksort.o
 
 cleanall::
 	rm -f list_insort
