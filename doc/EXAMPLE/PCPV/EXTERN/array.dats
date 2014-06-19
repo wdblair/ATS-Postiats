@@ -15,6 +15,19 @@ staload "./stampseq.sats"
 
 implement {a} ptr_get0 (pf | p) = !p
 
+(**
+  By default, just use the sizeof function
+  given by ATS.
+*)
+implement {a} sizeof_t0ype () = sizeof<a>
+
+implement {a} add_ptr_int {l}{i} (p, i) =
+  add_ptr_bsz (p, sizeof_t0ype<a>() * i)
+
+implement {a} succ_ptr_t0ype (p) =
+  add_ptr_bsz (p, sizeof_t0ype<a>())
+
+
 local
 
 prfun

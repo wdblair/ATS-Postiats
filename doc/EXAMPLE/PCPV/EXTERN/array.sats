@@ -144,6 +144,20 @@ fun{a:t@ype} array_ptrswap
   pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a))
 ) : void // end of [array_ptrswap]
 
+(**
+  I'm adding this because the size of a type
+  could be provided in some places as an automatic variable like
+  in the libc qsort function.
+  
+  For example, suppose a function takes the size of the type to be
+  worked on, stored in a variable sz. When the user goes to sort
+  this list, they just do:
+  
+  implement sizeof_t0ype<a>() = sz
+*)
+fun {a:t@ype}
+sizeof_t0ype ():<> size_t (sizeof(a))
+
 (* ****** ****** *)
 
 (* end of [array.sats] *)

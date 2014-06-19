@@ -3,6 +3,12 @@ staload "array.sats"
 
 staload _ = "array.dats"
 
+(**
+  Of course, this code is a bit messy right with function
+  names that don't seem very easy to use. Once I get it running,
+  I'll clean it up a bit.
+*)
+
 (*
   Partition an array by a pivot chosen by the user. The static types
   provide the following guarantees:
@@ -94,11 +100,16 @@ partition {l}{xs}{pivot,n} (pf | p, pivot, n) = let
       (**
         Though the following is fairly verbose, I really
         like how programming with theorem proving is used
-        here to prove that:
+        here in order to prove that:
         
           -  my pointer arithmetic is safe
           -  the result accomplishes the goal of the algorithm
               (i.e. the array that lies at address l is a partitioned array)
+       
+        I really want to show C programmers that this style of programming
+        isn't reserved only for ATS. Hopefully, I can provide some kind of
+        theorem proving interface in C in order to show folks how easy this
+        can be.
       *)
       //
       prval (front, last) = array_v_split (pf, n-1)
