@@ -53,7 +53,7 @@ fun offset_size {a:t@ype}{l:addr}{i:nat} (
 
 implement {} ptr_offset {a}{l}{i} (p, pi) =   
   offset_size{a} (p, pi, sizeof_t0ype{a}())
- 
+  
 local
 
 prfun

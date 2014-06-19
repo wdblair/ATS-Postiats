@@ -40,8 +40,13 @@ fun {} succ_ptr_t0ype
 //
 overload + with add_ptr_int
 
-fun {} eq_ptr_int
-  {a:t@ype}{l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j)
+fun eq_ptr_int
+  {a:t@ype}{l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j) = "mac#"
+  
+%{#
+#define eq_ptr_int (p, q) (p == q)
+%}
+
 //
 (* ****** ****** *)
 

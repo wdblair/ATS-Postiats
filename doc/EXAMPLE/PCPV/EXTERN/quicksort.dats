@@ -261,5 +261,4 @@ local
   in
     quicksort (pf | p, n)
   end
-
 end
