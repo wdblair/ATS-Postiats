@@ -19,7 +19,7 @@ int cmp_int (const void *x, const void *y) {
 
 int main () {
   
-  int buf[10] = {10, 9 , 8 , 7, 6, 5 ,4 , 3, 2, 1};
+  int buf[10] = {10, 9 , 8 , 7, 6, 5 , 4, 3, 2, 1};
   
   libc_qsort (buf, 10, sizeof(int), cmp_int);
   

@@ -75,7 +75,7 @@ array_v
   (a:t@ype, addr, stmsq, int) =
   | {l:addr}
     array_v_nil (a, l, nil, 0) of ()
-  | {l:addr}{xs:stmsq}{x:stamp}{n:int}
+  | {l:addr}{xs:stmsq}{x:stamp}{n:nat}
     array_v_cons (a, l, cons (x, xs), n+1) of (
       T(a, x) @ l, array_v (a, l+sizeof(a), xs, n)
     )
@@ -100,7 +100,7 @@ prfun
 array_v_unsplit
   {a:t@ype}{l:addr}
   {xs1,xs2:stmsq}
-  {n1,n2:int}
+  {n1,n2:nat}
 (
   pf1: array_v(a, l, xs1, n1)
 , pf2: array_v(a, l+sizeof(a)*n1, xs2, n2)

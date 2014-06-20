@@ -84,17 +84,12 @@ end // end of [local]
 
 (* ****** ****** *)
 
-(**
-
-Z3 can't solve this one which is strange considering
-both the list an livt_vt functions are appended fine.
-
 local
 
 prfun
 lemma
   {a:t@ype}{l:addr}{xs,ys:stmsq}
-  {m,n:nat} .<m+n>.
+  {m,n:nat} .<m>.
 (
   xs: array_v(a, l, xs, m),
   ys: array_v(a, l+sizeof(a)*m, ys, n)
@@ -116,8 +111,6 @@ primplement
 array_v_unsplit (xs, ys) = lemma (xs, ys)
 
 end // end of [local]
-
-*)
 
 (* ****** ****** *)
 
