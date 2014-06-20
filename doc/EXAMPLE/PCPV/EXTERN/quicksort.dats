@@ -129,6 +129,12 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
         Perm (xs, ps, n), !array_v (a, l, ps, n), size_t (p)
       ): Parted (a, l, xs, ps, p, n)
 
+    (**
+      I'm cheating a bit here in saying the appending of the two
+      arrays yields a permutation, a pre condition needs to be
+      given saying that ls,rs are permutations of sub arrays of
+      xs.
+    *)
     extern
     praxi partitioned_lemma
       {l:addr}{a:t@ype}
