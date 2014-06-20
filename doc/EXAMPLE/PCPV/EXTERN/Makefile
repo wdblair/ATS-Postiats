@@ -51,13 +51,23 @@ quicksort_build: quicksort.dats quicksort.smt2 quicksort
 	-I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
 	-I $(PATSHOME) quicksort_dats.c -o quicksort.o
 
+#Don't require to type-check for the demo.
+quicksort_build_demo: quicksort.dats
+	$(PATSOPT) --constraint-ignore -o quicksort_dats.c -d $<
+	$(CC) -O2 -c -std=c99 -D_XOPEN_SOURCE -DATS_MEMALLOC_LIBC \
+	-I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
+	-I $(PATSHOME) quicksort_dats.c -o quicksort.o
+
 build:: qsort
 
 qsort: quicksort_build main.c
 	gcc -D_XOPEN_SOURCE -std=c99 main.c quicksort.o -o $@
 
+qsort-demo: quicksort_build_demo main.c
+	gcc -D_XOPEN_SOURCE -std=c99 main.c quicksort.o -o $@	
+
 cleanall::
-	rm -f list_insort qsort *.o *_dats.c
+	rm -f list_insort qsort qsort-demo *.o *_dats.c
 
 test :: quicksort
 

@@ -65,10 +65,12 @@ macdef split = array_v_split
 macdef unsplit = array_v_unsplit
 #define :: array_v_cons
 
+(* ****** ****** *)
+
 fun {}
 quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
   pf: array_v (a, l, xs, n) | p: ptr l, n: size_t (n)
-): [ys:stmsq | sorted (ys, n)] (
+): [ys:stmsq | sorted (ys, n); permutation (xs, ys, n)] (
   array_v (a, l, ys, n) | void
 ) =
   if n <= 1 then
@@ -80,8 +82,8 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
     //
     val pivot = rand_int (n)
     //
-    val (pf | i) = partition (pf | p, pivot, n)
-    prval parted = Parted_make (pf, i)
+    val (perm, pf | i) = partition (pf | p, pivot, n)
+    prval parted = Parted_make (perm, pf, i)
     //
     prval (ls, rs) = split (pf, i)
     prval pfr :: rss = rs
@@ -94,31 +96,51 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
     prval (pfs) = unsplit (sls, pfr :: srs)
   in
     (pfs | ())
-  end 
+  end
   //
   where {
 
-    absprop Parted (a:t@ype, l:addr, xs: stmsq, p:int, n:int)
+    absprop Perm (xs: stmsq, ys: stmsq, n:int) // ys is a permutation of xs
+
+    extern
+    praxi Perm_sing {a:t@ype}{l:addr}{xs:stmsq}{n:nat} (
+      !array_v(a, l, xs, n)
+    ): Perm(xs, xs, n)
+
+    extern
+    praxi Perm_cons {a:t@ype}{l:addr}{n:nat}{i,j:nat | i < n; j < n}
+      {xs,ys:stmsq} (
+      Perm (xs, ys, n), !array_v(a, l, swap_at(ys, i, j), n) | size_t (n)
+    ): Perm (xs, swap_at(ys, i, j), n)
+
+    extern
+    praxi Perm_elim {xs,ys:stmsq} {n:nat} (
+      Perm(xs, ys, n) | size_t n
+    ): [permutation(xs,ys,n)] void
+
+    absprop Parted (a:t@ype, l:addr, xs: stmsq, ps: stmsq, p:int, n:int)
 
     extern
     praxi 
     Parted_make 
       {l:addr}{a:t@ype}
       {n,p:nat | p < n}
-      {xs:stmsq | partitioned (xs, p, n)}
-    (!array_v (a, l, xs, n), size_t (p)): Parted(a, l, xs, p, n)
+      {xs, ps:stmsq | partitioned (ps, p, n)} (
+        Perm (xs, ps, n), !array_v (a, l, ps, n), size_t (p)
+      ): Parted (a, l, xs, ps, p, n)
 
     extern
     praxi partitioned_lemma
       {l:addr}{a:t@ype}
-      {xs:stmsq} {p,n:nat | p < n}
+      {xs,ps:stmsq} {p,n:nat | p < n}
       {ls,rs:stmsq} (
-      Parted(a, l, xs, p, n),
+      Parted(a, l, xs, ps, p, n),
       !array_v (a, l, ls, p),
-      !T(a, select(xs, p)) @ l+p*sizeof(a),
+      !T(a, select(ps, p)) @ l+p*sizeof(a),
       !array_v (a, l+((p+1)*sizeof(a)), rs, n - p - 1)
     ): [
-      lte (ls, p, select(xs, p)); lte (select(xs, p), rs, n - p - 1)
+      lte (ls, p, select(ps, p)); lte (select(ps, p), rs, n - p - 1);
+      permutation(xs, append(ls, p, cons(select(ps,p), rs), n-p), n)
     ] void
 
     (**
@@ -164,19 +186,22 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
     
     fun {}
     partition{a:t@ype} {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
-      pf: array_v (a, l, xs, n) | p: ptr l, pivot: size_t (pivot), 
+      pf: array_v (a, l, xs, n) | p: ptr l, pivot: size_t (pivot),
                                   n: size_t (n)
     ): [p:nat | p < n]
-       [ys: stmsq | partitioned (ys, p, n); 
+       [ys: stmsq | partitioned (ys, p, n);
                     select(xs, pivot) == select (ys, p)] (
-        array_v (a, l, ys, n) | size_t (p)
+        Perm(xs, ys, n), array_v (a, l, ys, n) | size_t (p)
     ) = let
       //
       macdef + (p, i) = add_ptr_int{a}(,(p), ,(i))
       macdef succ (p) = succ_ptr_t0ype{a}(,(p))
       //
+      prval perm = Perm_sing (pf)
+      //
       val pi = p + pivot
       val pn = p + (n-1)
+      //
       val () = swap{a}{l}{n}{pivot, n-1} (pf | pi, pn)
       //
       fun loop {ps:stmsq} {i, pind: nat | pind <= i; i <= n-1 |
@@ -184,17 +209,18 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
         part_right (ps, i, pind, n-1);
         select (ps, n-1) == select (xs, pivot)
       } .<n-i>. (
-        pf: array_v (a, l, ps, n) |
+        perm: Perm(xs, ps, n), pf: array_v (a, l, ps, n) |
           pi: ptr (l+i*sizeof(a)), pind: ptr (l+pind*sizeof(a))
       ): [ys:stmsq]
          [p:nat | p < n;
           partitioned(ys, p, n); select (ys, p) == select (xs, pivot)] (
-        array_v (a, l, ys, n) | size_t (p)
+        Perm(xs, ys, n), array_v (a, l, ys, n) | size_t (p)
       ) =
         if eq {a}{l}{i, n-1} (pi, pn) then let
-          val () = swap{a}{l}{n}{pind, n-1}(pf | pind, pn)
+          val () = swap{a}{l}{n}{pind, n-1} (pf | pind, pn)
+          prval perm = Perm_cons{a}{l}{n}{pind, n-1} (perm, pf | n)
         in 
-          (pf | offset{a}{l}{pind}(p, pind))
+          (perm, pf | offset{a}{l}{pind}(p, pind))
         end
         else let
           //
@@ -212,17 +238,19 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
         in
           if sgn < 0 then let
               val () = swap{a}{l}{n}{i, pind} (pf | pi, pind)
+              prval perm = Perm_cons {a}{l}{n}{i,pind}(perm, pf | n)
             in
               loop {swap_at(ps,i,pind)}{i+1, pind+1} (
-                pf | succ (pi), succ (pind)
+                perm, pf | succ (pi), succ (pind)
               )
             end
           else
-            loop {ps} {i+1,pind} (pf | succ (pi), pind)
+            loop {ps} {i+1,pind} (perm, pf | succ (pi), pind)
         end
       // end of [loop]
+      prval perm = Perm_cons{a}{l}{n}{pivot, n-1} (perm, pf | n)
     in 
-      loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p)
+      loop {swap_at(xs,pivot,n-1)} {0,0} (perm, pf | p, p)
     end // end of [partition]
     
   } // end of [quicksort]
@@ -231,7 +259,7 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
   
 (**
   We can use the verified templated version above to implement the
-  qsort function in the C library and mkae it available to C programs.
+  qsort function in the C library and make it available to C programs.
   
   We make use of local template instantiation in order to support this.
 *)
@@ -239,7 +267,7 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
 typedef compare_fn(a:t@ype) = {l1,l2:addr} {x1,x2:stamp} (
   !T(a, x1) @ l1, !T(a, x2) @ l2 | 
     ptr (l1), ptr (l2)) -> int (sgn(x1-x2))
-  
+    
 extern
 fun libc_qsort {a:t@ype} {l:addr}{xs:stmsq}{n:nat} (
   pf: array_v (a, l, xs, n) |

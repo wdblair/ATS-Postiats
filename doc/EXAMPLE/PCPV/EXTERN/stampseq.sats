@@ -115,6 +115,11 @@ stadef sorted = stampseq_sorted
 
 (* ****** ****** *)
 
+stacst stampseq_permutation : (stampseq, stampseq, int) -> bool
+stadef permutation = stampseq_permutation
+
+(* ****** ****** *)
+
 stacst stampseq_partitioned : (stampseq, int, int, int) -> bool
 stadef partitioned 
   (xs:stampseq, p: int, n:int) =  stampseq_partitioned (xs, 0, p, n-1)

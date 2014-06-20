@@ -28,3 +28,8 @@
   (=> (>= i 0)
     (= (select (stampseq_append A m B n) i ) 
       (ite (< i m) (select A i) (select B (- i m)))))))
+
+;; permutation
+(assert (forall ((A (Array Int Int)) (n Int))
+  (= (stampseq_permutation A A n) true)
+  ))
