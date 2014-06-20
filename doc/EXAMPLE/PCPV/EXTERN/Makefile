@@ -51,8 +51,13 @@ quicksort_build: quicksort.dats quicksort.smt2 quicksort
 	-I $(PATSHOME) -I $(PATSHOME)/ccomp/runtime \
 	-I $(PATSHOME) quicksort_dats.c -o quicksort.o
 
+build:: qsort
+
+qsort: quicksort_build main.c
+	gcc -D_XOPEN_SOURCE -std=c99 main.c quicksort.o -o $@
+
 cleanall::
-	rm -f list_insort
+	rm -f list_insort qsort *.o *_dats.c
 
 test :: quicksort
 

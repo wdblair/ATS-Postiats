@@ -53,7 +53,19 @@ fun offset_size {a:t@ype}{l:addr}{i:nat} (
 
 implement {} ptr_offset {a}{l}{i} (p, pi) =   
   offset_size{a} (p, pi, sizeof_t0ype{a}())
-  
+
+extern
+fun array_ptrswap_size {a:t@ype}
+  {l:addr}
+  {xs:stmsq}
+  {n:int}{i,j:nat | i < n; j < n} (
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | 
+    p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a)), sz: size_t (sizeof(a))
+): void = "mac#"
+
+implement {} array_ptrswap {a}{l}{xs}{n}{i,j} (pf | p, q) = 
+  array_ptrswap_size {a}{l}{xs}{n}{i,j} (pf | p, q, sizeof_t0ype{a}())
+
 local
 
 prfun

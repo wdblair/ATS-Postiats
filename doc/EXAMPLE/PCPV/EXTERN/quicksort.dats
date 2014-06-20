@@ -4,17 +4,28 @@ staload "array.sats"
 staload _ = "prelude/DATS/integer.dats"
 staload _ = "array.dats"
 
-#define DYNLOAD_FLAG 0
-#define STALOAD_FLAG 0
+#define ATS_DYNLOADFLAG 0
+#define ATS_STALOADFLAG 0
 
 %{^
 /**
    TODO: put this in a CATS file.
  */
-inline size_t offset_size (void *base, void *p, size_t sz) {
+size_t offset_size (void *base, void *p, size_t sz) {
     size_t offs = (size_t)(p - base);
     return offs / sz;
 };
+
+void array_ptrswap_size (void *p, void *q, size_t sz) {
+  char tmp;
+  for (size_t i = 0; i < sz; i++) {
+    tmp = *(char*)q;
+    *(char*)q++ = *(char*)p;
+    *(char*)p++ = tmp;
+  }
+
+  return;
+}
 %}
 
 (**
@@ -156,7 +167,16 @@ partition {a}{l}{xs}{pivot,n} (pf | p, pivot, n) = let
 in loop {swap_at(xs,pivot,n-1)} {0,0} (pf | p, p) end
 
 extern
-fun rand_int {n:nat} (size_t (n)): [s:nat | s < n] size_t (s)
+fun rand_int {n:nat} (
+  size_t (n)
+): [s:nat | s < n] size_t (s) = "mac#"
+
+%{^
+size_t rand_int (size_t n) {
+
+  return (size_t) (rand() % (unsigned int)n);
+}
+%}
 
 absprop Parted (a:t@ype, l:addr, xs: stmsq, p:int, n:int)
 
