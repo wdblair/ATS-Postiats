@@ -25,6 +25,7 @@ int main () {
   
   for (int i = 0; i < 9; i++) {
     assert(buf[i] < buf[i+1]);
+    assert(buf[i] == buf[i+1] - 1);
   }
 
   printf("Sorting test passed!\n");
