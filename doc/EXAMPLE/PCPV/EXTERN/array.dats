@@ -29,22 +29,7 @@ fun sub_ptr_ptr {p,q:addr} (ptr p, ptr q):<> size_t (p - q)
   types.
 *)
 extern
-praxi sizeof_lemma {a:t@ype}(): [sizeof(a) > 0] void
-
-(**
-Z3 can't decide this one interestingly enough...
-
-extern
-fun div_size_size {n,p:nat} (size_t n, size_t p):<> size_t (n/p)
-
-implement {} ptr_offset {a}{l}{i} (p, pi) = let
-  prval () = sizeof_lemma {a}()
-  val offs = sub_ptr_ptr{l+sizeof(a)*i,l}(pi, p)
-in
-  div_size_size (offs, sizeof_t0ype{a}())
-end
-*)
-
+praxi sizeof_lemma_gtz {a:t@ype}(): [sizeof(a) > 0] void
 
 extern
 fun offset_size {a:t@ype}{l:addr}{i:nat} (
@@ -55,16 +40,14 @@ implement {} ptr_offset {a}{l}{i} (p, pi) =
   offset_size{a} (p, pi, sizeof_t0ype{a}())
 
 extern
-fun array_ptrswap_size {a:t@ype}
-  {l:addr}
-  {xs:stmsq}
-  {n:int}{i,j:nat | i < n; j < n} (
-  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | 
+fun array_ptrswap_size {a:t@ype} {l:addr}
+  {n:int} {i,j:nat | i < n; j < n} {xs:stmsq} (
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) |
     p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a)), sz: size_t (sizeof(a))
 ): void = "mac#"
 
-implement {} array_ptrswap {a}{l}{xs}{n}{i,j} (pf | p, q) = 
-  array_ptrswap_size {a}{l}{xs}{n}{i,j} (pf | p, q, sizeof_t0ype{a}())
+implement {} array_ptrswap {a}{l}{n}{i,j}{xs} (pf | p, q) = 
+  array_ptrswap_size {a}{l}{n}{i,j}{xs} (pf | p, q, sizeof_t0ype{a}())
 
 local
 

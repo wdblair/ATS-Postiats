@@ -1,5 +1,5 @@
 /**
-   This is quicksort copied from quicksort.dats.
+   This is quicksort copied from an older version of quicksort.dats.
 
    The idea  here is  to show  that it's  fairly easy  to just  copy a
    solution from one language to another. Arriving at this program (or

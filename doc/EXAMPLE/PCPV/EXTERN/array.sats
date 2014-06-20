@@ -40,11 +40,16 @@ fun {} succ_ptr_t0ype
 //
 overload + with add_ptr_int
 
-fun eq_ptr_int
+fun eq_ptr_ptr
   {a:t@ype}{l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j) = "mac#"
-  
+
+(**
+  This is me abusing macro syntax...
+*)
+
+
 %{#
-#define eq_ptr_int(p, q) (p == q)
+#define eq_ptr_ptr(p, q) (p == q)
 %}
 
 //
@@ -141,8 +146,8 @@ fun {a:t@ype} array_set_at
 fun {} array_ptrswap
   {a:t@ype}
   {l:addr}
-  {xs:stmsq}
   {n:int}{i,j:nat | i < n; j < n}
+  {xs:stmsq}
 (
   pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a))
 ) : void // end of [array_ptrswap]
