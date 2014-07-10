@@ -121,7 +121,7 @@ c3nstr_solve_itmlst
 (
   loc0, env, s3is, unsolved, err
 ) = let
-(*
+(**
 val () = begin
   print "c3str_solve_itmlst: s3is = ";
   fprint_s3itmlst (stdout_ref, s3is); print_newline ();
@@ -134,7 +134,6 @@ case+ s3is of
   case+ s3i of
   | S3ITMsvar (s2v) => let
       val () = smtenv_add_svar (env, s2v)
-
     in
       c3nstr_solve_itmlst (loc0, env, s3is, unsolved, err)
     end // end of [S3ITMsvar]
@@ -198,7 +197,7 @@ implement
 c3nstr_solve_itmlst_disj (
   loc0, env, s3is0, s3iss(*disj*), unsolved, err
 ) = let
-(*
+(**
 val () = (
   print "c3nstr_solve_itmlst_disj: s3iss = ..."; print_newline ()
 ) // end of [val]

@@ -203,8 +203,13 @@ in
       $SMT.make_array_sort ()
     else if s2rt_is_t0ype (type) then
       $SMT.make_abstract_sort ("t@ype")
-    else
+    else if s2rt_is_bool (type) then
       $SMT.make_bool_sort ()
+    else let
+      val () = fprintln! (stderr_ref, "Could not understand sort: ", type)
+    in
+      $SMT.make_bool_sort ()
+    end
       
   implement formula_make (env, s2e) = let
     val out = stdout_ref
@@ -342,7 +347,7 @@ end
   
   TODO: use an SMT Lib 2 parser to collect the more complicated functions (like sorted)
   from an SMT-Lib 2 file so the user doesn't have to recompile their constraint solver
-  to refine their statics.
+  in order to refine their statics.
 *)
 
 (* ****** ******  *)
@@ -351,7 +356,7 @@ local
 
 staload "solving/smt_ML.sats"
 
-(** 
+(**
   Define some convenient fixity rules.
 *)
 prefix 62 ^ //copy or duplicate

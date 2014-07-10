@@ -146,7 +146,7 @@ constraint3_initialize () = {
 
 local
 
-fun 
+fun
 formula_make_uninterp_opt
   (env: &smtenv, s2c: s2cst, s2es: s2explst): Option_vt (formula) = let
   val (pf, fpf | p) = $UN.ref_vtake (the_s2cdeclmap)
@@ -205,7 +205,7 @@ formula_make_s2cst_s2explst
             function in the underlying SMT solver.
           *)
           | ~None_vt _ => $raise $Error.FatalErrorException () where {
-            val _ = $effmask_ref 
+            val _ = $effmask_ref
               fprintln! (stderr_ref, "Function definition not found!")
           }
       end

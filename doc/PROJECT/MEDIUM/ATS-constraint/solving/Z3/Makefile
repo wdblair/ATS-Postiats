@@ -18,7 +18,6 @@ CFLAGS += $(shell pkg-config --cflags json-c)
 ######
 
 LDFLAGS :=
-LDFLAGS += -lgc
 LDFLAGS += -L$(PATSHOMEQ)/ccomp/atslib/lib
 LDFLAGS += -latslib
 LDFLAGS += $(shell pkg-config --libs json-c)
@@ -41,7 +40,7 @@ MYTARGET=MYTARGET
 
 ######
 #
-DATSMEMALLOC=-DATS_MEMALLOC_GCBDW
+DATSMEMALLOC=-DATS_MEMALLOC_LIBC
 #
 ######
 

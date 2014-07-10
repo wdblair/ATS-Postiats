@@ -9,7 +9,7 @@ $(PATSHOME)/share/atsmake-pre.mk
 
 ######
 
-MALLOCFLAG := -DATS_MEMALLOC_GCBDW
+MALLOCFLAG := -DATS_MEMALLOC_LIBC
 
 ######
 
@@ -40,7 +40,7 @@ include $(PATSHOME)/share/atsmake-post.mk
 
 ######
 #
-DATSMEMALLOC=-DATS_MEMALLOC_GCBDW
+DATSMEMALLOC=-DATS_MEMALLOC_LIBC
 #
 ######
 

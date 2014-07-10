@@ -59,13 +59,22 @@ case+ name of
       // patsopt doesn't seem consistent for flat types.
       | "viewt0ype" => S2RTt0ype ()
       //
-      | "type" => S2RTignored () where {
+      (**
+        There really should be a distinction here between flat types
+        and boxed types if only because
+          \forall t,s:type sizeof(t) == sizeof(s)
+      *)
+      | "type" => S2RTt0ype () where {
         val () = fprintln! (stderr_ref, "type encountered!")
       }
-      | "viewtype" =>  S2RTignored () where {
+      | "viewtype" =>  S2RTt0ype () where {
         val () = fprintln! (stderr_ref, "viewtype encountered!")
       }
-      | _ => S2RTignored ()
+      | _ => let
+        val () = fprintln! (stderr_ref, "Could not understand sort :", srt)
+      in
+        S2RTignored ()
+      end
   end
 | "s2rt_fun" => let
   val- ~Some_vt (jsv) =
