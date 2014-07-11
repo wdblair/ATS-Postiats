@@ -47,6 +47,14 @@ end // end of [parse_s2exp]
 
 (* ****** ****** *)
 
+implement
+parse_s2explst 
+  (jsv0) = (
+  parse_list<s2exp> (jsv0, parse_s2exp)
+)
+
+(* ****** ****** *)
+
 extern
 fun parse_S2Eint (jsonval): s2exp_node
 extern

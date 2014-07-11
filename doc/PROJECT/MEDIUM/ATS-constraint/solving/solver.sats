@@ -163,9 +163,6 @@ fun f_gte_rat_rat : s2cstmap_ftype
 
 fun f_is_int_int : s2cstmap_ftype
 
-(*
-  I haven't implemented classes yet...
-*)
 fun f_lte_cls_cls : s2cstmap_ftype
 
 (* ****** ****** *)

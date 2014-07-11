@@ -561,7 +561,7 @@ in
   in  
     $SMT.is_int (num)
   end // end of [f_is_int_int]
-
+  
   implement f_gte_rat_rat (env, s2es) = let
     val- s2e1 :: s2e2 :: _ = s2es
     val great = formula_make (env, s2e1)
@@ -569,7 +569,6 @@ in
   in
     great >= small
   end // end of [f_gte_rat_rat]
-    
   
   implement f_abs_int (env, s2es) = let
     val- s2e1 :: _ = s2es
@@ -825,4 +824,13 @@ in
         (Select (seq, i) <= stmp))
   end
 
+  implement
+  f_lte_cls_cls (env, s2es) = let
+    val- s2e1 :: s2e2 :: _ = s2es
+  in
+    case+ (s2e1.s2exp_node, s2e2.s2exp_node) of 
+      | (S2Ecst (s2c1), S2Ecst (s2c2)) =>
+        Bool(s2cst_lte_cls_cls (s2c1, s2c2))
+      | (_, _) => Bool(false)
+  end
 end // end of [local]

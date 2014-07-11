@@ -77,15 +77,15 @@ implement the_s2cstmap_listize
   () = let
 //
 val (vbox(pf) | p) = ref_get_viewptr (the_s2cstmap)
-val constants = $effmask_ref (list_of_list_vt {@(stamp,s2cst)} (
-  $FM.funmap_listize<stamp,s2cst> (!p)
+val constants = $effmask_ref (list_of_list_vt (
+  $FM.funmap_listize (!p)
 ))
 //
 implement list_map$fopr<@(stamp, s2cst)><s2cst> (x) = x.1
 //
 //
 in
-  $effmask_ref ( list_of_list_vt {s2cst} (
+  $effmask_ref ( list_of_list_vt (
     list_map<@(stamp, s2cst)><s2cst> (constants)
   ))
 end // end of [the_s2cstmap_listize]
@@ -121,7 +121,11 @@ case+ opt of
     val-~Some_vt (jsv2) =
       jsonval_get_field (jsv0, "s2cst_srt")
     val srt = parse_s2rt (jsv2)
+    val-~Some_vt (jsv3) =
+      jsonval_get_field (jsv0, "s2cst_supcls")
+    val supcls = parse_s2explst (jsv3)
     val s2c = s2cst_make (sym, stamp, srt)
+    val () = s2cst_set_supcls (s2c, supcls)
     //
     val () = the_stamp_counter_parse_new (stamp)
     //

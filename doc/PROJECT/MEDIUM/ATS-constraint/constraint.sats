@@ -175,6 +175,10 @@ fun s2cst_get_srt (s2cst):<> s2rt
 //
 (* ****** ****** *)
 
+fun s2cst_lte_cls_cls (s2cst, s2cst): bool
+
+(* ****** ****** *)
+
 abstype s2var_type = ptr
 typedef s2var = s2var_type
 typedef s2varlst = List0 (s2var)
@@ -284,6 +288,11 @@ fun s2exp_eqeq (s2exp, s2exp): s2exp
 (* ****** ****** *)
 
 fun s2exp_ignored (s2rt): s2exp // error-handling
+
+(* ****** ****** *)
+
+fun s2cst_get_supcls (s2cst):<> s2explst
+fun s2cst_set_supcls (s2cst, s2explst):<> void
 
 (* ****** ****** *)
 
