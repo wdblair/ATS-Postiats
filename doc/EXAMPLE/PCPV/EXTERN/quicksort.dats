@@ -99,7 +99,7 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
   end
   //
   where {
-
+  
     absprop Perm (xs: stmsq, ys: stmsq, n:int) // ys is a permutation of xs
 
     extern
@@ -153,12 +153,10 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
       Partition an array by a pivot chosen by the user. The static types
       provide the following guarantees:
         - The resulting array at pointer l is of length n
-        - That the array is partitioned by a pivot
-        - That the pivot in the resulting array is the element xs[piv] 
+        - The array is partitioned by a pivot
+        - The pivot in the resulting array is the element xs[piv]
           which the user gave as the desired pivot.
-          
-      Props may be added to assure that the result is a permutation of
-      the original array, but this example is verbose enough :D
+        - The result is a permutation of the original array.
 
       We first swap the desired pivot to the last spot in the array. Then we
       start at i=0  and maintain a partition index. Any  element to the left
@@ -285,7 +283,7 @@ fun libc_qsort {a:t@ype} {l:addr}{xs:stmsq}{n:nat} (
 local
 
   (**
-    These are a couple of "unsafe" features we use to make
+    These are a couple of "unsafe" assertions we use to make
     qsort available.
   *)
   
