@@ -56,7 +56,10 @@ case+ name of
          linear unboxed type. 
       *)
       | "t@ype" => S2RTt0ype ()
-      // patsopt doesn't seem consistent for flat types.
+      (**
+        patsopt doesn't seem consistent with the different flat type
+        names.
+      *)
       | "viewt0ype" => S2RTt0ype ()
       //
       (**

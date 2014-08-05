@@ -35,8 +35,11 @@ case+ s2e0.s2exp_node of
 | S2Eapp (s2e_fun, s2es_arg) =>
     fprint! (out, "S2Eapp(", s2e_fun, "; ", s2es_arg, ")")
 //
-| S2Emetdec (s2e) =>
-    fprint! (out, "S2Emetdec(", s2e, ")")
+| S2Emetdec (met, bound) =>
+    fprint! (out, "S2Emetdec(", met, ",", bound, ")")
+//
+| S2Etop (knd, s2e) =>
+    fprint! (out, "S2Etop(", knd, ",", s2e, ")")
 //
 | S2Eignored () => fprint! (out, "S2Eignored(", ")")
 //

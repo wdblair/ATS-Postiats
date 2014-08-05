@@ -2,6 +2,8 @@
 ** ATS constaint-solving
 *)
 
+staload "libc/SATS/string.sats"
+
 (* ****** ****** *)
 
 typedef
@@ -249,8 +251,10 @@ s2exp_node =
 | S2Eapp of (s2exp, s2explst)
 //
 | S2Emetdec of
-    (s2exp(*constraint*)) // strictly decreasing
+    (s2explst (*met*), s2explst(*bound*)) // strictly decreasing
   // end of [S2Emetdec]
+//
+| S2Etop of (int(*knd*), s2exp)
 //
 | S2Eignored of ((*void*))
 // end of [s2exp_node]
@@ -293,6 +297,12 @@ fun s2exp_ignored (s2rt): s2exp // error-handling
 
 fun s2cst_get_supcls (s2cst):<> s2explst
 fun s2cst_set_supcls (s2cst, s2explst):<> void
+
+(* ****** ****** *)
+
+datatype s2zexp of
+  | S2ZEvar of (s2var)
+  | S2ZEbot of ()
 
 (* ****** ****** *)
 
