@@ -104,6 +104,7 @@ datatype s2rt =
 | S2RTint of ()
 | S2RTaddr of ()
 | S2RTbool of ()
+| S2RTcls of ()
 | S2RTarray of ()
 | S2RTrat of ()
 | S2RTbitvec of (int(*width*))
@@ -211,7 +212,9 @@ fun s2var_get_name (s2var):<> symbol
 fun s2var_get_stamp (s2var):<> stamp
 fun s2var_get_srt (s2var):<> s2rt
 //
+
 (* ****** ****** *)
+
   
 abstype s2Var_type = ptr
 typedef s2Var = s2Var_type
@@ -226,11 +229,49 @@ overload fprint with fprint_s2Var
 
 (* ****** ****** *)
 
+abstype label_type = ptr
+typedef label = label_type
+
+datatype s2zexp =
+//
+  | S2ZEprf of () (* proof size *)
+  | S2ZEptr of () (* pointer size *)
+//
+  | S2ZEcst of s2cst
+  | S2ZEvar of s2var
+  | S2ZEVar of s2Var
+//
+  | S2ZEclo of () // HX: for flat closures
+//
+  | S2ZEbot of () // HX: no available info
+// end of [s2zexp]
+
+and labs2zexp = SZLABELED of (label, s2zexp)
+
+where
+s2zexplst = List (s2zexp)
+and
+s2zexplstlst = List (s2zexplst)
+and
+labs2zexplst = List (labs2zexp)
+
+(* ****** ****** *)
+
+fun fprint_s2zexp: fprint_type (s2zexp)
+overload fprint with fprint_s2zexp
+
+(* ****** ****** *)
+
 fun s2Var_make (stamp): s2Var
 
 (* ****** ****** *)
 
 fun s2Var_get_stamp (s2Var):<> stamp
+
+(* ****** ****** *)
+
+fun s2Var_get_szexp (s2Var):<> s2zexp
+fun s2Var_set_szexp (s2Var, s2zexp):<> void
 
 (* ****** ****** *)
 
@@ -297,12 +338,6 @@ fun s2exp_ignored (s2rt): s2exp // error-handling
 
 fun s2cst_get_supcls (s2cst):<> s2explst
 fun s2cst_set_supcls (s2cst, s2explst):<> void
-
-(* ****** ****** *)
-
-datatype s2zexp of
-  | S2ZEvar of (s2var)
-  | S2ZEbot of ()
 
 (* ****** ****** *)
 
@@ -449,48 +484,5 @@ fun tyreckind_is_boxed (knd: tyreckind): bool
 fun tyreckind_is_flted (knd: tyreckind): bool
 fun tyreckind_is_fltext (knd: tyreckind): bool
 fun tyreckind_is_nameless (knd: tyreckind): bool
-
-(* ****** ****** *)
-
-abstype label_type = ptr
-typedef label = label_type
-
-datatype s2zexp =
-//
-  | S2ZEprf of () (* proof size *)
-  | S2ZEptr of () (* pointer size *)
-//
-  | S2ZEcst of s2cst
-  | S2ZEvar of s2var
-  | S2ZEVar of s2Var
-//
-  | S2ZEextype of (string (*name*), s2zexplstlst)
-  | S2ZEextkind of (string (*name*), s2zexplstlst)
-//
-  | S2ZEapp of (s2zexp, s2zexplst)
-  | S2ZEtyarr of // array size
-      (s2zexp (*element*), s2explst (*dimension*))
-  | S2ZEtyrec of (tyreckind, labs2zexplst)
-//
-  | S2ZEclo of () // HX: for flat closures
-//
-  | S2ZEbot of () // HX: no available info
-// end of [s2zexp]
-
-and labs2zexp = SZLABELED of (label, s2zexp)
-
-where
-s2zexplst = List (s2zexp)
-and
-s2zexplstlst = List (s2zexplst)
-and
-labs2zexplst = List (labs2zexp)
-
-(* ****** ****** *)
-
-fun fprint_s2zexp: fprint_type (s2zexp)
-overload fprint with fprint_s2zexp
-
-(* ****** ****** *)
 
 (* end of [constraint.sats] *)

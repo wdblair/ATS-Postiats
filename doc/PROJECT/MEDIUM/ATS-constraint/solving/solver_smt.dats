@@ -213,7 +213,7 @@ in
       
   implement formula_make (env, s2e) = let
     val out = stdout_ref
-  in
+  in    
     case+ s2e.s2exp_node of
       | S2Eint i => let
         val type = $SMT.make_int_sort ()
@@ -232,6 +232,32 @@ in
       end
       //
       | S2Evar s2v => smtenv_get_var_exn (env, s2v)
+      | S2EVar s2V => let
+        (** 
+          There may be a size expression stored in a unification
+          variable. If we pull it out, it could be to our advantage.
+        *)
+        val szexp = s2Var_get_szexp (s2V)
+       in
+        case+ szexp of
+          | S2ZEvar (s2v) => let
+              val srt = s2var_get_srt (s2v)
+              val s2ev = s2exp_make_node (srt, S2Evar(s2v))
+            in
+              formula_make (env, s2ev)
+            end
+          | _ => let
+            (** 
+              TODO: make this "i don't know" behavior into its own function 
+            *)
+            val srt = s2e.s2exp_srt
+            val smt_sort = sort_make (srt)
+            val stub = $SMT.make_fresh_constant (smt_sort)
+          in
+            $SMT.sort_free(smt_sort);
+            stub
+          end
+       end // end of [S2EVar]
       | S2Ecst s2c => (case+ s2c of
         | _ when
             equal_string_s2cst ("null_addr", s2c) => let
@@ -319,7 +345,6 @@ in
         val a = $SMT.make_abstract_sort ("t@ype")
         val sizeof = $SMT.make_func_decl ("sizeof", a :: nil, $SMT.make_int_sort())
         val args = formula_make (env, s2exp)
-        
       in
         $SMT.make_app (sizeof, args :: nil)
       end // end of [S2Esizeof]
@@ -331,7 +356,9 @@ in
         val stub = $SMT.make_fresh_constant (smt_sort)
         (* TODO: Make this error mean something to calling functions *)
         val _ = env.err := env.err + 1
-        val _ = fprintln! (out, "warning(3): formula_make: s2e =:", s2e)
+        (**
+          val _ = fprintln! (out, "warning(3): formula_make: s2e =:", s2e)
+        *)
       in
         $SMT.sort_free (smt_sort);
         stub

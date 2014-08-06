@@ -43,6 +43,7 @@ case+ name of
       | "int" => S2RTint ()
       | "addr" => S2RTaddr ()
       | "bool" => S2RTbool ()
+      | "cls" => S2RTcls ()
       | "rat" => S2RTrat ()
       //
       | "array" => S2RTarray ()
@@ -74,7 +75,9 @@ case+ name of
         val () = fprintln! (stderr_ref, "viewtype encountered!")
       }
       | _ => let
+        (*
         val () = fprintln! (stderr_ref, "Could not understand sort :", srt)
+        *)
       in
         S2RTignored ()
       end

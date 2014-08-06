@@ -86,7 +86,10 @@ println! ("parse_s2Var: jsv0 = ", jsv0)
 val-~Some_vt(jsv1) =
   jsonval_get_field (jsv0, "s2Var_stamp")
 //
+val-~Some_vt(jsv2) =
+  jsonval_get_field (jsv0, "s2Var_szexp")
 val stamp = parse_stamp (jsv1)
+val szexp = parse_s2zexp (jsv2)
 //
 val opt = the_s2Varmap_find (stamp)
 //
@@ -94,7 +97,12 @@ in
 //
 case+ opt of
 | ~Some_vt (s2V) => s2V
-| ~None_vt ((*void*)) => s2Var_make (stamp)
+| ~None_vt ((*void*)) => let
+    val s2V = s2Var_make (stamp)
+    val () = s2Var_set_szexp (s2V, szexp)
+  in
+    s2V
+  end
 //
 end // end of [parse_s2Var]
 

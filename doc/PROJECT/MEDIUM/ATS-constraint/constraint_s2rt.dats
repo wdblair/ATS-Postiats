@@ -104,6 +104,7 @@ case+ s2t0 of
 | S2RTint () => fprint (out, "S2RTint()")
 | S2RTaddr () => fprint (out, "S2RTaddr()")
 | S2RTbool () => fprint (out, "S2RTbool()")
+| S2RTcls () => fprint (out, "S2RTcls()")
 | S2RTrat () => fprint (out, "S2RTrat()")
 | S2RTbitvec (width) => fprint! (out, "S2RTbitvec(", width, ")")
 | S2RTarray () => fprint (out, "S2RTarray()")
