@@ -24,21 +24,23 @@ staload "./parsing.dats"
 
 (* ****** ****** *)
 
-implement
-parse_s2rt
+extern
+fun parse_S2RTbas (jsonval) : s2rt
+
+extern
+fun parse_S2RTfun (jsonval) : s2rt
+
+(* ****** ****** *)
+
+implement 
+parse_S2RTbas
   (jsv0) = let
-  val- ~Some_vt (jsv) =
-    jsonval_get_field (jsv0, "s2rt_name")
-  val- JSONstring (name) = jsv
+//  
+val-JSONarray(jsvs) = jsv0
+val () = assertloc (length(jsvs) >= 1)
+//
+val srt = parse_string (jsvs[0])
 in
-//
-case+ name of
-//
-| "s2rt_bas" => let
-  val- ~Some_vt (jsv) =
-    jsonval_get_field (jsv0, "s2rt_args")
-  val- JSONstring (srt) = jsv
-  in
     case+ srt of
       | "int" => S2RTint ()
       | "addr" => S2RTaddr ()
@@ -68,12 +70,8 @@ case+ name of
         and boxed types if only because
           \forall t,s:type sizeof(t) == sizeof(s)
       *)
-      | "type" => S2RTt0ype () where {
-        val () = fprintln! (stderr_ref, "type encountered!")
-      }
-      | "viewtype" =>  S2RTt0ype () where {
-        val () = fprintln! (stderr_ref, "viewtype encountered!")
-      }
+      | "type" => S2RTt0ype ()
+      | "viewtype" =>  S2RTt0ype ()
       | _ => let
         (*
         val () = fprintln! (stderr_ref, "Could not understand sort :", srt)
@@ -81,25 +79,44 @@ case+ name of
       in
         S2RTignored ()
       end
-  end
-| "s2rt_fun" => let
-  val- ~Some_vt (jsv) =
-    jsonval_get_field (jsv0, "s2rt_args")
-  val- JSONarray (args) = jsv
-  //
-  implement list_map$fopr<jsonval><s2rt> (x) =
-    parse_s2rt (x)
-  //
-  val arguments = list_of_list_vt {s2rt} (
-    list_map<jsonval><s2rt> (args)
-  )
-  val- ~Some_vt (jsv) =
-    jsonval_get_field (jsv0, "s2rt_res")
-  //
-  val ret = parse_s2rt (jsv)
-  in
-    S2RTfun (arguments, ret)
-  end
+end // end of [parse_S2RTbas]
+
+(* ****** ****** *)
+
+implement
+parse_S2RTfun
+  (jsv0) = let
+//
+val-JSONarray(jsvs) = jsv0
+val () = assertloc (length(jsvs) >= 2)
+val-JSONarray(args) = jsvs[0]
+implement list_map$fopr<jsonval><s2rt> (x) =
+  parse_s2rt (x)
+//
+val arguments = list_of_list_vt {s2rt} (
+  list_map<jsonval><s2rt> (args)
+)
+//
+val ret = parse_s2rt (jsvs[1])
+//
+in
+  S2RTfun (arguments, ret)
+end // end of [parse_S2RTfun]
+
+(* ****** ****** *)
+
+implement
+parse_s2rt
+  (jsv0) = let
+  val-JSONobject(lxs) = jsv0
+  val-list_cons (lx, lxs) = lxs
+  val name = lx.0 and jsv2 = lx.1
+in
+//
+case+ name of
+//
+| "S2RTbas" => parse_S2RTbas (jsv2)
+| "S2RTfun" => parse_S2RTfun (jsv2)
 | _(*rest*) => S2RTignored ()
 //
 end // end of [parse_s2rt]
