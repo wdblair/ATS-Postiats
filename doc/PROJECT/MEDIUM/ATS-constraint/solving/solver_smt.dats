@@ -65,26 +65,11 @@ val log_smt = true
 (* ****** ****** *)
 
 local
-  staload TreeMap = "libats/SATS/linmap_avltree.sats"
-  staload _(*anon*) = "libats/DATS/linmap_avltree.dats"
-
-  staload ListMap = "libats/SATS/linmap_list.sats"
-  staload _(*anon*) = "libats/DATS/linmap_list.dats"
-  
-  fun cmp (
-    x1: s2var, x2: s2var
-  ) : int = compare_s2var_s2var (x1, x2)
-  
-  implement $TreeMap.compare_key_key<s2var> (k1, k2) =
-    $effmask_all compare_s2var_s2var (k1, k2)
-        
+     
   viewtypedef smtenv_struct = @{
     smt= solver,
     variables= @{
-      (* 
-        Map static variables to their respective SMT formulas
-      *)
-      statics= $TreeMap.map (s2var, formula)
+      statics= s2varmap (formula)
     },
     err= int 
   }
@@ -95,35 +80,20 @@ in
 
   implement smtenv_nil (env) = begin
     env.smt := $SMT.make_solver ();
-    env.variables.statics := 
-      $TreeMap.linmap_make_nil ();
+    s2varmap_nil (env.variables.statics);
     env.err := 0;
   end
 
-  implement smtenv_free (env) = let
-   val map = env.variables.statics
-   val statics = $TreeMap.linmap_listize (map)
-   //
-   viewtypedef binding = @(s2var, formula)
-   //
-   fun release_vars (slv: !solver, vs: List_vt (binding)): void =
-    case+ vs of 
-      | ~list_vt_nil () => ()
-      | ~list_vt_cons (bind, vss) => let
-        val @(_, v) = bind
-        val _ = $SMT.formula_free (v)
-      in 
-        release_vars (slv, vss)
-      end
-   //
-   in 
-      release_vars (env.smt, statics);
-      $SMT.delete_solver (env.smt)
+  implement smtenv_free (env) = begin
+      s2varmap_delete (env.variables.statics);
+      $SMT.delete_solver (env.smt);
    end
-  
+
+
   implement smtenv_push (env) = (pf | ()) where {
     val _ = if log_smt then println! ("(push 1)")
     val _ = $SMT.push (env.smt)
+    val _ = s2varmap_push (env.variables.statics)
     prval pf = __push () where {
       extern praxi __push (): smtenv_push_v
     }
@@ -132,6 +102,7 @@ in
   implement smtenv_pop (pf | env) = {
     val _ = if log_smt then println! ("(pop 1)")
     val _ = $SMT.pop (env.smt)
+    val _ = s2varmap_pop (env.variables.statics)
     prval _ = __pop (pf) where {
       extern praxi __pop (pf: smtenv_push_v): void
     }
@@ -147,47 +118,35 @@ in
     val id = stamp_get_int (stamp)
     val () = if log_smt then
       println! ("Variables: ",
-        $TreeMap.linmap_size (env.variables.statics)
+        s2varmap_size (env.variables.statics)
     )
     //
     val fresh = $SMT.make_int_constant (id, smt_type)
     val () = $SMT.sort_free (smt_type)
-    var res: formula?
-    val found =
-      $TreeMap.linmap_insert (
-        env.variables.statics, s2v, fresh, res
+    val opt =
+      s2varmap_add (
+        env.variables.statics, s2v, fresh
       )
   in
-      if found then let
-        prval () = opt_unsome (res)
-      in
-        $SMT.formula_free (res)
-      end
-      else {
-        prval () = opt_unnone (res)
-      }
+    case+ opt of
+      | ~Some_vt (res) => $SMT.formula_free (res)
+      | ~None_vt () => ()
   end
-  
+
   implement smtenv_get_var_exn (env, s2v) = let
-    val [l:addr] ptr =
-      $TreeMap.linmap_search_ref (env.variables.statics, s2v)
+    val opt = s2varmap_find (env.variables.statics, s2v)
   in
-    if iseqz (ptr) then let
-      val () = fprintln! (stderr_ref, "warning: adding s2var: ", s2v)
-      val () = smtenv_add_svar (env, s2v)
-    in
-      smtenv_get_var_exn (env, s2v)
-    end
-    else let
-      val ptr1 = cptr2ptr (ptr)
-      val (pf, free | p) = $UN.ptr1_vtake (ptr1)
-      val variable = $SMT.formula_dup (!ptr1)
-      prval () = free (pf)
-    in
-      variable
-    end
+    case+ opt of
+      | ~None_vt () => let
+        val () = smtenv_add_svar (env, s2v)
+      in
+        smtenv_get_var_exn (env, s2v)
+      end where {
+        val () = fprintln! (stderr_ref, "adding s2var: ", s2v)
+      }
+      | ~Some_vt (f) => f
   end
-  
+
   implement sort_make (type) =
     if s2rt_is_int (type) || s2rt_is_addr (type) then
       $SMT.make_int_sort ()
@@ -210,9 +169,9 @@ in
     in
       $SMT.make_bool_sort ()
     end
-      
+         
   implement formula_make (env, s2e) = let
-    val out = stdout_ref
+    val err = stderr_ref
   in    
     case+ s2e.s2exp_node of
       | S2Eint i => let
@@ -299,8 +258,8 @@ in
                 formula_make_s2cst_s2explst (env, s2c1, s2es2)
                end
               //
-              | _ => $raise FatalErrorException () where {
-                val _ = fprintln! (out, "formula_make: Invalid application ", s2e)
+              | _ => abort () where {
+                val _ = fprintln! (err, "formula_make: Invalid application ", s2e)
               }
           ) // end of [S2Eapp]
       | S2Emetdec (met, bound) => let
@@ -335,7 +294,7 @@ in
         //
         implement list_vt_reduce$init<formula><formula> () = $SMT.make_false ()
         implement list_vt_reduce$foper<formula><formula> (x, res) =
-          $SMT.make_or2(x, res)
+          $SMT.make_or2 (x, res)
       in
         list_vt_reduce<formula><formula> (assertions)
       end // end of [S2Emetdec]

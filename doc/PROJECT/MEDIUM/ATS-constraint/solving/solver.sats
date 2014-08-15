@@ -35,9 +35,43 @@ fun formula_cst (s2c: s2cst): formula
 
 (* ****** ****** *)
 
-fun s2exp_metdec_reduce (
-  met: s2explst, met_bound: s2explst
-): s2exp
+absvt@ype s2varmap_vt0ype (a:viewt@ype) = @{
+  scopes= ptr,
+  variables= ptr
+}
+
+vtypedef s2varmap (a:vt@ype) = s2varmap_vt0ype (a)
+
+fun {a:vt@ype}
+s2varmap_element_free (a): void
+
+fun {a:vt@ype}
+s2varmap_element_copy (a): a
+
+fun {a:vt@ype}
+s2varmap_nil (&s2varmap(a)? >> s2varmap(a)): void
+
+fun {a:vt@ype}
+s2varmap_delete (&s2varmap (a) >> s2varmap(a)?): void
+
+fun {a:vt@ype}
+s2varmap_add (&s2varmap (a), s2var, a): Option_vt (a)
+
+(**
+  Internally, this will make a copy of whatever type
+  the s2var is mapped to.
+*)
+fun {a:vt@ype}
+s2varmap_find (&s2varmap (a), s2var): Option_vt (a)
+
+fun {a:vt@ype}
+s2varmap_push (&s2varmap (a)): void
+
+fun {a:vt@ype}
+s2varmap_pop (&s2varmap (a)): void
+
+fun {a:vt@ype}
+s2varmap_size (&s2varmap (a)): int
 
 (* ****** ****** *)
 

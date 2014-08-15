@@ -1,3 +1,3 @@
 exception FatalErrorException of ()
 
-fun abort {a:vt@ype} (): a
+macdef abort () = $raise FatalErrorException()

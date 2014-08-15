@@ -36,7 +36,6 @@ SOURCES_SATS += \
 
 SOURCES_DATS += \
   solver.dats \
-  error.dats \
   solver_smt.dats \
   solver_s2cstmap.dats \
   solver_dynload.dats
