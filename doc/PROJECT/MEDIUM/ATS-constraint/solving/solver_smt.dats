@@ -71,7 +71,7 @@ staload "solving/error.sats"
 
 (* ****** ****** *)
 
-val log_smt = true
+val log_smt = false
 
 (* ****** ****** *)
 
