@@ -129,7 +129,8 @@ in
   
   implement smtenv_add_svar (env, s2v) = let
     val type = s2var_get_srt (s2v)
-    val () = fprintln! (stdout_ref, "Adding svar: ", s2v, " type: ", type)
+    val () = if log_smt then
+      fprintln! (stdout_ref, "Adding svar: ", s2v, " type: ", type)
     //
     val smt_type = sort_make (type)
     //
@@ -184,11 +185,12 @@ in
     else if s2rt_is_bool (type) then
       $SMT.make_bool_sort ()
     else let
-      val () = fprintln! (stderr_ref, "Could not understand sort: ", type)
+      val () = if log_smt then
+        fprintln! (stderr_ref, "Could not handle sort: ", type)
     in
       $SMT.make_bool_sort ()
     end
-         
+    
   implement formula_make (env, s2e) = let
     val err = stderr_ref
   in    
@@ -206,12 +208,12 @@ in
         val I = $SMT.make_numeral (i, type)
       in
         $SMT.sort_free (type);
-        I      
+        I
       end
       //
       | S2Evar s2v => smtenv_get_var_exn (env, s2v)
       | S2EVar s2V => let
-        (** 
+        (**
           There may be a size expression stored in a unification
           variable. If we pull it out, it could be to our advantage.
         *)
@@ -226,7 +228,7 @@ in
             end
           | _ => let
             (** 
-              TODO: make this "i don't know" behavior into its own function 
+              TODO: make this "i don't know" behavior into its own function
             *)
             val srt = s2e.s2exp_srt
             val smt_sort = sort_make (srt)
@@ -359,11 +361,12 @@ in
   end
   
   implement smtenv_formula_is_valid (env, wff) = let
-    val () = println! ("(is-valid", $SMT.string_of_formula (wff), ")")
+    val () = if log_smt then
+      println! ("(is-valid", $SMT.string_of_formula (wff), ")")
   in
     $SMT.is_valid (env.smt, wff)
   end
-
+  
 end // end of [local]
 
 (* ****** ******  *)

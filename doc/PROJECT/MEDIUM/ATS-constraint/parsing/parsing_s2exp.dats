@@ -130,9 +130,11 @@ case+ name of
 //
 | "S2Etop" => parse_S2Etop (jsv2)
 //
-| _(*rest*) => let
+| _(*rest*) => let 
+  (**
     val () =
     prerrln! ("warning(ATS): [parse_s2exp]: name = ", name)
+  *)
   in
     parse_S2Eignored (jsv2)
   end // end of [_]
