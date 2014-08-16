@@ -50,6 +50,17 @@ staload SMT = "solving/smt.sats"
 
 (* ****** ****** *)
 
+staload _ = "solving/stack.dats"
+staload _ = "libats/DATS/linmap_randbst.dats"
+staload _ = "libats/DATS/linset_listord.dats"
+
+staload _ = "solving/solver_s2varmap.dats"
+
+staload Map = "libats/SATS/linmap_randbst.sats"
+staload Set = "libats/SATS/linset_listord.sats"
+
+(* ****** ****** *)
+
 viewtypedef solver = $SMT.solver
 viewtypedef formula = $SMT.formula
 viewtypedef sort = $SMT.sort
@@ -65,6 +76,14 @@ val log_smt = true
 (* ****** ****** *)
 
 local
+
+  implement 
+  s2varmap_element_free<formula> (x) = 
+    $SMT.formula_free (x)
+  
+  implement
+  s2varmap_element_copy<formula> (x) =
+    $SMT.formula_dup (x)
      
   viewtypedef smtenv_struct = @{
     smt= solver,
@@ -75,7 +94,7 @@ local
   }
   
   assume smtenv_viewtype = smtenv_struct
-  
+
 in
 
   implement smtenv_nil (env) = begin
@@ -146,7 +165,7 @@ in
       }
       | ~Some_vt (f) => f
   end
-
+  
   implement sort_make (type) =
     if s2rt_is_int (type) || s2rt_is_addr (type) then
       $SMT.make_int_sort ()

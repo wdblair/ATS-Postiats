@@ -46,7 +46,7 @@ fun {a:vt@ype}
 s2varmap_element_free (a): void
 
 fun {a:vt@ype}
-s2varmap_element_copy (a): a
+s2varmap_element_copy (!a): a
 
 fun {a:vt@ype}
 s2varmap_nil (&s2varmap(a)? >> s2varmap(a)): void
@@ -71,7 +71,7 @@ fun {a:vt@ype}
 s2varmap_pop (&s2varmap (a)): void
 
 fun {a:vt@ype}
-s2varmap_size (&s2varmap (a)): int
+s2varmap_size (&s2varmap (a)): size_t
 
 (* ****** ****** *)
 

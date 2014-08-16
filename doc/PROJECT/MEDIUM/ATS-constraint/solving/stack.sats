@@ -2,12 +2,28 @@
   An interface for a stack.
 *)
 
-absvtype stack (a:vtype)
+absvtype stack (a:vt@ype+) = ptr
 
-fun stack_nil {a:vtype} (): stack (a)
+fun {a:vt@ype} 
+stack_nil (): stack (a)
 
-fun stack_listize {a:vtype} (stack (a)): List0_vt (a)
+fun {a:vt@ype} 
+stack_listize  (stack (a)): List0_vt (a)
 
-fun stack_push {a:vtype} (&stack (a)): void
+fun {a:vt@ype}
+stack_head (stack (a)): a 
 
-fun stack_pop {a:vtype} (&stack (a)): Option_vt (a)
+fun {a:vt@ype} 
+stack_push  (&stack (a) >> _, a): void
+
+fun {a:vt@ype} 
+stack_pop  (&stack (a) >> _): Option_vt (a)
+
+(**
+  Apply a function to the head of a stack.
+*)
+fun {a:vt@ype}
+stack_fhead$foper (&a >> _): void
+
+fun {a:vt@ype}
+stack_fhead (&stack (a) >> _): void

@@ -41,87 +41,144 @@
 
 staload "constraint.sats"
 staload "solving/solver.sats"
-staload SMT = "solving/smt.sats"
 
 (* ****** ****** *)
 
-staload Map = "libats/SATS/linmap_avltree.sats"
-staload _ = "libats/DATS/linmap_avltree.dats"
-
-staload Set = "libats/SATS/linset_listord.sats"
-staload _ = "libats/DATS/linset_listord.dats"
-
-staload Stack = "stack.sats"
+staload UN = "prelude/SATS/unsafe.sats"
 
 (* ****** ****** *)
 
 local
-  vtypedef formula = $SMT.formula
 
+  staload Map = "libats/SATS/linmap_randbst.sats"
+  staload Set = "libats/SATS/linset_listord.sats"
+
+  implement $Map.compare_key_key<s2var> (k1, k2) =
+    $effmask_all compare_s2var_s2var (k1, k2)
+      
+  implement $Set.compare_elt_elt<s2var> (k1, k2) =
+    $effmask_all compare_s2var_s2var (k1, k2)
+
+  staload Stack = "stack.sats"
+  
   vtypedef stack (a:vtype) = $Stack.stack (a)
   vtypedef set (a:t@ype) = $Set.set (a)
+  vtypedef map (a:t@ype, b:vt@ype+) = $Map.map (a, b)
   vtypedef s2varset = set (s2var)
   
   fun cmp (
     x1: s2var, x2: s2var
   ) : int = compare_s2var_s2var (x1, x2)
-  
-  implement $Map.compare_key_key<s2var> (k1, k2) =
-    $effmask_all compare_s2var_s2var (k1, k2)
-    
-  implement $Set.compare_elt_elt<s2var> (k1, k2) =
-    $effmask_all compare_s2var_s2var (k1, k2)
-   
+     
   assume s2varmap_vt0ype (a:vt@ype) = @{
     scopes= stack (s2varset),
-    variables= $Map.map (s2var, a)
+    variables= map (s2var, a)
   }
+
 in
+  
   implement{a}
   s2varmap_nil (map) = begin
-    map.scopes := $Stack.stack_nil();
-    map.variables := $Map.linmap_nil ();
+      map.scopes := $Stack.stack_nil ();
+      map.variables := $Map.linmap_make_nil ();
   end
   
   implement{a}
-  s2varmap_delete (map) = let
+  s2varmap_delete (map) = {
     val scopes = $Stack.stack_listize (map.scopes)
-    val vars = $Map.linmap_listize (map.variables)
-  in
-    list_vt_freelin(scopes);
-    list_vt_freelin(vars) where {
+    val vars = $Map.linmap_listize<s2var,a> (map.variables)
     //
     implement
-    list_vt_freelin$clear<set(s2var)> (set) =
+    list_vt_freelin$clear<s2varset> (set) =
       $Set.linset_free (set)
     //
+    val () = list_vt_freelin<s2varset>(scopes)
+    // 
     implement 
-    list_vt_freelin$clear<a>(x) = $effmask_all (
-      s2varmap_element_free<a>(x)
-    )}
-  end
+    list_vt_freelin$clear<@(s2var,a)>(x) = $effmask_all ({
+      val () = s2varmap_element_free (x.1)
+      extern praxi __free (&(@(s2var,a?)) >> @(s2var,a)?): void
+      prval () = __free (x)
+    })
+    val () = list_vt_freelin(vars)
+  }
   
-end
-
-(**
-  An example from the previous implementation for reference.
-  
-    val [l:addr] ptr =
-      $TreeMap.linmap_search_ref (env.variables.statics, s2v)
+  implement{a}
+  s2varmap_add (map, s2v, x) = let
+    var res: a?
+    val found = $Map.linmap_insert (
+      map.variables, s2v, x, res
+    )
+    //
+    implement $Stack.stack_fhead$foper<s2varset> (scope) =
+      ignoret ($Set.linset_insert (scope, s2v))
+    //
   in
-    if iseqz (ptr) then let
-      val () = fprintln! (stderr_ref, "warning: adding s2var: ", s2v)
-      val () = smtenv_add_svar (env, s2v)
+    $Stack.stack_fhead<s2varset>(map.scopes);
+    //
+    if found then let
+        prval () = opt_unsome (res)
+      in
+        Some_vt (res)
+      end
+    else let
+      prval () = opt_unnone (res)
     in
-      smtenv_get_var_exn (env, s2v)
+      None_vt ()
     end
+  end
+
+  implement{a}
+  s2varmap_find (map, s2v) = let
+    val [l:addr] ptr =
+      $Map.linmap_search_ref<s2var,a> (map.variables, s2v)
+  in
+    if iseqz (ptr) then
+      None_vt ()
     else let
       val ptr1 = cptr2ptr (ptr)
-      val (pf, free | p) = $UN.ptr1_vtake (ptr1)
-      val variable = $SMT.formula_dup (!ptr1)
+      val (pf, free | p) = $UN.ptr1_vtake{a} (ptr1)
+      val variable = s2varmap_element_copy<a> (!ptr1)
       prval () = free (pf)
     in
-      variable
+      Some_vt (variable)
     end
   end
-*)
+  
+  implement{a}
+  s2varmap_push (map) = let
+    val scope = $Set.linset_nil ()
+  in
+    $Stack.stack_push<s2varset> (map.scopes, scope)
+  end
+
+  implement{a}
+  s2varmap_pop (map) = let
+    val opt = $Stack.stack_pop<s2varset> (map.scopes)
+  in
+    case+ opt of 
+      | ~None_vt () => ()
+      | ~Some_vt (expired) => let
+        val xs = $Set.linset_listize (expired)
+        //
+        implement
+        list_vt_foreach$fwork<s2var><s2varmap(a)>(v, map) = let
+          val opt = 
+            $Map.linmap_takeout_opt<s2var,a>(map.variables, v)
+        in
+          case+ opt of
+            | ~None_vt () => ()
+            | ~Some_vt (value) =>
+              s2varmap_element_free (value)
+        end
+      in
+        list_vt_foreach_env<s2var><s2varmap(a)> (xs, map);
+        list_vt_free (xs)
+        //
+      end
+  end
+  
+  implement{a}
+  s2varmap_size (map) = $Map.linmap_size<s2var,a> (map.variables)
+
+end

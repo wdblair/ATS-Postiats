@@ -32,12 +32,15 @@ SOURCES_SATS += \
   solver.sats \
   smt.sats \
   smt_ML.sats \
-  error.sats
+  error.sats \
+  stack.sats \
 
 SOURCES_DATS += \
   solver.dats \
   solver_smt.dats \
   solver_s2cstmap.dats \
+  solver_s2varmap.dats \
+  stack.dats \
   solver_dynload.dats
 
 ######
