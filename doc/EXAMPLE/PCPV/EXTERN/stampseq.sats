@@ -89,13 +89,16 @@ stadef revapp = stampseq_revapp
 (* ****** ****** *)
 
 stacst lt_stamp_stampseq
-  : (stamp, stampseq, int(*n*)) -> bool // stamp < stampseq[i] for i <= n
+  : (stamp, stampseq, int(*n*)) -> bool // stamp < stampseq[i] for i < n
 stacst lte_stamp_stampseq
-  : (stamp, stampseq, int(*n*)) -> bool // stamp <= stampseq[i] for i <= n
+  : (stamp, stampseq, int(*n*)) -> bool // stamp <= stampseq[i] for i < n
+stacst lte_stamp_stampseq_range
+  : (stamp, stampseq, int(*j*), int(*n*)) -> bool // stamp <= stampseq[i] for j <= i < n
 
 (* ****** ****** *)
 
 stadef lt = lt_stamp_stampseq; stadef lte = lte_stamp_stampseq
+stadef lte = lte_stamp_stampseq_range
 
 (* ****** ****** *)
 
@@ -123,22 +126,6 @@ stadef permutation = stampseq_permutation
 stacst stampseq_partitioned : (stampseq, int, int, int) -> bool
 stadef partitioned 
   (xs:stampseq, p: int, n:int) =  stampseq_partitioned (xs, 0, p, n-1)
-  
-(* ****** ****** *)
-
-stacst
-stampseq_partitioned_left :
-  (stampseq, int (*pindex*), int(*pivot*)) -> bool
-
-stadef part_left (xs: stampseq, pindex: int, pivot: int) =
-  stampseq_partitioned_left (xs, pindex, pivot)
-
-stacst
-stampseq_partitioned_right :
-  (stampseq, int (*i*), int (*pindex*), int(*pivot*)) -> bool
-  
-stadef part_right (xs: stampseq, i: int, pindex: int, pivot: int) =
-  stampseq_partitioned_right (xs, i, pindex, pivot)
   
 (* ****** ****** *)
 

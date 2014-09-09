@@ -19,7 +19,7 @@
 
 ;; drop
 (assert (forall ((A (Array Int Int)) (i Int) (j Int))
-  (=> (and (<= 0 i) (<= 0 j)) 
+  (=> (<= 0 i)
     (= (select (stampseq_drop A i) j) (select A (+ i j))))
 ))
 

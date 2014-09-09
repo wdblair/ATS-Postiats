@@ -2,6 +2,7 @@ staload "stampseq.sats"
 staload "array.sats"
 
 staload _ = "prelude/DATS/integer.dats"
+staload _ = "prelude/DATS/pointer.dats"
 staload _ = "array.dats"
 
 #define ATS_DYNLOADFLAG 0
@@ -13,7 +14,7 @@ staload _ = "array.dats"
    the effort. I should try to do array_ptrswap_size as it would
    make a great example for a paper (I think...).
  */
-inline size_t offset_size (void *base, void *p, size_t sz) {
+inline size_t ptr_offset (void *base, void *p, size_t sz) {
     size_t offs = (size_t)(p - base);
     return offs / sz;
 };
@@ -57,7 +58,6 @@ size_t rand_int (size_t n) {
   Define some short hand to make the example a little
   more readable.
 *)
-macdef eq = eq_ptr_ptr
 macdef offset = ptr_offset
 macdef swap = array_ptrswap
 macdef compare = compare_ptr_ptr
@@ -69,7 +69,8 @@ macdef unsplit = array_v_unsplit
 
 fun {}
 quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
-  pf: array_v (a, l, xs, n) | p: ptr l, n: size_t (n)
+  pf: array_v (a, l, xs, n) | 
+    p: ptr l, n: size_t (n), sz: size_t (sizeof(a))
 ): [ys:stmsq | sorted (ys, n); permutation (xs, ys, n)] (
   array_v (a, l, ys, n) | void
 ) =
@@ -77,19 +78,19 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
     (pf | ())
   else let
     //
-    macdef + (p, i) = add_ptr_int{a}(,(p), ,(i))
-    macdef succ(p) = succ_ptr_t0ype{a}(,(p))
+    macdef + (p, i) = add_ptr_bsz(,(p), ,(i) * sz)
+    macdef succ(p) = add_ptr_bsz(,(p), sz)
     //
     val pivot = rand_int (n)
     //
-    val (perm, pf | i) = partition (pf | p, pivot, n)
+    val (perm, pf | i) = partition (pf | p, pivot, n, sz)
     prval parted = Parted_make (perm, pf, i)
     //
     prval (ls, rs) = split (pf, i)
     prval pfr :: rss = rs
     //
-    val (sls | ()) = quicksort (ls | p, i)
-    val (srs | ()) = quicksort (rss | succ (p + i), n - i - 1)
+    val (sls | ()) = quicksort (ls | p, i, sz)
+    val (srs | ()) = quicksort (rss | succ (p + i), n - i - 1, sz)
     //
     prval () = partitioned_lemma (parted, sls, pfr, srs)
     //
@@ -99,7 +100,6 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
   end
   //
   where {
-  
     absprop Perm (xs: stmsq, ys: stmsq, n:int) // ys is a permutation of xs
 
     extern
@@ -191,26 +191,26 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
     fun {}
     partition{a:t@ype} {l:addr} {xs:stmsq} {pivot,n:nat | pivot < n} (
       pf: array_v (a, l, xs, n) | p: ptr l, pivot: size_t (pivot),
-                                  n: size_t (n)
+                                  n: size_t (n), sz: size_t(sizeof(a))
     ): [p:nat | p < n]
        [ys: stmsq | partitioned (ys, p, n);
                     select(xs, pivot) == select (ys, p)] (
         Perm(xs, ys, n), array_v (a, l, ys, n) | size_t (p)
     ) = let
       //
-      macdef + (p, i) = add_ptr_int{a}(,(p), ,(i))
-      macdef succ (p) = succ_ptr_t0ype{a}(,(p))
+      macdef + (p, i) = add_ptr_bsz(,(p), ,(i)*sz)
+      macdef succ (p) = add_ptr_bsz(,(p), sz)
       //
       prval perm = Perm_sing (pf)
       //
       val pi = p + pivot
       val pn = p + (n-1)
       //
-      val () = swap{a}{l}{n}{pivot, n-1} (pf | pi, pn)
+      val () = swap{a}{l}{n}{pivot, n-1} (pf | pi, pn, sz)
       //
       fun loop {ps:stmsq} {i, pind: nat | pind <= i; i <= n-1 |
-        part_left (ps, pind, n-1);
-        part_right (ps, i, pind, n-1);
+        lte (ps, pind, select(ps, n-1));
+        lte (select(ps, n-1), ps, pind, i);
         select (ps, n-1) == select (xs, pivot)
       } .<n-i>. (
         perm: Perm(xs, ps, n), pf: array_v (a, l, ps, n) |
@@ -220,17 +220,19 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
           partitioned(ys, p, n); select (ys, p) == select (xs, pivot)] (
         Perm(xs, ys, n), array_v (a, l, ys, n) | size_t (p)
       ) =
-        if eq {a}{l}{i, n-1} (pi, pn) then let
-          val () = swap{a}{l}{n}{pind, n-1} (pf | pind, pn)
+        if pi = pn then let
+          prval () = equal_ptr_lemma{a}{l}{i,n-1} (pi, pn)
+          //
+          val () = swap{a}{l}{n}{pind, n-1} (pf | pind, pn, sz)
           prval perm = Perm_cons{a}{l}{n}{pind, n-1} (perm, pf | n)
         in 
-          (perm, pf | offset{a}{l}{pind}(p, pind))
+          (perm, pf | offset{a}{l}{pind}(p, pind, sz))
         end
         else let
           //
           prval (front, last) = split (pf, n-1)
           prval pfn :: ns = last
-          prval (pff, pfis) = split (front, offset{a}{l}{i} (p, pi))
+          prval (pff, pfis) = split (front, offset{a}{l}{i} (p, pi, sz))
           prval pfi :: pfiss = pfis
           //
           val sgn = compare (pfi, pfn | pi, pn)
@@ -241,7 +243,7 @@ quicksort {a:t@ype} {l:addr} {xs:stmsq} {n:nat} .<n>. (
           //
         in
           if sgn < 0 then let
-              val () = swap{a}{l}{n}{i, pind} (pf | pi, pind)
+              val () = swap{a}{l}{n}{i, pind} (pf | pi, pind, sz)
               prval perm = Perm_cons {a}{l}{n}{i,pind}(perm, pf | n)
             in
               loop {swap_at(ps,i,pind)}{i+1, pind+1} (
@@ -283,30 +285,20 @@ fun libc_qsort {a:t@ype} {l:addr}{xs:stmsq}{n:nat} (
 local
 
   (**
-    These are a couple of "unsafe" assertions we use to make
-    qsort available.
+    An unsafe assumption we use to make qsort available.
   *)
-  
-  extern
-  praxi lemma {a,b:t@ype} (): [sizeof(a) == sizeof(b)] void
-
   extern
   castfn bless_cmp {a,b:t@ype} (compare_fn(a)): compare_fn(b)
-  
+    
   in
 
   implement libc_qsort {a} (pf | p, n, sz, cmp) = let
-    implement sizeof_t0ype<>{b} () = let
-      prval () = lemma{a,b} ()
-    in
-      sz
-    end
     implement compare_ptr_ptr<> {b} (pfx, pfy | px, py) = let
       val cmp0 = bless_cmp{a,b} (cmp)
     in
       cmp0 (pfx, pfy | px, py)
     end
   in
-    quicksort (pf | p, n)
+    quicksort (pf | p, n, sz)
   end
 end

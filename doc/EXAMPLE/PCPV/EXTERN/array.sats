@@ -33,24 +33,10 @@ overload compare with compare_T_T
 //
 (* ****** ****** *)
 //
-fun {} add_ptr_int
-  {a:t@ype}{l:addr}{i:int} (ptr l, size_t (i)):<> ptr (l+sizeof(a)*i)
-fun {} succ_ptr_t0ype
-  {a:t@ype} {l:addr} (ptr l):<> ptr (l+sizeof(a))
-//
-overload + with add_ptr_int
-
-fun eq_ptr_ptr
-  {a:t@ype}{l:addr}{i,j:int} (ptr (l+i*sizeof(a)), ptr(l+j*sizeof(a))): bool (i == j) = "mac#"
-
-(**
-  This is me abusing macro syntax...
-*)
-
-
-%{#
-#define eq_ptr_ptr(p, q) (p == q)
-%}
+praxi equal_ptr_lemma
+  {a:t@ype}{l:addr}{i,j:int | l + i*sizeof(a) == l + j*sizeof(a)} (
+  ptr(l+i*sizeof(a)), ptr(l+j*sizeof(a))
+):<> [i == j] void
 
 //
 (* ****** ****** *)
@@ -65,8 +51,11 @@ ptr_get0{l:addr}{x:stamp}
   (pf: !INV(T(a,x)) @ l | p: ptr l):<> T(a,x)
 // end of [ptr_get0]
 
-fun {} ptr_offset
-  {a:t@ype}{l:addr}{i:nat} (ptr l, ptr (l+i*sizeof(a))):<> size_t (i)
+fun ptr_offset
+  {a:t@ype}{l:addr}{i:nat} (
+    ptr l, ptr (l+i*sizeof(a)), size_t(sizeof(a))
+):<> size_t (i) = "mac#"
+// end of [ptr_offset
 
 (* ****** ****** *)
 
@@ -149,22 +138,9 @@ fun {} array_ptrswap
   {n:int}{i,j:nat | i < n; j < n}
   {xs:stmsq}
 (
-  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a))
+  pf: !array_v(a, l, xs, n) >> array_v (a, l, swap_at(xs, i, j), n) | 
+    p1: ptr(l+i*sizeof(a)), p2: ptr(l+j*sizeof(a)), sz: size_t(sizeof(a))
 ) : void // end of [array_ptrswap]
-
-(**
-  I'm adding this because the size of a type
-  could be provided in some places as an automatic variable like
-  in the libc qsort function.
-  
-  For example, suppose a function takes the size of the type to be
-  worked on, stored in a variable sz. When the user goes to sort
-  this list, they just do:
-  
-  implement sizeof_t0ype() = sz
-*)
-fun {}
-sizeof_t0ype {a:t@ype} ():<> size_t (sizeof(a))
 
 (* ****** ****** *)
 

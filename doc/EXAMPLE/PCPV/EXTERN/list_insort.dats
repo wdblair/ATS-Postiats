@@ -30,63 +30,57 @@ staload "./stampseq.sats"
 (* ****** ****** *)
 
 (**
-  A good question is why do we need these
-  props and axioms? Wasn't the point of using an
-  external solver to eliminate the need for these?
-  If I have to use props anyways, why should I use
-  an external solver?
+  A good question is why do we need these props and axioms? Wasn't the
+  point of using an external solver to eliminate the need for these?
+  If I have to use props anyways, why should I use an external solver?
  
-  In answering this question, I hope to reveal some
-  motivation behind why I am working on this project
-  and why I think it is important (or could be eventually).
+  In answering this question, I hope to reveal some motivation behind
+  why I am working on this project and why I think it is important (or
+  could be eventually).
   
-  Consider a simple example of doing pattern matching
-  on a list xs. The value xs is concrete in that it 
-  occupies memory in our process that we can examine.
-  In order to precisely reason about our program's behavior
-  with respect to the value xs, we have a static sequence
-  of stamps sxs that represents the exact contents of xs.
+  Consider a simple example of doing pattern matching on a list xs.
+  The value xs is concrete in that it occupies memory in our process
+  that we can examine. In order to precisely reason about our
+  program's behavior with respect to the value xs, we have a static
+  sequence of stamps sxs that represents the exact contents of xs.
   
-  Assume xs is a sorted list. That is, we can apply a static
-  relation sorted to sxs to assert this statically.
+  Assume xs is a sorted list. That is, we can apply a static relation
+  sorted to sxs to assert this statically.
   
-    extern praxi orderedness_lemma {sxs:stmsq} (
-      list(a,sxs,n)
-    ): [sorted(sxs, n)] void
+    extern praxi orderedness_lemma {sxs:stmsq} ( list(a,sxs,n) ):
+      [sorted(sxs, n)] void
   
     sorted_lemma (xs)
     
     val list_cons (x, xss) = xs
     
-  When we do pattern matching on xs, the constraint
-  solver will have the following information given
-  to it.
+  When we do pattern matching on xs, the constraint solver will have
+  the following information given to it.
   
       assert the first n elements of the sequence sxs is sorted.
       
       the sequence xs is cons (x, xss)
       
-  Suppose we wanted to now work with xss. Surely, since xs is
-  sorted and we only removed its first value (x) we know that
-  xss must be sorted as well right? Well, when we use the Array
-  theory of Z3 to represent sequences of stamps, it cannot prove
-  that xss is in fact a sorted list.
+  Suppose we wanted to now work with xss. Surely, since xs is sorted
+  and we only removed its first value (x) we know that xss must be
+  sorted as well right? Well, when we use the Array theory of Z3 to
+  represent sequences of stamps, it cannot prove that xss is in fact a
+  sorted list.
   
-  For this reason, we need to use the theorem proving facility
-  in ATS in order to relate the construction of a stamp sequence
-  with the orderedness property. This speaks volumes to ATS' 
-  flexibility as a language to facilitate programming with theorem
-  proving. Even with an advanced constraint solver backed by 
-  any decision procedure, there may be relations that it cannot
-  handle. When we encounter these, we can just fall back to using
-  proofs to finish verifying properties of our programs in which
-  we are interested.
+  For this reason, we need to use the theorem proving facility in ATS
+  in order to relate the construction of a stamp sequence with the
+  orderedness property. This speaks volumes to ATS' flexibility as a
+  language to facilitate programming with theorem proving. Even with
+  an advanced constraint solver backed by any decision procedure,
+  there may be relations that it cannot handle. When we encounter
+  these, we can just fall back to using proofs to finish verifying
+  properties of our programs in which we are interested.
   
   The advantage of having a more advanced constraint solver in the
-  first place is that you need not express _all_ relations over
-  static high level datastructures like sequences using ATS proofs.
-  This creates a more convenient experience and allows us to utilize
-  the decision power offered by todays advanced tools in the Formal
+  first place is that you need not express _all_ relations over static
+  high level datastructures like sequences using ATS proofs. This
+  creates a more convenient experience and allows us to utilize the
+  decision power offered by todays advanced tools in the Formal
   methods community.
 *)
 absprop SORTED (xs:stmsq, n:int)
@@ -115,12 +109,6 @@ praxi
 SORTED_uncons
   {x:stamp}
   {xs:stmsq}{n:pos}
-  (pf: SORTED (cons(x, xs), n)): [x <= select(xs,0)] SORTED (xs, n-1)
-//
-extern
-praxi
-SORTED_uncons
-  {x:stamp}{xs:stmsq}{n:pos}
   (pf: SORTED (cons(x, xs), n)): [x <= select(xs,0)] SORTED (xs, n-1)
 //
 (* ****** ****** *)
