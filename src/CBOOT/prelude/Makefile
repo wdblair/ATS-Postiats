@@ -4,7 +4,7 @@
 
 ######
 
-CCOMP=gcc
+CCOMP=emcc -Wno-implicit-function-declaration
 
 ######
 
