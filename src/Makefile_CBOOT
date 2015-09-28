@@ -323,7 +323,7 @@ OBJECTSstadyn := $(OBJECTSsta) $(OBJECTSdyn)
 patsopt.js: \
   pats_main_dats.o $(OBJECTSstadyn) \
   prelude_libats.o libc_libats.o libats_libats.o $(gcats_o) ; \
-  $(CCOMP) --pre-js setup.js --preload-file ./pats-prelude@/pats/prelude \
+  $(CCOMP) --pre-js js/setup.js --preload-file ./pats-prelude@/pats/prelude \
   -s EXPORTED_FUNCTIONS='["_main"]' \
   -O2 -I. $(GCFLAG) -o $@ ccomp/runtime/ats_prelude.c $^ $(LDFLAGS) $(LIBGMP) $(LIBGC)
 #

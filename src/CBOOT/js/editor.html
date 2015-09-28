@@ -14,12 +14,13 @@
 <div id="editor"></div>
 <button onClick=typecheck()>Typecheck</button>
 <button onClick=compile()>Compile</button>
-<div id="loading" style="display:none">Loading...</div>
+<pre id="loading" style="display:none">Loading...</pre>
 <pre id="output">
 </pre>
 
 <script type="text/javascript">
 var output = document.getElementById('output');
+var loading = document.getElementById('loading');
 var sent;
 
 var patsopt_recv = function(worker, success) {
@@ -41,6 +42,7 @@ var patsopt_recv = function(worker, success) {
 							output.textContent += "patsopt failed";
 						}
 						console.log("Found status", status);
+						loading.style.display = 'none';
 						break;
 				};
 				break;
@@ -61,6 +63,7 @@ var editor = ace.edit("editor");
 
 var run_pats = function (action, success) {
 	sent = false;
+	loading.style.display = 'block';
 	output.textContent = "";
 	var patsopt = new Worker("patsopt.js");
 	patsopt.onmessage = patsopt_recv(patsopt, success);
