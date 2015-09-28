@@ -4,32 +4,85 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js"></script>
 	<style type="text/css" media="screen">
 	#editor {
-           position: relative;
-           height: 400px;
-           width: 600px;
-         }
-         </style>
+		position: relative;
+		height: 400px;
+		width: 600px;
+	}
+	</style>
 </head>
 <body>
 <div id="editor"></div>
+<button onClick=typecheck()>Typecheck</button>
+<button onClick=compile()>Compile</button>
+<div id="loading" style="display:none">Loading...</div>
 <pre id="output">
 </pre>
-<button onClick=typecheck()>Typecheck</button>
-	<script type="text/javascript">
-		 var patsopt = new Worker("patsopt.js");
-		 patsopt.onmessage = function (e) {
-		    console.log("Message from the Worker!");
-		    var response = e.data["data"];
-		    output.textContent += response + "\n";
-		};	
-		var editor = ace.edit("editor");
-		
-		var typecheck = function () {
-		  var output = document.getElementById('output');
-		  output.textContent = '';
-		  var sourcecode = editor.getSession().getValue();
-		  patsopt.postMessage({"action": "typecheck", "program": sourcecode});
+
+<script type="text/javascript">
+var output = document.getElementById('output');
+var sent;
+
+var patsopt_recv = function(worker, success) {
+	return function(e) {
+		var data = e.data;
+		console.log("Message from the Worker!");
+		switch(data.type) {
+			case "ctl":
+				switch(data.msg) {
+					case "running":
+						sent = true;
+						break;
+					case "exit":
+						worker.terminate();
+						var status = data.status;
+						if (status == 0) {
+							output.textContent += success;
+						} else {
+							output.textContent += "patsopt failed";
+						}
+						console.log("Found status", status);
+						break;
+				};
+				break;
+			/** 
+			If we are compiling, we would want to store stdout into a string so
+			we could pass it off to atscc2js later.
+			*/
+			case "stdout":
+			case "stderr":
+				var response = e.data.msg;
+				output.textContent += response + "\n";
+				break;
 		};
-	</script>
+	};
+};
+
+var editor = ace.edit("editor");
+
+var run_pats = function (action, success) {
+	sent = false;
+	output.textContent = "";
+	var patsopt = new Worker("patsopt.js");
+	patsopt.onmessage = patsopt_recv(patsopt, success);
+
+	var sourcecode = editor.getSession().getValue();
+	(function sendmsg() {
+		if(sent == true) {
+			return;
+		} else {
+			patsopt.postMessage({action: action, program: sourcecode});
+			setTimeout(sendmsg, 500);
+		}
+	})();
+};
+
+var compile = function (program) {
+	run_pats("compile");
+};
+
+var typecheck = function (program) {
+	run_pats("typecheck", "well-typed");
+};
+</script>
 </body>
 </html>

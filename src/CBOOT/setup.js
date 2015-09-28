@@ -1,19 +1,35 @@
 /** When we receive a message, kick off main */
 onmessage = function (e) {
   console.log("Message received from the main script.");
+  
+  if (runDependencies > 0) {
+    return;
+  } else {
+    postMessage({type: "ctl", msg: "running"});
+  }
   /** e.data holds the information */
-  var action = e.data["action"];
-  var program = e.data["program"];
+  var action = e.data.action;
+  var program = e.data.program;
   
   var srcpath = "/pats/file.dats";
   
   FS.writeFile(srcpath, program, {encoding:"utf8"});
   
-  console.log("Calling main function");
+  var args = [];
+  
+  switch(action) {
+  	case "typecheck":
+  		args.push("-tc");
+  		break;
+  };
+  args.push("-d");
+  args.push(srcpath);
+  
   preRun();
   preMain();
-  Module['callMain'](['-tc', '-d', srcpath]);
-  console.log("returned");
+  console.log("Calling main function");
+  Module['callMain'](args);
+  postMessage({type: "ctl", msg: "exit", status: EXITSTATUS});
 };
 
 if (typeof(Module) == "undefined") {
@@ -26,13 +42,13 @@ Module['preRun'].push(function () {
 });
 
 Module['print'] = function(text) {
-    postMessage({"type": "stdout",
-                             "data": text});
+    postMessage({type: "stdout",
+                             msg: text});
 };
 
 Module['printErr'] = function(text) {
-    postMessage({"type": "stderr",
-                             "data": text});
+    postMessage({type: "stderr",
+                             msg: text});
 };
 
 Module['noInitialRun'] = true;
