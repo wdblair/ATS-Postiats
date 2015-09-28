@@ -1,0 +1,35 @@
+<html>
+<head>
+	<title>Browser ATS</title>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.0/ace.min.js"></script>
+	<style type="text/css" media="screen">
+	#editor {
+           position: relative;
+           height: 400px;
+           width: 600px;
+         }
+         </style>
+</head>
+<body>
+<div id="editor"></div>
+<pre id="output">
+</pre>
+<button onClick=typecheck()>Typecheck</button>
+	<script type="text/javascript">
+		 var patsopt = new Worker("patsopt.js");
+		 patsopt.onmessage = function (e) {
+		    console.log("Message from the Worker!");
+		    var response = e.data["data"];
+		    output.textContent += response + "\n";
+		};	
+		var editor = ace.edit("editor");
+		
+		var typecheck = function () {
+		  var output = document.getElementById('output');
+		  output.textContent = '';
+		  var sourcecode = editor.getSession().getValue();
+		  patsopt.postMessage({"action": "typecheck", "program": sourcecode});
+		};
+	</script>
+</body>
+</html>

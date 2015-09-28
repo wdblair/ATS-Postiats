@@ -593,7 +593,8 @@ CBOOT:: ; $(CPF) pats_*.cats CBOOT
 CBOOT:: ; $(CPF) pats_*_sats.c CBOOT
 CBOOT:: ; $(CPF) pats_*_dats.c CBOOT
 CBOOT:: ; $(CPF) Makefile_CBOOT CBOOT/Makefile
-#
+CBOOT:: ; $(SYNC) ../prelude/ CBOOT/pats-prelude/
+#RS
 ######
 #
 CBOOTmin:: ; $(CPF) pats_*.hats CBOOT
@@ -1342,6 +1343,9 @@ DIR=.
 CPF=cp -f
 RMF=rm -f
 WCL=wc -l
+SYNC=rsync -a -L  --exclude "CODEGEN/" --include "*/"  --exclude "*_atxt.dats" \
+                                  --include "*.ats" --include "*.hats" --include "*.sats" --include "*.dats"\
+                                  --exclude "*" --prune-empty-dirs
 
 ######
 
